@@ -3,6 +3,8 @@
 > **Spesifikasi Teknis Data Model & API Contract**  
 > **Status:** Canonical Schema Specification v1.0
 
+> ⚠️ **Status Implementasi:** Schema di bawah belum diimplementasi di kode — ini kontrak yang disepakati sebelum development dimulai. Lihat ARCHITECTURE.md untuk konteks desain lengkap.
+
 ---
 
 ## 1. Canonical JSON Schema (`UmkmWebsiteConfig`)
@@ -130,6 +132,27 @@ Setiap website UMKM di UMKM Craft direpresentasikan dalam satu objek JSON terstr
 
 ---
 
+### 1.1 Escape Hatch: `rich_text_block`
+
+Untuk bisnis yang tidak persis cocok dengan 8 modul kurasi di atas (lihat ARCHITECTURE.md §6 — Batasan & Extensibility Strategy), tersedia satu modul serbaguna yang tetap deterministik dan aman — bukan raw HTML/JS injection:
+
+```json
+{
+  "id": "sec-custom-1",
+  "type": "rich_text_block",
+  "props": {
+    "section_title": "Tentang Bengkel Kami",
+    "body_markdown": "Kami sudah melayani servis motor sejak 2015. Spesialis motor matic dan bebek, dengan mekanik bersertifikat.",
+    "image_url": "/images/placeholders/workshop.jpg",
+    "image_position": "right"
+  }
+}
+```
+
+Modul ini merender heading + body (markdown terbatas: **bold**, *italic*, list) + satu gambar opsional — cukup fleksibel untuk narasi bebas tanpa membuka celah yang melanggar Prinsip #1 (Zero-Runtime-Error Guarantee). Spesifikasi visual komponennya menyusul di COMPONENTS.md.
+
+---
+
 ## 2. Zod Schema Validation Definition (TypeScript)
 
 ```typescript
@@ -157,7 +180,8 @@ export const SectionSchema = z.object({
     "social_proof_reviews",
     "channel_marketplace",
     "faq_accordion",
-    "contact_direct"
+    "contact_direct",
+    "rich_text_block"
   ]),
   props: z.record(z.any()),
 });
@@ -203,4 +227,5 @@ ATURAN WAJIB:
 3. Format nomor WhatsApp WAJIB dimulai dengan angka 62 (contoh: 6281234567890).
 4. Pilih palet warna yang sesuai dengan jenis bisnis (Kuliner: Warm Amber/Red, Barbershop: Dark Charcoal, Fashion: Pastel/Rose, Service: Blue/Emerald).
 5. Buatkan 3-5 produk sampel realistis jika user belum menyebutkan daftar lengkap.
+6. Jika kebutuhan bisnis tidak cocok dengan 8 modul inti (mis. cerita/profil bebas, penjelasan proses jasa), gunakan `rich_text_block` sebagai fallback alih-alih memaksakan ke modul yang tidak sesuai — jangan pernah keluarkan tipe section di luar enum yang terdaftar di schema.
 ```
