@@ -47,6 +47,7 @@
 
 ## 🏗️ Katalog Modul LEGO
 
+### 🧱 Modul Inti (Core Universal)
 | Modul | Fungsi Utama |
 |---|---|
 | 🏪 `hero_storefront` | Nama brand usaha, foto tempat/produk utama, tagline, dan badge legalitas (Halal, BPOM, P-IRT). |
@@ -57,6 +58,15 @@
 | 🛒 `channel_marketplace` | Hub tombol menuju toko Shopee, Tokopedia, GoFood, GrabFood, dan TikTok Shop. |
 | ❓ `faq_accordion` | Pertanyaan umum: cara pengiriman, ongkir, metode pembayaran, reseller. |
 | 📞 `contact_direct` | Alamat lengkap, nomor telepon, admin WhatsApp, dan form pesan langsung. |
+| 📝 `rich_text_block` | Modul narasi bebas (markdown + gambar) untuk profil/cerita usaha di luar modul kurasi. |
+
+### 🧩 Modul Opsional (Extended & On-Demand)
+| Modul | Target Bisnis & Fungsi |
+|---|---|
+| 🖼️ `gallery_grid` | Galeri portofolio visual & before-after (Barbershop, Salon, Bengkel, Kerajinan). |
+| 📋 `service_pricing_table` | Tabel pricelist paket layanan berjenjang (Laundry, Cuci Mobil, Service AC, Bimbel). |
+| 🛡️ `trust_badges_strip` | Strip logo metode bayar (QRIS/Bank), kurir ekspedisi (J&T/Paxel), & sertifikasi. |
+| 👣 `step_how_to_order` | Panduan langkah pemesanan bertahap untuk toko pre-order & kustom. |
 
 ---
 

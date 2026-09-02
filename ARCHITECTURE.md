@@ -89,29 +89,77 @@ Sistem mengajukan 3-4 pertanyaan panduan sederhana:
 ### Tahap 2: AI Transformation (`/api/ai/generate-json`)
 Prompt sistem menginstruksikan LLM untuk memetakan jawaban user ke dalam **JSON Schema UMKM Craft** yang divalidasi dengan `Zod`.
 
-### Tahap 3: Dynamic Component Mapping
-Frontend menerima payload JSON dan me-render komponen dari `COMPONENT_REGISTRY`:
+### Tahap 3: Dynamic Component Mapping & Registry
+Frontend menerima payload JSON dan me-render komponen dari `MODULE_REGISTRY` yang modular:
 
 ```typescript
 // src/engine/renderer.tsx
 import { HeroStorefront } from "@/components/modules/HeroStorefront";
 import { ProductCatalogWA } from "@/components/modules/ProductCatalogWA";
+import { PromoBanner } from "@/components/modules/PromoBanner";
 import { OperatingHoursMap } from "@/components/modules/OperatingHoursMap";
 import { SocialProofReviews } from "@/components/modules/SocialProofReviews";
 import { ChannelMarketplace } from "@/components/modules/ChannelMarketplace";
+import { FaqAccordion } from "@/components/modules/FaqAccordion";
+import { ContactDirect } from "@/components/modules/ContactDirect";
+import { RichTextBlock } from "@/components/modules/RichTextBlock";
+// Extended & Optional Modules
+import { GalleryGrid } from "@/components/modules/GalleryGrid";
+import { ServicePricingTable } from "@/components/modules/ServicePricingTable";
+import { TrustBadgesStrip } from "@/components/modules/TrustBadgesStrip";
+import { StepHowToOrder } from "@/components/modules/StepHowToOrder";
 
 export const MODULE_REGISTRY: Record<string, React.FC<any>> = {
+  // Core Universal
   hero_storefront: HeroStorefront,
   product_catalog_wa: ProductCatalogWA,
+  promo_banner: PromoBanner,
   operating_hours_map: OperatingHoursMap,
   social_proof_reviews: SocialProofReviews,
   channel_marketplace: ChannelMarketplace,
+  faq_accordion: FaqAccordion,
+  contact_direct: ContactDirect,
+  rich_text_block: RichTextBlock,
+  // Extended Optional
+  gallery_grid: GalleryGrid,
+  service_pricing_table: ServicePricingTable,
+  trust_badges_strip: TrustBadgesStrip,
+  step_how_to_order: StepHowToOrder,
 };
 ```
 
 ---
 
-## 4. Keamanan & Sanitasi Data
+## 4. Arsitektur Modul Bertingkat (Core vs Extended On-Demand)
+
+Untuk mencegah pembengkakan token AI (*prompt bloat*) sekaligus memberikan fleksibilitas tak terbatas bagi pengguna, arsitektur modul dibagi menjadi 2 layer:
+
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│                      UMKM CRAFT MODULE ECOSYSTEM                       │
+├────────────────────────────────────────────────────────────────────────┤
+│ 1. Core Universal Modules (Selalu aktif di AI Base Prompt & Default UI) │
+│    [Hero] [Katalog WA] [Jam Buka] [Reviews] [FAQ] [Kontak] [Rich Text] │
+├────────────────────────────────────────────────────────────────────────┤
+│ 2. Extended Optional Modules (On-Demand / Category-Injected)          │
+│    • Jasa / Service  ➔ [service_pricing_table]                          │
+│    • Visual / Salon  ➔ [gallery_grid]                                  │
+│    • Trust / Online  ➔ [trust_badges_strip]                             │
+│    • Edukasi Pesan   ➔ [step_how_to_order]                              │
+│                                                                        │
+│    Akses:                                                              │
+│    - AI: Disuntikkan kondisional via prompt slicing kategori bisnis    │
+│    - Manual: Ditambahkan kapan saja via tombol [+ Tambah Seksi] di UI  │
+└────────────────────────────────────────────────────────────────────────┘
+```
+
+### 🧠 Category-Based Prompt Injection (Hemat Token & Anti-Hallucination)
+1. **Intake Analysis:** Saat wawancara intake mendeteksi kata kunci kategori (misal: *"laundry kiloan"*, *"potong rambut"*), engine hanya menyuntikkan schema modul relevan ke prompt Gemini.
+2. **Efisiensi:** Token prompt tetap sangat kecil (~300-500 token) dibanding menyuntikkan seluruh katalog modul, menjaga biaya tetap `< $0.001` dan respon AI `< 2 detik`.
+
+---
+
+## 5. Keamanan & Sanitasi Data
 
 1. **XSS Prevention:** Semua teks dari AI dan input form di-escape secara ketat melalui standard JSX parser.
 2. **WhatsApp URL Encoding:** Generator URL chat WhatsApp memvalidasi nomor telepon Indonesia (format `628xxx`) dan melakukan `encodeURIComponent` pada pesan pesanan.
@@ -119,7 +167,7 @@ export const MODULE_REGISTRY: Record<string, React.FC<any>> = {
 
 ---
 
-## 5. Strategi Deployment Multi-Tenant
+## 6. Strategi Deployment Multi-Tenant
 
 * **Subdomain Otomatis:** `[nama-usaha].umkmcraft.id` atau `[nama-usaha].pajangin.id`.
 * **Custom Domain:** Dukungan CNAME record untuk domain pribadi (misal: `kedaikopikita.com`).
@@ -127,12 +175,12 @@ export const MODULE_REGISTRY: Record<string, React.FC<any>> = {
 
 ---
 
-## 6. Batasan Arsitektur & Strategi Extensibility
+## 7. Batasan Arsitektur & Strategi Extensibility
 
-**Trade-off yang disadari:** Pendekatan JSON-Modular menukar fleksibilitas tak terbatas milik Raw Code Gen dengan keandalan dan kecepatan. Konsekuensinya: bisnis dengan kebutuhan di luar 8 modul kurasi (mis. booking slot custom, kalkulator harga dinamis, galeri portofolio kompleks) tidak bisa dilayani penuh oleh sistem hari ini — dan tidak akan pernah selentur Paradigma A.
+**Trade-off yang disadari:** Pendekatan JSON-Modular menukar fleksibilitas tak terbatas milik Raw Code Gen dengan keandalan dan kecepatan. Konsekuensinya: bisnis dengan kebutuhan di luar katalog modul kurasi tidak bisa dilayani penuh oleh sistem hari ini — dan tidak akan pernah selentur Paradigma A.
 
 **Mitigasi bertahap, bukan janji "semua bisa":**
 
-1. **Jangka pendek (MVP):** modul serbaguna `rich_text_block` (lihat SPEC.md §1.1) sebagai *escape hatch* aman — AI bisa mengisi heading, paragraf terbatas, dan satu gambar tanpa keluar dari sandbox komponen, untuk kasus yang tidak persis cocok dengan 8 modul inti.
-2. **Jangka menengah:** modul kurasi baru ditambahkan berdasarkan data pola permintaan yang gagal dipetakan sempurna ke schema saat ini (di-log sebagai `fallback_reason` pada tahap intake).
+1. **Jangka pendek (MVP):** modul serbaguna `rich_text_block` (lihat SPEC.md §1.1) sebagai *escape hatch* aman — AI bisa mengisi heading, paragraf terbatas, dan satu gambar tanpa keluar dari sandbox komponen.
+2. **Jangka menengah:** penambahan modul kurasi baru bertingkat secara berkala (seperti `gallery_grid`, `service_pricing_table`) berdasarkan data log permintaan riil pemilik UMKM.
 3. **Bukan tujuan produk ini:** mendukung raw code/HTML/JS injection dari user. Itu bertentangan langsung dengan Prinsip #1 (Zero-Runtime-Error Guarantee). Extensibility harus selalu lewat modul terkurasi baru, bukan lewat membuka sandbox — kalau butuh fleksibilitas penuh, pengguna memang lebih cocok pakai Paradigma A (Rakit, v0, dsb).

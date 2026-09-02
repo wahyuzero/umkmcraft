@@ -20,7 +20,9 @@ Setiap jenis UMKM memiliki psikologi warna yang unik. UMKM Craft menyediakan pre
 
 ---
 
-## 2. Blueprint 8 Modul LEGO Utama
+---
+
+## 2. Blueprint Modul LEGO Inti (Core Universal)
 
 ### A. Modul `hero_storefront`
 * **Elemen:** Badge promo/keunggulan, Judul Usaha (H1), Tagline persuasif, Foto hero, Tombol CTA Pesan via WhatsApp, dan 3 pill badges (misal: *100% Halal, Ready Stock, Pengiriman Cepat*).
@@ -28,27 +30,56 @@ Setiap jenis UMKM memiliki psikologi warna yang unik. UMKM Craft menyediakan pre
 
 ### B. Modul `product_catalog_wa`
 * **Elemen:** Filter tab kategori (misal: *Semua / Makanan / Minuman / Paket Hemat*), kartu produk bento dengan harga coret (*original price*) dan badge *Best Seller*.
-* **Interaksi:** Setiap produk memiliki tombol `[ 🛒 Pesan via WA ]`. Saat diklik, tombol langsung mengenerate link WhatsApp:
-  ```
-  https://wa.me/6281234567890?text=Halo%20kak%2C%20saya%20tertarik%20pesan%20*Sambal%20Cumi%20Original*%20(Rp%2035.000).%20Apakah%20masih%20tersedia%3F
-  ```
+* **Interaksi:** Setiap produk memiliki tombol `[ 🛒 Pesan via WA ]`. Saat diklik, tombol langsung mengenerate link WhatsApp dengan prefilled text pesanan.
 
-### C. Modul `operating_hours_map`
+### C. Modul `promo_banner`
+* **Elemen:** Bar pengumuman eye-catching, kupon diskon dengan tombol copy kode 1-klik, dan timer hitung mundur jika ada flash sale.
+
+### D. Modul `operating_hours_map`
 * **Elemen:** Kartu info jam operasional dengan badge status otomatis:
   * 🟢 **Buka Sekarang** (jika waktu lokal sesuai jadwal).
   * 🔴 **Tutup — Buka Besok Jam 09.00**.
 * **Navigasi:** Tombol 1-klik menuju **Google Maps** dan **Waze** dengan rute langsung.
 
-### D. Modul `channel_marketplace`
+### E. Modul `social_proof_reviews`
+* **Elemen:** Ulasan tangkapan layar chat WhatsApp, rating bintang 5, dan testimoni pelanggan setia dengan avatar pembeli.
+
+### F. Modul `channel_marketplace`
 * **Elemen:** Grid tombol logo resmi marketplace (Shopee, Tokopedia, GoFood, GrabFood, TikTok Shop, Lazada).
 * **Fungsi:** Mengarahkan pembeli yang lebih nyaman bertransaksi via marketplace resmi.
 
-### E. Modul `social_proof_reviews`
-* **Elemen:** Ulasan tangkapan layar chat WhatsApp, rating bintang 5, dan testimoni pelanggan setia.
+### G. Modul `faq_accordion`
+* **Elemen:** Daftar pertanyaan umum yang dapat di-expand/collapse (animasi akordeon mulus).
+
+### H. Modul `contact_direct`
+* **Elemen:** Alamat lengkap, nomor telepon admin, tombol direct WA, dan embed peta ringkas.
+
+### I. Modul `rich_text_block` (Escape Hatch)
+* **Elemen:** Judul seksi, formatting markdown terbatas (bold/list/italic), dan gambar pendukung opsional dengan pilihan posisi (kiri/kanan/tengah).
 
 ---
 
-## 3. WhatsApp URL Builder Helper (TypeScript)
+## 3. Blueprint Modul Extended & Opsional (On-Demand)
+
+### J. Modul `gallery_grid`
+* **Target Bisnis:** Barbershop, MUA/Salon, Bengkel Modifikasi, Kerajinan Tangan, Kuliner Instagramable.
+* **Elemen:** Grid foto responsif (pilihan 2, 3, atau 4 kolom) dengan lightbox modal saat foto diklik untuk memperbesar gambar dan melihat caption hasil karya.
+
+### K. Modul `service_pricing_table`
+* **Target Bisnis:** Laundry, Cuci Kendaraan, Bimbel, Service Elektronik/AC.
+* **Elemen:** Kartu paket layanan berjenjang, badge *Paling Populer*, durasi pengerjaan, daftar fitur/benefit checklist, dan tombol `[ Pesan Paket Ini ]` via WhatsApp.
+
+### L. Modul `trust_badges_strip`
+* **Target Bisnis:** Toko online, produk herbal/makanan kemasan, pengiriman luar pulau.
+* **Elemen:** Strip horizontal elegan berisi logo-logo metode bayar (QRIS, BCA, BRI, COD), ekspedisi (JNE, J&T, SiCepat, Paxel), dan sertifikasi resmi (Halal MUI, BPOM, P-IRT).
+
+### M. Modul `step_how_to_order`
+* **Target Bisnis:** Toko pre-order, custom souvenir/seragam, jasa katering.
+* **Elemen:** Timeline infografis 3-4 langkah bertahap dengan nomor urut visual dan ilustrasi ringkas alur pemesanan.
+
+---
+
+## 4. WhatsApp URL Builder Helper (TypeScript)
 
 ```typescript
 // src/utils/whatsapp.ts

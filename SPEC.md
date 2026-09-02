@@ -134,7 +134,7 @@ Setiap website UMKM di UMKM Craft direpresentasikan dalam satu objek JSON terstr
 
 ### 1.1 Escape Hatch: `rich_text_block`
 
-Untuk bisnis yang tidak persis cocok dengan 8 modul kurasi di atas (lihat ARCHITECTURE.md §6 — Batasan & Extensibility Strategy), tersedia satu modul serbaguna yang tetap deterministik dan aman — bukan raw HTML/JS injection:
+Untuk bisnis yang tidak persis cocok dengan modul kurasi (lihat ARCHITECTURE.md §6 — Batasan & Extensibility Strategy), tersedia satu modul serbaguna yang tetap deterministik dan aman — bukan raw HTML/JS injection:
 
 ```json
 {
@@ -149,7 +149,93 @@ Untuk bisnis yang tidak persis cocok dengan 8 modul kurasi di atas (lihat ARCHIT
 }
 ```
 
-Modul ini merender heading + body (markdown terbatas: **bold**, *italic*, list) + satu gambar opsional — cukup fleksibel untuk narasi bebas tanpa membuka celah yang melanggar Prinsip #1 (Zero-Runtime-Error Guarantee). Spesifikasi visual komponennya menyusul di COMPONENTS.md.
+---
+
+### 1.2 Extended & Optional Modules (On-Demand / Kategori Spesifik)
+
+Modul-modul ini **bersifat opsional** — dipanggil secara kondisional oleh AI sesuai jenis bisnis atau ditambahkan manual oleh user via visual editor:
+
+#### A. `gallery_grid` (Portofolio Visual & Before-After)
+*Cocok untuk: Barbershop, Salon/MUA, Bengkel Modifikasi, Kerajinan Tangan, Interior.*
+```json
+{
+  "id": "sec-gallery-1",
+  "type": "gallery_grid",
+  "props": {
+    "section_title": "Galeri Hasil Potong & Grooming",
+    "section_subtitle": "Koleksi model rambut favorit pelanggan kami",
+    "layout": "grid_3_col",
+    "items": [
+      { "title": "Fade & Pompadour", "image_url": "/images/gallery/1.jpg", "caption": "Classic Clean Fade" },
+      { "title": "Comma Hair Style", "image_url": "/images/gallery/2.jpg", "caption": "Korean Texture Look" }
+    ]
+  }
+}
+```
+
+#### B. `service_pricing_table` (Tabel Paket Layanan Berjenjang)
+*Cocok untuk: Laundry Kiloan/Satuan, Cuci Sepatu/Mobil, Jasa Kursus/Bimbel, Service AC.*
+```json
+{
+  "id": "sec-services-1",
+  "type": "service_pricing_table",
+  "props": {
+    "section_title": "Daftar Paket Cuci & Setrika",
+    "tiers": [
+      {
+        "id": "tier-1",
+        "name": "Cuci Lipat Reguler",
+        "price": 6000,
+        "unit": "per kg",
+        "duration": "2 Hari Selesai",
+        "features": ["Deterjen Ramah Lingkungan", "Pewangi Premium", "Packing Rapi Plastik"],
+        "is_popular": false
+      },
+      {
+        "id": "tier-2",
+        "name": "Cuci Setrika Express",
+        "price": 12000,
+        "unit": "per kg",
+        "duration": "4 Jam Siap Ambil",
+        "features": ["Setrika Uap Anti-Kusut", "Antar Jemput Gratis (min. 5kg)", "Garansi Wangi 7 Hari"],
+        "is_popular": true
+      }
+    ]
+  }
+}
+```
+
+#### C. `trust_badges_strip` (Metode Bayar, Ekspedisi & Legalitas)
+*Cocok untuk: Semua UMKM Online & Pengiriman Luar Kota.*
+```json
+{
+  "id": "sec-trust-1",
+  "type": "trust_badges_strip",
+  "props": {
+    "section_title": "Metode Pembayaran & Pengiriman Terpercaya",
+    "payment_methods": ["qris", "bca", "mandiri", "bri", "cod"],
+    "shipping_couriers": ["jne", "jnt", "sicepat", "paxel", "gosend"],
+    "certifications": ["halal_mui", "bpom", "pirt"]
+  }
+}
+```
+
+#### D. `step_how_to_order` (Langkah Mudah Pemesanan)
+*Cocok untuk: Toko Custom Order, Pre-Order, Katering.*
+```json
+{
+  "id": "sec-steps-1",
+  "type": "step_how_to_order",
+  "props": {
+    "section_title": "Cara Mudah Pesan di Toko Kami",
+    "steps": [
+      { "step_number": 1, "title": "Pilih Produk / Menu", "description": "Tentukan produk dan varian yang ingin kamu pesan." },
+      { "step_number": 2, "title": "Klik Pesan via WA", "description": "Format pesanan otomatis terisi rapi di WhatsApp admin." },
+      { "step_number": 3, "title": "Konfirmasi & Kirim", "description": "Lakukan pembayaran atau pilih opsi COD, pesanan langsung kami proses!" }
+    ]
+  }
+}
+```
 
 ---
 
@@ -173,6 +259,7 @@ export const ProductSchema = z.object({
 export const SectionSchema = z.object({
   id: z.string(),
   type: z.enum([
+    // === Core Universal Modules ===
     "hero_storefront",
     "product_catalog_wa",
     "promo_banner",
@@ -181,7 +268,12 @@ export const SectionSchema = z.object({
     "channel_marketplace",
     "faq_accordion",
     "contact_direct",
-    "rich_text_block"
+    "rich_text_block",
+    // === Extended / Category Optional Modules ===
+    "gallery_grid",
+    "service_pricing_table",
+    "trust_badges_strip",
+    "step_how_to_order"
   ]),
   props: z.record(z.any()),
 });
@@ -227,5 +319,8 @@ ATURAN WAJIB:
 3. Format nomor WhatsApp WAJIB dimulai dengan angka 62 (contoh: 6281234567890).
 4. Pilih palet warna yang sesuai dengan jenis bisnis (Kuliner: Warm Amber/Red, Barbershop: Dark Charcoal, Fashion: Pastel/Rose, Service: Blue/Emerald).
 5. Buatkan 3-5 produk sampel realistis jika user belum menyebutkan daftar lengkap.
-6. Jika kebutuhan bisnis tidak cocok dengan 8 modul inti (mis. cerita/profil bebas, penjelasan proses jasa), gunakan `rich_text_block` sebagai fallback alih-alih memaksakan ke modul yang tidak sesuai — jangan pernah keluarkan tipe section di luar enum yang terdaftar di schema.
+6. Pemilihan Modul (Prinsip Efisiensi):
+   - Gunakan 4-6 modul inti yang paling relevan untuk struktur utama website.
+   - Panggil modul opsional (`gallery_grid`, `service_pricing_table`, `trust_badges_strip`, `step_how_to_order`) HANYA jika relevan dengan konteks bisnis user.
+   - Jika kebutuhan bisnis tidak cocok dengan modul terdaftar, gunakan `rich_text_block` sebagai fallback aman — jangan pernah membuat tipe section di luar enum schema.
 ```
