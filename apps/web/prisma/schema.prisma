@@ -1,0 +1,186 @@
+// UMKM Craft — kontrak database produksi (SYSTEM_DESIGN §4, Prisma 7).
+// MVP berjalan dengan file-backed store (src/lib/server/store.ts) yang
+// mengimplementasikan interface 1:1 — swap ke Prisma menyentuh store.ts saja.
+//
+// Prisma 7: generator "prisma-client" (rust-free), output WAJIB,
+// URL database pindah ke prisma.config.ts (lihat prisma.config.example.ts).
+
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+enum Plan {
+  FREE
+  PRO
+}
+
+enum SiteStatus {
+  DRAFT
+  PUBLISHED
+  SUSPENDED
+  DELETED
+}
+
+enum VersionStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum ChangeSource {
+  AI_GENERATION
+  MANUAL
+  AI_EDIT
+}
+
+enum AiKind {
+  INTAKE
+  GENERATE
+  EDIT
+  POLISH
+  MODERATE
+}
+
+enum AiStatus {
+  OK
+  VALIDATION_RETRY
+  FAILED
+}
+
+enum EventType {
+  PAGEVIEW
+  WA_CLICK
+  WA_PRODUCT_CLICK
+  OUTBOUND
+}
+
+enum ReportReason {
+  PHISHING
+  IMPERSONATION
+  SCAM
+  ILLEGAL
+  OTHER
+}
+
+enum ReportStatus {
+  OPEN
+  REVIEWING
+  ACTIONED
+  DISMISSED
+}
+
+enum DomainStatus {
+  PENDING
+  VERIFIED
+  ACTIVE
+  FAILED
+}
+
+model User {
+  id        String        @id @default(cuid())
+  email     String        @unique
+  name      String?
+  image     String?
+  plan      Plan          @default(FREE)
+  createdAt DateTime      @default(now())
+  sites     Site[]
+  aiUsage   AiUsage[]
+}
+
+model Site {
+  id                 String       @id @default(cuid())
+  ownerId            String
+  owner              User         @relation(fields: [ownerId], references: [id])
+  slug               String       @unique
+  businessCategory   String
+  status             SiteStatus   @default(DRAFT)
+  publishedVersionId String?      @unique
+  publishedVersion   SiteVersion? @relation("PublishedVersion", fields: [publishedVersionId], references: [id])
+  versions           SiteVersion[] @relation("SiteVersions")
+  domains            Domain[]
+  events             AnalyticsEvent[]
+  aiUsage            AiUsage[]
+  reportCount        Int          @default(0)
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+
+  @@index([ownerId, status])
+}
+
+model SiteVersion {
+  id            String        @id @default(cuid())
+  siteId        String
+  site          Site          @relation("SiteVersions", fields: [siteId], references: [id])
+  versionNumber Int
+  configVersion Int           @default(1)
+  configJson    Json
+  status        VersionStatus @default(DRAFT)
+  changeSource  ChangeSource  @default(MANUAL)
+  publishedAt   DateTime?
+  createdAt     DateTime      @default(now())
+
+  @@unique([siteId, versionNumber])
+  @@index([siteId, status])
+}
+
+model Domain {
+  id         String       @id @default(cuid())
+  siteId     String
+  site       Site         @relation(fields: [siteId], references: [id])
+  hostname   String       @unique
+  status     DomainStatus @default(PENDING)
+  verifiedAt DateTime?
+
+  @@index([siteId])
+}
+
+model AiUsage {
+  id           String    @id @default(cuid())
+  userId       String
+  user         User      @relation(fields: [userId], references: [id])
+  siteId       String?
+  site         Site?     @relation(fields: [siteId], references: [id])
+  kind         AiKind
+  model        String
+  inputTokens  Int
+  outputTokens Int
+  cachedTokens Int       @default(0)
+  costUsdMicro Int
+  latencyMs    Int
+  status       AiStatus
+  createdAt    DateTime  @default(now())
+
+  @@index([userId, createdAt])
+  @@index([siteId])
+}
+
+model AnalyticsEvent {
+  id        BigInt    @id @default(autoincrement())
+  siteId    String
+  site      Site      @relation(fields: [siteId], references: [id])
+  type      EventType
+  productId String?
+  path      String?
+  ref       String?
+  country   String?
+  device    String?
+  ts        DateTime  @default(now())
+
+  @@index([siteId, type, ts])
+}
+
+model AbuseReport {
+  id        String       @id @default(cuid())
+  siteId    String
+  reason    ReportReason
+  detail    String?
+  status    ReportStatus @default(OPEN)
+  createdAt DateTime     @default(now())
+
+  @@index([status, createdAt])
+}

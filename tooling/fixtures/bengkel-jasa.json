@@ -1,0 +1,133 @@
+{
+  "meta": {
+    "site_id": "bengkeljaya-motor",
+    "business_name": "Bengkel Jaya Motor",
+    "business_category": "bengkel",
+    "tagline": "Servis jujur, motor balik prima",
+    "schema_version": 1,
+    "theme": {
+      "preset": "electric_blue",
+      "primary_color": "#2563eb",
+      "secondary_color": "#1e40af",
+      "background_color": "#f0f9ff",
+      "font_heading": "Plus Jakarta Sans",
+      "font_body": "Plus Jakarta Sans"
+    },
+    "whatsapp_number": "6281199887766",
+    "seo": {
+      "title": "Bengkel Jaya Motor — Servis Motor Tangerang",
+      "description": "Bengkel motor spesialis matic di Tangerang. Servis berkala, tuning, hingga kelistrikan dengan mekanik bersertifikat.",
+      "keywords": ["bengkel motor tangerang", "servis motor matic"]
+    }
+  },
+  "sections": [
+    {
+      "id": "sec-hero-1",
+      "type": "hero_storefront",
+      "props": {
+        "badge": "Mekanik bersertifikat Daihatsu-AHM",
+        "title": "Bengkel Jaya Motor",
+        "subtitle": "Spesialis servis motor matic dan bebek sejak 2015. Diagnosis gratis, harga jujur sebelum dikerjakan.",
+        "image_url": "",
+        "cta_primary": { "label": "Booking Servis", "action": "whatsapp_direct", "prefill_message": "Halo Bengkel Jaya, saya mau booking servis motor.", "url": "" },
+        "badges": ["Diagnosis Gratis", "Sparepart Original", "Garansi Pengerjaan"]
+      }
+    },
+    {
+      "id": "sec-about-1",
+      "type": "rich_text_block",
+      "props": {
+        "section_title": "Tentang Bengkel Kami",
+        "body_markdown": "Kami sudah melayani servis motor sejak **2015**. Spesialis motor matic dan bebek, dengan mekanik bersertifikat.\n\n- Diagnosis masalah **gratis**, ditawari dulu sebelum dikerjakan\n- Hanya pakai sparepart original atau premium aftermarket\n- Garansi pengerjaan 7 hari untuk semua jenis servis\n\nRuang tunggu nyaman ada wifi dan coffee corner, jadi nunggu motor selesai tidak bikin bosan.",
+        "image_url": "",
+        "image_position": "right"
+      }
+    },
+    {
+      "id": "sec-services-1",
+      "type": "service_pricing_table",
+      "props": {
+        "section_title": "Paket Servis",
+        "tiers": [
+          {
+            "id": "tier-1",
+            "name": "Servis Berkala",
+            "price": 85000,
+            "unit": "per servis",
+            "duration": "±45 menit",
+            "features": ["Ganti oli mesin", "Cek 18 titik", "Tune-up karburator/injeksi"],
+            "is_popular": true,
+            "cta_label": "Booking Servis"
+          },
+          {
+            "id": "tier-2",
+            "name": "Servis Besar",
+            "price": 250000,
+            "unit": "paket mulai",
+            "duration": "1 hari",
+            "features": ["Ganti oli + filter", "Bersih injeksi/throttle", "Cek kelistrikan lengkap"],
+            "is_popular": false,
+            "cta_label": "Konsultasi Dulu"
+          }
+        ]
+      }
+    },
+    {
+      "id": "sec-reviews-1",
+      "type": "social_proof_reviews",
+      "props": {
+        "section_title": "Kata Pelanggan",
+        "is_sample": true,
+        "reviews": [
+          {
+            "name": "Pak Hendra",
+            "rating": 5,
+            "text": "Motor saya keseleo di jalan malam, ditolong langsung. Mekaniknya jelasin kerusakan dan harganya sebelum ngapa-ngapain. Recommended.",
+            "source": "whatsapp",
+            "avatar_url": "",
+            "date": "2026-08-14"
+          },
+          {
+            "name": "Rina",
+            "rating": 5,
+            "text": "Servis berkala langganan di sini hampir 2 tahun. Tidak pernah dibohongin soal sparepart.",
+            "source": "google",
+            "avatar_url": "",
+            "date": "2026-09-01"
+          }
+        ]
+      }
+    },
+    {
+      "id": "sec-hours-1",
+      "type": "operating_hours_map",
+      "props": {
+        "section_title": "Lokasi & Jam Buka",
+        "address": "Jl. Merdeka No. 123, Tangerang Selatan, Banten",
+        "gmaps_url": "https://maps.google.com/?q=Tangerang+Selatan",
+        "schedule": [{ "day": "Senin - Sabtu", "hours": "08:00 - 17:00 WIB" }, { "day": "Minggu", "hours": "Tutup" }],
+        "open_hours": [
+          { "day_of_week": 1, "open": "08:00", "close": "17:00" },
+          { "day_of_week": 2, "open": "08:00", "close": "17:00" },
+          { "day_of_week": 3, "open": "08:00", "close": "17:00" },
+          { "day_of_week": 4, "open": "08:00", "close": "17:00" },
+          { "day_of_week": 5, "open": "08:00", "close": "17:00" },
+          { "day_of_week": 6, "open": "08:00", "close": "17:00" }
+        ],
+        "delivery_note": "Layanan darurat derek dalam kota tersedia."
+      }
+    },
+    {
+      "id": "sec-steps-1",
+      "type": "step_how_to_order",
+      "props": {
+        "section_title": "Cara Booking Servis",
+        "steps": [
+          { "step_number": 1, "title": "Chat Keluhan", "description": "Ceritakan keluhan motor Anda via WhatsApp." },
+          { "step_number": 2, "title": "Jadwalkan", "description": "Pilih tanggal dan jam kedatangan yang cocok." },
+          { "step_number": 3, "title": "Motor Dikerjakan", "description": "Diagnosis + penawaran harga transparan sebelum servis." }
+        ]
+      }
+    }
+  ]
+}

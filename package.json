@@ -1,0 +1,35 @@
+{
+  "name": "umkmcraft",
+  "version": "1.0.0",
+  "private": true,
+  "description": "UMKM Craft — Fast, Token-Efficient Modular JSON & AI Website Engine for Indonesian MSMEs",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "dev": "pnpm --filter @umkmcraft/web dev",
+    "build": "pnpm -r --filter @umkmcraft/web... build",
+    "start": "pnpm --filter @umkmcraft/web start",
+    "test": "vitest run",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "pnpm --filter @umkmcraft/web lint"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "fast-check": "^3.22.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "typescript": "^5.6.0",
+    "vitest": "^5.0.0"
+  },
+  "packageManager": "pnpm@11.24.0",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "@tailwindcss/oxide",
+      "sharp",
+      "unrs-resolver"
+    ]
+  }
+}

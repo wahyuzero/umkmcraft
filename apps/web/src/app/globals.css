@@ -1,0 +1,138 @@
+@import "tailwindcss";
+/* Renderer global styles (uc-site, faq, pulse) — wajib sebelum aturan lain */
+@import "../../../../packages/renderer/src/theme/theme.css";
+
+/*
+ * UMKM CRAFT — DIRECTION CONTRACT (seed ccf404e6, mode operate)
+ * THESIS: builder = meja sablon label UMKM — daftar section adalah lembar
+ *   stiker die-cut, preview HP adalah kemasan yang diberi label. Menolak
+ *   dashboard SaaS generik.
+ * OWN-WORLD: kertas hangat (paper #f6f1e7, card #fffdf8), tinta pekat
+ *   (#231c10), SATU sinyal amber (#9a3412) sebagai state aktif; cutline
+ *   putus-putus seperti mata pisau die-cut; badge starburst untuk modul
+ *   extended; grid lock 4px.
+ * STORY: pemilik UMKM merakit kemasan digitalnya sendiri — menempel,
+ *   menggeser, mengganti label warna — lalu "menyegel" (publish).
+ * FIRST VIEWPORT: header rak alat (nama usaha + tombol Publish amber di
+ *   kanan); kiri lembar stiker section; tengah kemasan HP dengan penguasa
+ *   kalibrasi; kanan inspector label.
+ * FORM: kandidat #6 daftar grounded (lembar stiker & label press);
+ *   seed key ccf404e6. RAISES: cracktro → 1 sinyal amber + depth-as-state;
+ *   oscilloscope → penguasa kalibrasi berlabel px; gameboy → lock grid 4px;
+ *   cyclorama → state paling terang disimpan untuk mode live.
+ * FINISH: unreviewed and undocumented is unfinished; this build ends with
+ *   the finish review, the verdict, DESIGN.md, and every shipping raster
+ *   carrying its provenance.
+ */
+
+@theme {
+  /* Lembar kerja (builder) — world: label press */
+  --color-paper: #f6f1e7;
+  --color-paper-deep: #ebe2cf;
+  --color-card: #fffdf8;
+  --color-ink: #231c10;
+  --color-ink-soft: #6b6250;
+  --color-signal: #9a3412;
+  --color-signal-soft: #f3ddce;
+  --color-cutline: #d8cdb4;
+  --color-live: #1a7f4b;
+
+  --font-display: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+  --font-ui: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  --shadow-plate: 0 1px 2px rgb(35 28 16 / 0.06), 0 8px 24px -12px rgb(35 28 16 / 0.18);
+  --shadow-kemasan: 0 24px 60px -24px rgb(35 28 16 / 0.45), 0 4px 14px -6px rgb(35 28 16 / 0.22);
+}
+
+@source "../../../../packages/renderer/src";
+
+/* Sumber font builder (next/font memuat var --font-*; fallback aman) */
+:root {
+  --font-bricolage: "Bricolage Grotesque";
+  --font-inter: "Inter";
+  --font-jakarta: "Plus Jakarta Sans";
+  --font-poppins: "Poppins";
+  --font-dm-sans: "DM Sans";
+}
+
+html {
+  scrollbar-gutter: stable;
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-ui);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: color-mix(in oklab, var(--color-signal) 22%, transparent);
+}
+
+/* Scrollbar bertema (craft floor: bagian browser ikut didesain) */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-cutline) transparent;
+}
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--color-cutline);
+  border-radius: 8px;
+  border: 2px solid var(--color-paper);
+}
+
+/* Penguasa kalibrasi (raise: oscilloscope) — garis ukur atas preview */
+.uc-ruler {
+  background-image: repeating-linear-gradient(
+    to right,
+    var(--color-cutline) 0,
+    var(--color-cutline) 1px,
+    transparent 1px,
+    transparent 8px
+  );
+  background-size: 100% 5px;
+  background-repeat: no-repeat;
+}
+
+/* Cutline die-cut */
+.uc-cutline {
+  border: 1.5px dashed var(--color-cutline);
+}
+.uc-cutline-active {
+  border-color: var(--color-signal);
+}
+
+/* Starburst badge modul extended — geometri SVG murni via clip-path */
+.uc-starburst {
+  clip-path: polygon(
+    50% 0%, 61% 12%, 75% 6%, 79% 21%, 94% 22%, 90% 36%, 100% 45%,
+    90% 55%, 94% 69%, 79% 71%, 75% 86%, 61% 80%, 50% 92%, 39% 80%,
+    25% 86%, 21% 71%, 6% 69%, 10% 55%, 0% 45%, 10% 36%, 6% 22%,
+    21% 21%, 25% 6%, 39% 12%
+  );
+}
+
+/* Motion: satu momen orkestrasi — stiker "menempel" saat ditambahkan */
+@media (prefers-reduced-motion: no-preference) {
+  .uc-stick-in {
+    animation: uc-stick-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  @keyframes uc-stick-in {
+    from {
+      opacity: 0;
+      transform: translateY(6px) scale(0.97);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+  .uc-live-glow {
+    transition: box-shadow 0.3s ease-out, outline-color 0.3s ease-out;
+  }
+}

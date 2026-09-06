@@ -1,0 +1,92 @@
+/* Renderer global styles — dimuat oleh app shell.
+   Semua warna mengalir lewat CSS vars dari themeStyle(meta). */
+
+.uc-site {
+  background: var(--uc-bg);
+  color: var(--uc-ink);
+  font-family: var(--uc-font-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.uc-site ::selection {
+  background: color-mix(in oklab, var(--uc-primary) 30%, transparent);
+}
+
+.uc-site :focus-visible {
+  outline: 3px solid var(--uc-primary);
+  outline-offset: 2px;
+}
+
+/* FAQ akordeon murni CSS — zero-JS */
+.uc-faq details summary::-webkit-details-marker {
+  display: none;
+}
+
+@keyframes uc-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.55; transform: scale(0.82); }
+}
+
+.uc-pulse-dot {
+  animation: uc-pulse 1.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .uc-pulse-dot {
+    animation: none;
+  }
+  .uc-site *,
+  .uc-site *::before,
+  .uc-site *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* Markdown list markers (RichTextBlock) — RSC-safe, CSS murni */
+.uc-md-ul {
+  list-style: none;
+  padding-left: 0;
+}
+.uc-md-ul > .uc-md-li {
+  position: relative;
+  padding-left: 1.15rem;
+}
+.uc-md-ul > .uc-md-li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.62em;
+  width: 0.42rem;
+  height: 0.42rem;
+  border-radius: 9999px;
+  background: var(--uc-primary);
+}
+.uc-md-ol {
+  list-style: none;
+  counter-reset: uc-md-counter;
+  padding-left: 0;
+}
+.uc-md-ol > .uc-md-li {
+  position: relative;
+  counter-increment: uc-md-counter;
+  padding-left: 2rem;
+}
+.uc-md-ol > .uc-md-li::before {
+  content: counter(uc-md-counter);
+  position: absolute;
+  left: 0;
+  top: 0.1em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 9999px;
+  background: color-mix(in oklab, var(--uc-primary) 12%, transparent);
+  color: var(--uc-primary);
+  font-size: 0.72rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}

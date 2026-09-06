@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "plugins": [{ "name": "next" }],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@umkmcraft/schema": ["../../packages/schema/src/index.ts"],
+      "@umkmcraft/schema/presets": ["../../packages/schema/src/v1/presets.ts"],
+      "@umkmcraft/utils": ["../../packages/utils/src/index.ts"],
+      "@umkmcraft/ai": ["../../packages/ai/src/index.ts"],
+      "@umkmcraft/renderer": ["../../packages/renderer/src/index.ts"]
+    }
+  },
+  "include": ["next-env.d.ts", "src/**/*.ts", "src/**/*.tsx", "*.ts", "*.mts", "../../tooling/**/*.d.ts"],
+  "exclude": ["node_modules"]
+}

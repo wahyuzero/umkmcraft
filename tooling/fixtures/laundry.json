@@ -1,0 +1,114 @@
+{
+  "meta": {
+    "site_id": "laundrykilatmelati",
+    "business_name": "Laundry Kilat Melati",
+    "business_category": "laundry",
+    "tagline": "Bersih wangi, diambil hari ini juga",
+    "schema_version": 1,
+    "theme": {
+      "preset": "fresh_emerald",
+      "primary_color": "#059669",
+      "secondary_color": "#047857",
+      "background_color": "#f0fdf4",
+      "font_heading": "Plus Jakarta Sans",
+      "font_body": "Plus Jakarta Sans"
+    },
+    "whatsapp_number": "6285678901234",
+    "seo": {
+      "title": "Laundry Kilat Melati — Laundry Kiloan Depok",
+      "description": "Laundry kiloan antar jemput gratis di Depok. Express 4 jam selesai, garansi wangi 7 hari.",
+      "keywords": ["laundry depok", "laundry kiloan", "laundry antar jemput"]
+    }
+  },
+  "sections": [
+    {
+      "id": "sec-hero-1",
+      "type": "hero_storefront",
+      "props": {
+        "badge": "Antar jemput gratis area Depok",
+        "title": "Laundry Kilat Melati",
+        "subtitle": "Cucian kiloan selesai cepat dengan pewangi premium. Cukup chat, kurir kami yang jemput.",
+        "image_url": "",
+        "cta_primary": { "label": "Jemput Cucian Saya", "action": "whatsapp_direct", "prefill_message": "Halo Laundry Kilat Melati, saya mau jadwalkan penjemputan cucian.", "url": "" },
+        "badges": ["Express 4 Jam", "Gratis Antar Jemput", "Garansi Wangi"]
+      }
+    },
+    {
+      "id": "sec-services-1",
+      "type": "service_pricing_table",
+      "props": {
+        "section_title": "Daftar Paket Cuci & Setrika",
+        "section_subtitle": "Pilih paket sesuai kebutuhan, harga per kilo",
+        "tiers": [
+          {
+            "id": "tier-1",
+            "name": "Cuci Lipat Reguler",
+            "price": 6000,
+            "unit": "per kg",
+            "duration": "2 Hari Selesai",
+            "features": ["Deterjen ramah lingkungan", "Pewangi premium", "Packing rapi plastik"],
+            "is_popular": false,
+            "cta_label": "Pesan Reguler"
+          },
+          {
+            "id": "tier-2",
+            "name": "Cuci Setrika Express",
+            "price": 12000,
+            "unit": "per kg",
+            "duration": "4 Jam Siap Ambil",
+            "features": ["Setrika uap anti-kusut", "Antar jemput gratis (min. 5kg)", "Garansi wangi 7 hari"],
+            "is_popular": true,
+            "cta_label": "Pesan Express"
+          }
+        ]
+      }
+    },
+    {
+      "id": "sec-steps-1",
+      "type": "step_how_to_order",
+      "props": {
+        "section_title": "Cara Mudah Laundry di Tempat Kami",
+        "steps": [
+          { "step_number": 1, "title": "Chat Admin", "description": "Klik tombol WhatsApp dan tentukan jadwal penjemputan." },
+          { "step_number": 2, "title": "Kurir Menjemput", "description": "Cucian ditimbang di depan Anda, nota digital langsung dikirim." },
+          { "step_number": 3, "title": "Kami Kerjakan", "description": "Cucian dicuci, dikeringkan, dan dilipat oleh tim kami." },
+          { "step_number": 4, "title": "Antar Kembali", "description": "Cucian wangi dan rapi dikembalikan ke alamat Anda." }
+        ]
+      }
+    },
+    {
+      "id": "sec-hours-1",
+      "type": "operating_hours_map",
+      "props": {
+        "section_title": "Lokasi & Jam Operasional",
+        "address": "Jl. Margonda Raya No. 88, Depok, Jawa Barat",
+        "gmaps_url": "https://maps.google.com/?q=Jl.+Margonda+88+Depok",
+        "schedule": [{ "day": "Senin - Sabtu", "hours": "07:00 - 21:00 WIB" }, { "day": "Minggu", "hours": "08:00 - 15:00 WIB" }],
+        "open_hours": [
+          { "day_of_week": 1, "open": "07:00", "close": "21:00" },
+          { "day_of_week": 2, "open": "07:00", "close": "21:00" },
+          { "day_of_week": 3, "open": "07:00", "close": "21:00" },
+          { "day_of_week": 4, "open": "07:00", "close": "21:00" },
+          { "day_of_week": 5, "open": "07:00", "close": "21:00" },
+          { "day_of_week": 6, "open": "07:00", "close": "21:00" },
+          { "day_of_week": 0, "open": "08:00", "close": "15:00" }
+        ],
+        "delivery_note": "Antar jemput gratis min. 3 kg area Depok."
+      }
+    },
+    {
+      "id": "sec-contact-1",
+      "type": "contact_direct",
+      "props": {
+        "section_title": "Hubungi Kami",
+        "address": "Jl. Margonda Raya No. 88, Depok, Jawa Barat",
+        "phone": "085678901234",
+        "whatsapp_number": "6285678901234",
+        "whatsapp_label": "Chat Admin Laundry",
+        "email": "hello@laundrykilatmelati.id",
+        "gmaps_url": "https://maps.google.com/?q=Jl.+Margonda+88+Depok",
+        "prefill_message": "Halo, saya mau tanya-tanya paket laundry."
+      }
+    }
+  ]
+}

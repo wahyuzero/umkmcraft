@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@umkmcraft/schema": ["../schema/src/index.ts"],
+      "@umkmcraft/utils": ["../utils/src/index.ts"]
+    }
+  },
+  "include": ["src"]
+}

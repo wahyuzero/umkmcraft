@@ -1,0 +1,21 @@
+{
+  "name": "@umkmcraft/schema",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./presets": "./src/v1/presets.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.0",
+    "vitest": "^5.0.0"
+  }
+}

@@ -1,0 +1,158 @@
+{
+  "meta": {
+    "site_id": "sambal-cumi-juara",
+    "business_name": "Sambal Cumi Asap Juara",
+    "business_category": "kuliner",
+    "tagline": "Pedas Gurih Bikin Nagih, 100% Cumi Segar Pilihan",
+    "schema_version": 1,
+    "theme": {
+      "preset": "spicy_amber",
+      "primary_color": "#d97706",
+      "secondary_color": "#991b1b",
+      "background_color": "#fffbeb",
+      "font_heading": "Plus Jakarta Sans",
+      "font_body": "Plus Jakarta Sans"
+    },
+    "whatsapp_number": "6281234567890",
+    "seo": {
+      "title": "Sambal Cumi Asap Juara — Pesan Online Bandung",
+      "description": "Sambal cumi asap khas Bandung siap santap. Halal, tanpa pengawet, kirim ke seluruh Indonesia.",
+      "keywords": ["sambal cumi", "kuliner bandung", "makanan pedas"]
+    }
+  },
+  "sections": [
+    {
+      "id": "sec-hero-1",
+      "type": "hero_storefront",
+      "props": {
+        "badge": "Best Seller Kuliner Bandung",
+        "title": "Sambal Cumi Asap Juara",
+        "subtitle": "Aroma asap autentik dengan potongan cumi melimpah di setiap sendok. Dibuat harian tanpa pengawet.",
+        "image_url": "",
+        "image_position": "right",
+        "cta_primary": {
+          "label": "Pesan via WhatsApp",
+          "action": "whatsapp_direct",
+          "prefill_message": "Halo kak, saya mau pesan Sambal Cumi Asap Juara!",
+          "url": ""
+        },
+        "cta_secondary": { "label": "Lihat Menu", "action": "scroll_catalog", "url": "" },
+        "badges": ["100% Halal", "Tanpa Pengawet", "Kemasan Higienis"]
+      }
+    },
+    {
+      "id": "sec-promo-1",
+      "type": "promo_banner",
+      "props": {
+        "message": "Gratis ongkir area Bandung untuk pembelian 3 jar ke atas!",
+        "discount_text": "Hemat 15rb",
+        "coupon_code": "JUARA15"
+      }
+    },
+    {
+      "id": "sec-catalog-1",
+      "type": "product_catalog_wa",
+      "props": {
+        "section_title": "Pilihan Menu Favorit",
+        "section_subtitle": "Pilih varian rasa favoritmu, klik langsung terhubung ke WhatsApp",
+        "categories": ["Semua", "Sambal", "Paket Hemat"],
+        "products": [
+          {
+            "id": "prod-1",
+            "name": "Sambal Cumi Asap Original 150g",
+            "price": 35000,
+            "original_price": 45000,
+            "category": "Sambal",
+            "description": "Pedas sedang dengan aroma asap menggoda dan cumi empuk.",
+            "image_url": "",
+            "is_bestseller": true
+          },
+          {
+            "id": "prod-2",
+            "name": "Sambal Cumi Ekstra Pedas 150g",
+            "price": 38000,
+            "original_price": 48000,
+            "category": "Sambal",
+            "description": "Khusus pencinta pedas level nendang!",
+            "image_url": "",
+            "is_bestseller": false
+          },
+          {
+            "id": "prod-3",
+            "name": "Paket Hemat 3 Jar Campur",
+            "price": 99000,
+            "original_price": 123000,
+            "category": "Paket Hemat",
+            "description": "Bebas pilih 3 varian, paling cocok buat stok sebulan.",
+            "image_url": "",
+            "is_bestseller": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "sec-hours-1",
+      "type": "operating_hours_map",
+      "props": {
+        "section_title": "Lokasi & Jam Buka",
+        "address": "Jl. Cihampelas No. 120, Bandung, Jawa Barat",
+        "gmaps_url": "https://maps.google.com/?q=Jl.+Cihampelas+120+Bandung",
+        "waze_url": "https://waze.com/ul?q=Jl.%20Cihampelas%20120%20Bandung",
+        "schedule": [
+          { "day": "Senin - Jumat", "hours": "09:00 - 21:00 WIB" },
+          { "day": "Sabtu - Minggu", "hours": "09:00 - 22:00 WIB" }
+        ],
+        "open_hours": [
+          { "day_of_week": 1, "open": "09:00", "close": "21:00" },
+          { "day_of_week": 2, "open": "09:00", "close": "21:00" },
+          { "day_of_week": 3, "open": "09:00", "close": "21:00" },
+          { "day_of_week": 4, "open": "09:00", "close": "21:00" },
+          { "day_of_week": 5, "open": "09:00", "close": "21:00" },
+          { "day_of_week": 6, "open": "09:00", "close": "22:00" },
+          { "day_of_week": 0, "open": "09:00", "close": "22:00" }
+        ],
+        "delivery_note": "Melayani pengiriman Sameday & Paxel ke luar kota."
+      }
+    },
+    {
+      "id": "sec-channels-1",
+      "type": "channel_marketplace",
+      "props": {
+        "section_title": "Temukan Kami di Marketplace",
+        "channels": [
+          { "platform": "shopee", "label": "Shopee Official", "url": "https://shopee.co.id" },
+          { "platform": "tokopedia", "label": "Tokopedia Store", "url": "https://tokopedia.com" },
+          { "platform": "gofood", "label": "GoFood Super Partner", "url": "https://gofood.link" },
+          { "platform": "grabfood", "label": "GrabFood Merchant", "url": "https://grab.com" }
+        ]
+      }
+    },
+    {
+      "id": "sec-faq-1",
+      "type": "faq_accordion",
+      "props": {
+        "section_title": "Pertanyaan yang Sering Diajukan",
+        "items": [
+          {
+            "q": "Berapa lama ketahanan sambal ini?",
+            "a": "Tahan 1 bulan di suhu ruang (segel) dan hingga 3 bulan di dalam freezer."
+          },
+          {
+            "q": "Apakah bisa kirim ke luar pulau Jawa?",
+            "a": "Bisa! Kami menggunakan kemasan vacuum kedap udara sehingga aman dikirim ke seluruh Indonesia."
+          }
+        ]
+      }
+    },
+    {
+      "id": "sec-trust-1",
+      "type": "trust_badges_strip",
+      "props": {
+        "section_title": "Metode Pembayaran & Pengiriman Terpercaya",
+        "payment_methods": ["qris", "bca", "cod"],
+        "shipping_couriers": ["jne", "jnt", "paxel"],
+        "certifications": ["halal_mui", "pirt"]
+      }
+    }
+  ]
+}

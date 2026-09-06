@@ -1,0 +1,24 @@
+{
+  "name": "@umkmcraft/ai",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@umkmcraft/schema": "workspace:*",
+    "@umkmcraft/utils": "workspace:*",
+    "ai": "^6.0.277",
+    "@ai-sdk/google": "^3.0.121",
+    "zod": "^4.1.8"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.0",
+    "vitest": "^5.0.0"
+  }
+}

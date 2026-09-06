@@ -4,9 +4,9 @@
 
 ![UMKM Craft Banner](https://img.shields.io/badge/UMKM%20Craft-v1.0.0-blue?style=for-the-badge)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](LICENSE)
-[![Next.js 15](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-38B2AC?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
-[![Gemini AI](https://img.shields.io/badge/AI-Gemini%20API-orange?style=for-the-badge)](https://ai.google.dev/)
+[![Next.js 16](https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
+[![Tailwind CSS 4](https://img.shields.io/badge/Tailwind-4-38B2AC?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
+[![Gemini AI](https://img.shields.io/badge/AI-Gemini%202.5%20Flash--Lite-orange?style=for-the-badge)](https://ai.google.dev/)
 
 **Fast, Token-Efficient Modular JSON & AI Website Engine for Indonesian MSMEs (UMKM).**  
 *Bikin website usaha profesional, katalog WhatsApp 1-klik, dan informasi bisnis dalam 30 detik via obrolan AI.*
@@ -78,17 +78,31 @@ Dokumentasi teknis mendalam tersedia pada berkas berikut:
 - 📋 **[`SPEC.md`](SPEC.md):** Skema data JSON lengkap (*JSON Schema*), spesifikasi payload API, dan prompt templates AI.
 - 🧩 **[`COMPONENTS.md`](COMPONENTS.md):** Spesifikasi desain komponen visual, sistem warna OKLCH, dan generator format WhatsApp.
 - 🗺️ **[`ROADMAP.md`](ROADMAP.md):** Rencana rilis bertahap dari MVP hingga integrasi multi-tenant SaaS.
+- 🧭 **[`DESIGN.md`](DESIGN.md):** Sistem desain "Label Press" — token, komponen, motion, dan dunia visual builder + tenant.
+- 🧱 **[`PRODUCT.md`](PRODUCT.md):** Konteks produk ringkas untuk agent desain (impeccable).
 
 ---
 
 ## 📦 Tech Stack
 
-- **Framework:** Next.js 15 (App Router) / React 19 / TypeScript
-- **Styling:** Tailwind CSS & Lucide Icons
-- **State & Reordering:** Zustand & `@dnd-kit`
-- **AI Engine:** Google Gemini API (1.5 Flash / Pro) via Vercel AI SDK
-- **Database (Multi-Tenant):** PostgreSQL / Prisma ORM / Cloudflare R2
+- **Framework:** Next.js 16 (App Router, `proxy.ts`, `cacheComponents`) / React 19 / TypeScript
+- **Styling:** Tailwind CSS v4 (CSS-first, OKLCH-ready) & Lucide Icons
+- **State & Reordering:** Zustand & `@atlaskit/pragmatic-drag-and-drop`
+- **AI Engine:** Google Gemini 2.5 Flash-Lite (env: `AI_MODEL_PRIMARY`) via Vercel AI SDK 6 `Output.object` — graceful degradation ke template engine tanpa API key
+- **Validasi:** Zod 4 — discriminated union per tipe section (Zero-Runtime-Error)
+- **Database (Multi-Tenant):** PostgreSQL / Prisma 7 (schema siap di `apps/web/prisma/`) — MVP memakai file-backed store dengan interface 1:1
 - **Deployment:** Vercel / Netlify / Cloudflare Pages
+
+## 🚀 Quick Start
+
+```bash
+pnpm install
+cp apps/web/.env.example apps/web/.env.local   # opsional: isi GOOGLE_GENERATIVE_AI_API_KEY
+pnpm dev                                       # → http://localhost:3000
+pnpm test                                      # 48 test (vitest + fast-check)
+```
+
+Alur E2E: `/start` (chat santai) → `/editor/{siteId}` (rak alat: lembar stiker + kemasan HP) → **Terbitkan Situs** → `http://{slug}.lvh.me:3000` (dev) atau `/sites/{slug}`.
 
 ---
 

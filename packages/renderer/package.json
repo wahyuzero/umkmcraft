@@ -1,0 +1,34 @@
+{
+  "name": "@umkmcraft/renderer",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./footer": "./src/footer.ts",
+    "./theme.css": "./src/theme/theme.css"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@umkmcraft/schema": "workspace:*",
+    "@umkmcraft/utils": "workspace:*",
+    "react-markdown": "^10.0.0"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@testing-library/react": "^16.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@umkmcraft/ai": "workspace:*",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "typescript": "^5.6.0",
+    "vitest": "^5.0.0"
+  }
+}

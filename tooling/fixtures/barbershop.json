@@ -1,0 +1,112 @@
+{
+  "meta": {
+    "site_id": "barbersenja",
+    "business_name": "Barber Senja",
+    "business_category": "barbershop",
+    "tagline": "Potong rapi, percaya diri maksimal",
+    "schema_version": 1,
+    "theme": {
+      "preset": "charcoal_slate",
+      "primary_color": "#1e293b",
+      "secondary_color": "#0ea5e9",
+      "background_color": "#f8fafc",
+      "font_heading": "Plus Jakarta Sans",
+      "font_body": "Plus Jakarta Sans"
+    },
+    "whatsapp_number": "6287890123456",
+    "seo": {
+      "title": "Barber Senja — Barbershop Bogor",
+      "description": "Barbershop modern di Bogor: potong, cukur, dan grooming rapi tanpa antre.",
+      "keywords": ["barbershop bogor", "potong rambut pria"]
+    }
+  },
+  "sections": [
+    {
+      "id": "sec-hero-1",
+      "type": "hero_storefront",
+      "props": {
+        "badge": "Buka sampai jam 10 malam",
+        "title": "Barber Senja",
+        "subtitle": "Barbershop modern dengan kapster berpengalaman. Booking via WhatsApp, tanpa nunggu lama.",
+        "image_url": "",
+        "cta_primary": { "label": "Booking Kursi", "action": "whatsapp_direct", "prefill_message": "Halo Barber Senja, saya mau booking jadwal potong rambut.", "url": "" },
+        "badges": ["Kapster Bersertifikat", "Alat Steril", "AC Nyaman"]
+      }
+    },
+    {
+      "id": "sec-gallery-1",
+      "type": "gallery_grid",
+      "props": {
+        "section_title": "Galeri Hasil Potong & Grooming",
+        "section_subtitle": "Koleksi model favorit pelanggan kami",
+        "layout": "grid_3_col",
+        "items": [
+          { "title": "Fade & Pompadour", "image_url": "", "caption": "Classic Clean Fade" },
+          { "title": "Comma Hair Style", "image_url": "", "caption": "Korean Texture Look" },
+          { "title": "Cukur Jenggot", "image_url": "", "caption": "Beard Sculpting" }
+        ]
+      }
+    },
+    {
+      "id": "sec-services-1",
+      "type": "service_pricing_table",
+      "props": {
+        "section_title": "Daftar Harga Layanan",
+        "section_subtitle": "Harga transparan, tanpa biaya kejutan",
+        "tiers": [
+          {
+            "id": "tier-1",
+            "name": "Potong Rambut",
+            "price": 35000,
+            "unit": "per orang",
+            "duration": "30 menit",
+            "features": ["Konsultasi model", "Cuci + blow", "Pewangi ringan"],
+            "is_popular": false,
+            "cta_label": "Booking Kursi"
+          },
+          {
+            "id": "tier-2",
+            "name": "Paket Grooming Lengkap",
+            "price": 75000,
+            "unit": "per orang",
+            "duration": "75 menit",
+            "features": ["Potong + cuci", "Cukur jenggot", "Face massage", "Hair tonic"],
+            "is_popular": true,
+            "cta_label": "Booking Paket"
+          }
+        ]
+      }
+    },
+    {
+      "id": "sec-hours-1",
+      "type": "operating_hours_map",
+      "props": {
+        "section_title": "Lokasi & Jam Buka",
+        "address": "Jl. Merdeka No. 45, Bogor Tengah, Kota Bogor",
+        "gmaps_url": "https://maps.google.com/?q=Jl.+Merdeka+45+Bogor",
+        "schedule": [{ "day": "Setiap Hari", "hours": "10:00 - 22:00 WIB" }],
+        "open_hours": [
+          { "day_of_week": 0, "open": "10:00", "close": "22:00" },
+          { "day_of_week": 1, "open": "10:00", "close": "22:00" },
+          { "day_of_week": 2, "open": "10:00", "close": "22:00" },
+          { "day_of_week": 3, "open": "10:00", "close": "22:00" },
+          { "day_of_week": 4, "open": "10:00", "close": "22:00" },
+          { "day_of_week": 5, "open": "10:00", "close": "22:00" },
+          { "day_of_week": 6, "open": "10:00", "close": "22:00" }
+        ],
+        "delivery_note": "Walk-in welcome, booking prioritas."
+      }
+    },
+    {
+      "id": "sec-faq-1",
+      "type": "faq_accordion",
+      "props": {
+        "section_title": "Pertanyaan yang Sering Diajukan",
+        "items": [
+          { "q": "Apakah perlu reservasi?", "a": "Walk-in boleh, tapi booking WhatsApp lebih cepat — kursi langsung disiapkan." },
+          { "q": "Ada layanan panggilan rumah?", "a": "Ada, minimal 3 orang dalam satu panggilan untuk area Bogor Kota." }
+        ]
+      }
+    }
+  ]
+}
