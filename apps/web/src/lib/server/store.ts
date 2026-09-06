@@ -130,10 +130,18 @@ export const store = {
     changeSource?: ChangeSource;
   }): Promise<{ site: SiteRecord; version: SiteVersionRecord }> {
     const now = new Date().toISOString();
+    // Unikkan slug (Oracle #3): bentrok → suffix pendek deterministic
+    const sites = await readJson<SiteRecord[]>(sitesFile(), []);
+    let slug = input.slug;
+    let n = 2;
+    while (sites.some((s) => s.slug === slug && s.status !== "DELETED")) {
+      slug = `${input.slug}-${n}`.slice(0, 62);
+      n += 1;
+    }
     const site: SiteRecord = {
       id: randomUUID(),
       ownerId: input.ownerId,
-      slug: input.slug,
+      slug,
       businessCategory: input.businessCategory,
       status: "DRAFT",
       publishedVersionId: null,
@@ -151,12 +159,11 @@ export const store = {
       publishedAt: null,
       createdAt: now,
     };
-    const sites = await readJson<SiteRecord[]>(sitesFile(), []);
-    sites.push(site);
-    await writeJson(sitesFile(), sites);
     const versions = await readJson<SiteVersionRecord[]>(versionsFile(), []);
     versions.push(version);
     await writeJson(versionsFile(), versions);
+    sites.push(site);
+    await writeJson(sitesFile(), sites);
     return { site, version };
   },
 
@@ -254,6 +261,8 @@ export const store = {
 
   /* ---- analytics ---- */
   async appendEvent(event: AnalyticsEventRecord): Promise<void> {
+    // siteId dipakai sebagai nama file — validasi ketat anti path-traversal (Oracle #4)
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(event.siteId)) return;
     const file = eventsFile(event.siteId);
     await ensureDir(path.dirname(file));
     await fs.appendFile(file, `${JSON.stringify(event)}\n`, "utf8");

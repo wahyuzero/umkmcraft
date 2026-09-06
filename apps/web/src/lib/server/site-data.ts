@@ -1,5 +1,5 @@
 import { headers } from "next/headers";
-import { cacheTag } from "next/cache";
+import { cacheLife, cacheTag } from "next/cache";
 import { store, type SiteRecord } from "@/lib/server/store";
 import type { UmkmWebsiteConfig } from "@umkmcraft/schema";
 
@@ -12,6 +12,13 @@ export async function getTenantSnapshot(
   slugFromPath?: string,
 ): Promise<{ site: SiteRecord; config: UmkmWebsiteConfig | null } | null> {
   "use cache";
+  // Tag dipasang SELALU (termasuk hasil null/suspended) supaya revalidateTag
+  // bisa membatalkan snapshot negatif (Oracle #2).
+  const tagSlug = (slugFromPath && slugFromPath !== "index" ? slugFromPath : host.split(".")[0] ?? host)
+    .slice(0, 64);
+  cacheTag(`snapshot:${host}::${tagSlug}`, `snapshot-site:${tagSlug}`);
+  cacheLife("max");
+
   const site = slugFromPath && slugFromPath !== "index"
     ? await store.getSiteBySlug(slugFromPath)
     : await store.getSiteByHost(host);
@@ -27,8 +34,6 @@ export async function getTenantSnapshot(
   }
   if (!config) return null;
 
-  // Tag invalidasi
-  cacheTag(`site:${site.id}`, `host:${site.slug}`);
   return { site, config };
 }
 

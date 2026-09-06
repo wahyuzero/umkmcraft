@@ -22,6 +22,11 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ siteId: st
     return NextResponse.json({ error: "Situs sedang ditangguhkan" }, { status: 423 });
   }
 
+  // Cegah publish situs yang sudah dihapus (Oracle #11)
+  if (site.status === "DELETED") {
+    return NextResponse.json({ error: "Situs sudah dihapus" }, { status: 410 });
+  }
+
   const slugCheck = checkSlug(site.slug);
   if (!slugCheck.ok) {
     return NextResponse.json(
@@ -54,12 +59,13 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ siteId: st
   const published = await store.publish(siteId, latest.id);
   if (!published) return NextResponse.json({ error: "Publish gagal" }, { status: 500 });
 
-  revalidateTag(`site:${siteId}`, "max");
-  revalidateTag(`host:${site.slug}`, "max");
+  // Invalidasi cache snapshot (tag sama dengan yang dipasang getTenantSnapshot)
+  revalidateTag(`snapshot-site:${site.slug}`, "max");
 
+  const tenantDomain = process.env.NEXT_PUBLIC_TENANT_DOMAIN ?? "lvh.me:3000";
   return NextResponse.json({
     ok: true,
-    url: `${process.env.NEXT_PUBLIC_TENANT_DOMAIN ?? "lvh.me:3000"} → ${site.slug}.${process.env.NEXT_PUBLIC_TENANT_DOMAIN ?? "lvh.me:3000"}`,
+    url: `${site.slug}.${tenantDomain}`,
     pathUrl: `/sites/${site.slug}`,
   });
 }

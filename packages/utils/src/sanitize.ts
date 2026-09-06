@@ -18,12 +18,13 @@ export function clampString(str: string, max: number): string {
   return str.length > max ? `${str.slice(0, max - 1).trimEnd()}…` : str;
 }
 
-/** Allowlist https/http absolut; blokir javascript:, data:, vbscript:, dsb. */
+/** Allowlist https (http hanya di dev); blokir javascript:, data:, kredensial inline. */
 export function sanitizeUrl(u: string): string {
   if (!u) return "";
   try {
     const parsed = new URL(u);
-    if (parsed.protocol !== "https:" && parsed.protocol !== "http:") return "";
+    const httpsOnly = process.env.NODE_ENV === "production"; // Oracle #10: kontrak §7.3
+    if (parsed.protocol !== "https:" && !(parsed.protocol === "http:" && !httpsOnly)) return "";
     // blokir kredensial inline
     if (parsed.username || parsed.password) return "";
     return parsed.toString();
@@ -59,17 +60,29 @@ export function dedupeSectionIds(sections: Array<{ id: string }>): void {
 
 /**
  * Terapkan semua aturan sanitasi pada config yang SUDAH lolos Zod parse.
- * Mengembalikan config baru — tidak pernah memutasi input.
+ * Menelusuri BERTINGKAT — image_url di dalam products/items/reviews/tiers ikut
+ * dibersihkan (Oracle #7). Mengembalikan config baru — tidak memutasi input.
  */
-export function sanitizeConfig(config: UmkmWebsiteConfig): UmkmWebsiteConfig {
-  const sections: Section[] = config.sections.map((section) => {
-    const props = { ...section.props } as Record<string, unknown>;
-    for (const [key, value] of Object.entries(props)) {
-      if (typeof value === "string") {
-        if (/url$/.test(key)) props[key] = sanitizeUrl(value);
+function sanitizeDeep(value: unknown): unknown {
+  if (typeof value === "string") return value;
+  if (Array.isArray(value)) return value.map((v) => sanitizeDeep(v));
+  if (value && typeof value === "object") {
+    const out: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
+      if (typeof v === "string" && /url$/i.test(k)) {
+        out[k] = sanitizeUrl(v);
+      } else {
+        out[k] = sanitizeDeep(v);
       }
     }
-    // koreksi price original < price → hapus original_price via re-validate nanti
+    return out;
+  }
+  return value;
+}
+
+export function sanitizeConfig(config: UmkmWebsiteConfig): UmkmWebsiteConfig {
+  const sections: Section[] = config.sections.map((section) => {
+    const props = sanitizeDeep(section.props) as Record<string, unknown>;
     return { ...section, props } as Section;
   });
 

@@ -37,7 +37,7 @@ Builder = meja sablon label UMKM: daftar section adalah **lembar stiker die-cut*
 - **WaButton / WaIcon** — CTA WhatsApp; hover lift + glow lembut; icon SVG resmi geometris.
 - **PriceTag** — Rupiah "Rp35.000" (PUEBI, tanpa spasi), harga coret + badge -%.
 - **PillBadge, BestSellerBadge, Starburst** — badge keunggulan; starburst = clip-path geometris murni.
-- **PlaceholderImage / SafeImage** — fail-safe elegan berlabel "Foto … (placeholder)"; geometri deterministik per kategori.
+- **PlaceholderImage / SafeImage** — fail-safe elegan berlabel terlihat "Foto … (contoh)"; geometri deterministik per kategori.
 - **Stiker section (builder)** — kartu die-cut dashed; aktif = wash `signal-soft` + lift (depth-as-state, bukan border tambahan).
 - **PhonePreview ("kemasan")** — frame HP dengan penguasa kalibrasi "PRATINJAU 390PX"; merender engine ASLI.
 - **FAQ akordeon** — `<details>/<summary>` murni, 0 JS; animasi `interpolate-size` dengan fallback aman.

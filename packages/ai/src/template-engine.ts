@@ -2,6 +2,7 @@
  * Template Engine deterministik — graceful degradation (SYSTEM_DESIGN §7.2 tahap 3):
  * bila AI gagal/absen, config tetap dihasilkan dari slot + template kategori.
  * Juga dipakai untuk demo & test. Output SELALU lolos UmkmWebsiteConfigSchema.
+ * Semua input user di-clamp (Oracle #12c) supaya parse pasca-generate tak pernah gagal.
  */
 import { guessPresetForCategory, type UmkmWebsiteConfig } from "@umkmcraft/schema";
 import { slugify } from "@umkmcraft/utils";
@@ -30,10 +31,19 @@ const DEFAULT_PRODUCTS: Record<string, Array<{ name: string; price: number; desc
 };
 
 export function generateTemplateConfig(slots: IntakeSlots): UmkmWebsiteConfig {
-  const category = slots.category || "lainnya";
+  const category = (slots.category || "lainnya").slice(0, 40);
   const preset = guessPresetForCategory(category);
   const baseSlug = slugify(slots.businessName) || "usaha-baru";
-  const products = slots.products?.length ? slots.products : DEFAULT_PRODUCTS[category] ?? DEFAULT_PRODUCTS.default!;
+  const name = slots.businessName.slice(0, 80);
+  const story = (slots.story || "").slice(0, 220);
+  const location = (slots.location || "").slice(0, 200);
+  const products = (slots.products?.length ? slots.products : DEFAULT_PRODUCTS[category] ?? DEFAULT_PRODUCTS.default!)
+    .slice(0, 5)
+    .map((p) => ({
+      name: p.name.slice(0, 80),
+      price: Math.max(0, Math.min(Number(p.price) || 0, 1_000_000_000)),
+      description: (p.description || "").slice(0, 300),
+    }));
 
   const sections: UmkmWebsiteConfig["sections"] = [
     {
@@ -41,14 +51,14 @@ export function generateTemplateConfig(slots: IntakeSlots): UmkmWebsiteConfig {
       type: "hero_storefront",
       props: {
         badge: slots.promo ? "Promo Spesial" : "",
-        title: slots.businessName,
-        subtitle: slots.story || `Solusi terbaik ${category} untuk kebutuhan Anda. Hubungi kami langsung via WhatsApp, respon cepat dan ramah.`,
+        title: name,
+        subtitle: story || `Solusi terbaik ${category} untuk kebutuhan Anda. Hubungi kami langsung via WhatsApp, respon cepat dan ramah.`,
         image_url: "",
         image_position: "right",
         cta_primary: {
           label: "Pesan via WhatsApp",
           action: "whatsapp_direct",
-          prefill_message: `Halo ${slots.businessName}! Saya dapat nomor dari website, mau tanya-tanya kak.`,
+          prefill_message: `Halo ${name}! 👋 Saya dapat nomor dari website, mau tanya-tanya kak.`,
           url: "",
         },
         badges: ["Respon Cepat", "Harga Jujur", "Kualitas Terjamin"],
@@ -64,9 +74,9 @@ export function generateTemplateConfig(slots: IntakeSlots): UmkmWebsiteConfig {
         products: products.map((p, i) => ({
           id: `prod-${i + 1}`,
           name: p.name,
-          price: p.price ?? 0,
+          price: p.price,
           category: "Umum",
-          description: p.description ?? "",
+          description: p.description,
           image_url: "",
           is_bestseller: i === 0,
         })),
@@ -77,10 +87,10 @@ export function generateTemplateConfig(slots: IntakeSlots): UmkmWebsiteConfig {
       type: "operating_hours_map",
       props: {
         section_title: "Lokasi & Jam Buka",
-        address: slots.location || "Alamat akan diperbarui oleh pemilik usaha",
+        address: location || "Alamat akan diperbarui oleh pemilik usaha",
         gmaps_url: "",
         waze_url: "",
-        schedule: [{ day: "Setiap Hari", hours: slots.hours || "09:00 - 17:00 WIB" }],
+        schedule: [{ day: "Setiap Hari", hours: (slots.hours || "09:00 - 17:00 WIB").slice(0, 60) }],
         open_hours: [],
         delivery_note: "",
       },
@@ -101,13 +111,13 @@ export function generateTemplateConfig(slots: IntakeSlots): UmkmWebsiteConfig {
       type: "contact_direct",
       props: {
         section_title: "Hubungi Kami",
-        address: slots.location || "",
+        address: location,
         phone: "",
         whatsapp_number: slots.whatsappNumber,
         whatsapp_label: "Chat Admin",
         email: "",
         gmaps_url: "",
-        prefill_message: `Halo ${slots.businessName}! 👋`,
+        prefill_message: `Halo ${name}! 👋`,
       },
     },
   ];
@@ -115,9 +125,9 @@ export function generateTemplateConfig(slots: IntakeSlots): UmkmWebsiteConfig {
   return {
     meta: {
       site_id: baseSlug,
-      business_name: slots.businessName,
+      business_name: name,
       business_category: category,
-      tagline: slots.story?.slice(0, 140) || `Kebutuhan ${category} Anda, solusi kami.`,
+      tagline: story.slice(0, 140) || `Kebutuhan ${category} Anda, solusi kami.`,
       schema_version: 1,
       theme: {
         preset: preset.id,
@@ -129,9 +139,10 @@ export function generateTemplateConfig(slots: IntakeSlots): UmkmWebsiteConfig {
       },
       whatsapp_number: slots.whatsappNumber,
       seo: {
-        title: `${slots.businessName} — ${category.charAt(0).toUpperCase() + category.slice(1)}`,
-        description: slots.story?.slice(0, 200) || `${slots.businessName}: ${category} pilihan terbaik. Pesan mudah via WhatsApp.`,
-        keywords: [slots.businessName.toLowerCase(), category],
+        title: `${name} — ${category.charAt(0).toUpperCase() + category.slice(1)}`.slice(0, 80),
+        description:
+          story.slice(0, 200) || `${name}: ${category} pilihan terbaik. Pesan mudah via WhatsApp.`,
+        keywords: [name.toLowerCase().slice(0, 40), category].slice(0, 12),
       },
     },
     sections,

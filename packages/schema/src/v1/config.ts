@@ -30,7 +30,24 @@ export const SafeUrlSchema = z
   }, "URL harus http(s) absolut")
   .or(z.literal(""));
 
-export const ImageUrlSchema = z.string().max(2048).default("");
+export const ImageUrlSchema = z
+  .string()
+  .max(2048)
+  .refine(
+    (u) =>
+      u === "" ||
+      u.startsWith("/") || // path internal (placeholder/asset lokal)
+      (() => {
+        try {
+          const p = new URL(u);
+          return p.protocol === "https:" || (p.protocol === "http:" && process.env.NODE_ENV !== "production");
+        } catch {
+          return false;
+        }
+      })(),
+    "image_url harus kosong, path internal (/…), atau URL http(s)",
+  )
+  .default("");
 
 /* ------------------------------------------------------------------ */
 /* Meta + Theme                                                        */

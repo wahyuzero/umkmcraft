@@ -203,8 +203,8 @@ export function PlaceholderImage({
         <rect x="14" y="86" width="132" height="6" rx="3" fill={b} opacity="0.3" />
         <rect x="34" y="98" width="92" height="4" rx="2" fill={b} opacity="0.2" />
       </svg>
-      <span className="absolute bottom-2 left-1/2 -translate-x-1/2 rounded-full bg-black/45 px-2.5 py-1 text-[0.65rem] font-medium text-white">
-        Foto {label}
+      <span className="absolute bottom-1.5 left-1/2 max-w-[92%] -translate-x-1/2 truncate rounded-full bg-black/45 px-2 py-0.5 text-[0.6rem] font-medium leading-4 text-white">
+        Foto {label} (contoh)
       </span>
     </div>
   );

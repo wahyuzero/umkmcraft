@@ -55,22 +55,35 @@ export async function POST(req: NextRequest) {
   const slugCheck = checkSlug(slug);
   if (!slugCheck.ok) slug = `${slug}-${Math.random().toString(36).slice(2, 6)}`;
 
-  // Simpan sebagai draft milik sesi anonim
-  const sessionToken = req.cookies.get("uc_session")?.value ?? "anon";
+  // Simpan sebagai draft milik sesi anonim.
+  // Tanpa cookie → terbitkan cookie baru di respons (Oracle #5: dilarang "anon")
+  let sessionToken = req.cookies.get("uc_session")?.value;
+  const mintCookie = !sessionToken;
+  if (mintCookie) sessionToken = crypto.randomUUID();
   const { site } = await store.createSite({
-    ownerId: sessionToken,
+    ownerId: sessionToken!,
     slug,
     businessCategory: finalConfig.meta.business_category,
     config: finalConfig,
     changeSource: engine === "template" ? "MANUAL" : "AI_GENERATION",
   });
-  await store.bindOwner(sessionToken, site.id);
+  await store.bindOwner(sessionToken!, site.id);
 
-  return NextResponse.json({
+  const res = NextResponse.json({
     siteId: site.id,
     slug: site.slug,
     config: finalConfig,
     engine,
     notes,
   });
+  if (mintCookie) {
+    res.cookies.set("uc_session", sessionToken!, {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production" && !(process.env.NEXT_PUBLIC_TENANT_DOMAIN ?? "").includes("lvh.me"),
+      maxAge: 60 * 60 * 24 * 90,
+      path: "/",
+    });
+  }
+  return res;
 }

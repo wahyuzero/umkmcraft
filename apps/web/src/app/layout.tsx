@@ -22,9 +22,9 @@ const dmSans = DM_Sans({ subsets: ["latin"], variable: "--font-dm-sans", display
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
-  title: { default: "UMKM Craft — Website Usaha dalam 30 Detik", template: "%s | UMKM Craft" },
+  title: { default: "UMKM Craft — Website Usaha untuk UMKM Indonesia", template: "%s | UMKM Craft" },
   description:
-    "Bikin website usaha profesional, katalog WhatsApp 1-klik, dan informasi bisnis dalam 30 detik via obrolan AI. Khusus UMKM Indonesia.",
+    "Ceritakan usahamu lewat obrolan santai — UMKM Craft merangkai website dengan katalog, jam buka, dan tombol pesan WhatsApp otomatis. Tanpa coding, gratis.",
   openGraph: {
     type: "website",
     locale: "id_ID",

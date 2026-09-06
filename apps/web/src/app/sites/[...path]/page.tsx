@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { parseUmkmConfig } from "@umkmcraft/schema";
 import { renderSections, themeStyle, TenantFooter } from "@umkmcraft/renderer";
 import { currentTenantHost, getTenantSnapshot } from "@/lib/server/site-data";
+import { SuspendedView } from "@/components/SuspendedView";
 
 // Tenant: dynamic render + data cache per host (ADR-2) — blocking di origin
 export const instant = false;
@@ -44,7 +45,9 @@ export async function generateMetadata({ params }: TenantPageProps): Promise<Met
 export default async function TenantSitePage({ params }: TenantPageProps) {
   const { snap } = await resolve(params);
   if (!snap) notFound();
-  if (snap.site.status === "SUSPENDED" || !snap.config) redirect("/suspended");
+  // Situs ditangguhkan ATAU snapshot belum ada → render papan pengumuman inline
+  // (redirect() di konteks PPR tidak reliable — Next 16).
+  if (snap.site.status === "SUSPENDED" || !snap.config) return <SuspendedView />;
 
   // Validasi ganda di renderer (defense-in-depth — lapis 1 Zod sudah di API)
   const parsed = parseUmkmConfig(snap.config);
@@ -92,7 +95,11 @@ export default async function TenantSitePage({ params }: TenantPageProps) {
 
   return (
     <div style={themeStyle(config.meta)} className="uc-site min-h-dvh">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(graph) }} />
+      {/* Escape `<` mencegah breakout dari konteks <script> (Oracle #1) */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(graph).replace(/</g, "\\u003c") }}
+      />
       {renderSections(config.meta, config.sections)}
       <TenantFooter siteId={snap.site.id} businessName={config.meta.business_name} />
     </div>

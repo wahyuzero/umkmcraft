@@ -178,8 +178,11 @@ export default function StartPage() {
             </button>
           ) : null}
           {generating ? (
-            <div className="mb-3 rounded-2xl border border-cutline bg-card px-4 py-3.5 text-center text-sm font-medium text-ink-soft" role="status">
-              Merangkai websitemu — katalog, tema warna, tombol pesan… ⚙️
+            <div className="mb-3 flex items-center justify-center gap-2.5 rounded-2xl border border-cutline bg-card px-4 py-3.5 text-center text-sm font-medium text-ink-soft" role="status">
+              <svg viewBox="0 0 20 20" className="motion-safe:animate-spin h-4 w-4 text-signal" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden>
+                <path d="M10 3a7 7 0 1 1-6.6 4.6" strokeLinecap="round" />
+              </svg>
+              Merangkai websitemu — katalog, tema warna, tombol pesan…
             </div>
           ) : null}
 

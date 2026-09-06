@@ -1,7 +1,7 @@
-import { notFound, redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { store } from "@/lib/server/store";
 import { BuilderShell } from "@/components/builder/BuilderShell";
+import { AccessDenied } from "@/components/builder/AccessDenied";
 
 export const metadata = { title: "Editor" };
 // Route auth per-sesi (cookies) — blocking dynamic, sesuai cacheComponents
@@ -11,13 +11,14 @@ export default async function EditorPage({ params }: { params: Promise<{ siteId:
   const { siteId } = await params;
   const jar = await cookies();
   const sessionToken = jar.get("uc_session")?.value;
-  if (!sessionToken || !(await store.ownsSite(sessionToken, siteId))) redirect("/start");
+  const authorized = Boolean(sessionToken && (await store.ownsSite(sessionToken, siteId)));
 
-  const site = await store.getSite(siteId);
-  if (!site) notFound();
+  const site = authorized ? await store.getSite(siteId) : null;
+  if (!authorized || !site) return <AccessDenied />;
+
   const versions = await store.getVersions(siteId);
   const latest = versions.at(-1);
-  if (!latest) notFound();
+  if (!latest) return <AccessDenied />;
 
   return (
     <BuilderShell

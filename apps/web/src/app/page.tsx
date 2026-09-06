@@ -28,7 +28,7 @@ const STEPS = [
   },
   {
     n: "2",
-    title: "Situs jadi dalam 30 detik",
+    title: "Situs jadi sebelum air kopimu dingin",
     body: "AI menyusun katalog, jam buka, dan tombol pesan otomatis. Semua blok bisa kamu geser dan ganti tanpa coding.",
   },
   {
@@ -39,12 +39,12 @@ const STEPS = [
 ];
 
 const MODULES = [
-  { name: "Katalog + Tombol WA", desc: "Harga coret, badge Best Seller, pesanan 1-klik" },
-  { name: "Jam Buka Otomatis", desc: "Badge Buka/Tutup real-time + rute Google Maps & Waze" },
-  { name: "Hub Marketplace", desc: "Shopee, Tokopedia, GoFood, GrabFood, TikTok Shop" },
-  { name: "Badge Legalitas", desc: "Halal MUI, BPOM, P-IRT — kepercayaan sejak detik pertama" },
-  { name: "Promo & Kupon", desc: "Banner flash sale dengan timer + kode kupon 1-klik salin" },
-  { name: "Galeri & Pricelist", desc: "Portofolio hasil karya dan paket layanan berjenjang" },
+  { name: "Katalog + Tombol WA", desc: "Harga coret, badge Best Seller, pesanan 1-klik", core: true },
+  { name: "Jam Buka Otomatis", desc: "Badge Buka/Tutup real-time + rute Google Maps & Waze", core: true },
+  { name: "Hub Marketplace", desc: "Shopee, Tokopedia, GoFood, GrabFood, TikTok Shop", core: true },
+  { name: "Badge Legalitas", desc: "Halal MUI, BPOM, P-IRT — kepercayaan sejak detik pertama", core: false },
+  { name: "Promo & Kupon", desc: "Banner flash sale dengan timer + kode kupon 1-klik salin", core: true },
+  { name: "Galeri & Pricelist", desc: "Portofolio hasil karya dan paket layanan berjenjang", core: false },
 ];
 
 export default function LandingPage() {
@@ -95,7 +95,7 @@ export default function LandingPage() {
             <p className="uc-ruler mb-6 inline-block h-[5px] w-24" aria-hidden />
             <h1 className="font-display text-[2.6rem] font-extrabold leading-[1.04] tracking-[-0.035em] text-ink sm:text-6xl">
               Website usaha siap menerima pesanan,{" "}
-              <span className="text-signal">secepat bikin status WA</span>.
+              <span className="text-signal">secepat cerita kamu</span>.
             </h1>
             <p className="mt-6 max-w-xl text-lg leading-relaxed text-ink-soft">
               Ceritakan usahamu lewat obrolan santai. UMKM Craft merangkai katalog produk,
@@ -121,7 +121,7 @@ export default function LandingPage() {
             <dl className="mt-12 grid max-w-lg grid-cols-3 gap-6 border-t border-cutline pt-7">
               {[
                 ["13", "modul blok siap pakai"],
-                ["< 30 dtk", "dari curhat ke situs"],
+                ["5 langkah", "dari curhat ke situs live"],
                 ["6", "tema warna kategori"],
               ].map(([v, l]) => (
                 <div key={l}>
@@ -200,13 +200,17 @@ export default function LandingPage() {
           </div>
         </div>
         <ul className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {MODULES.map((m, i) => (
+          {MODULES.map((m) => (
             <li
               key={m.name}
               className="uc-cutline group rounded-2xl bg-card p-5 shadow-plate transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-1 hover:shadow-[0_16px_36px_-14px_rgb(35_28_16/0.28)]"
             >
-              <span className="uc-starburst inline-flex h-8 w-8 items-center justify-center bg-signal-soft font-display text-xs font-extrabold tabular-nums text-signal" aria-hidden>
-                {String(i + 1).padStart(2, "0")}
+              <span
+                className={`inline-block rounded-full px-2.5 py-1 text-[0.6rem] font-extrabold uppercase tracking-wide ${
+                  m.core ? "bg-paper-deep text-ink-soft" : "bg-signal-soft text-signal"
+                }`}
+              >
+                {m.core ? "Modul Inti" : "Modul Opsional"}
               </span>
               <h3 className="mt-3 font-display text-lg font-bold text-ink">{m.name}</h3>
               <p className="mt-1.5 text-sm leading-relaxed text-ink-soft">{m.desc}</p>
@@ -219,7 +223,7 @@ export default function LandingPage() {
       <section className="border-t border-cutline/70 bg-ink">
         <div className="mx-auto flex max-w-6xl flex-col items-center gap-8 px-5 py-20 text-center sm:px-8">
           <h2 className="max-w-2xl font-display text-3xl font-extrabold tracking-[-0.025em] text-paper sm:text-5xl">
-            64 juta UMKM sudah online. Giliran usahamu.
+            64 juta UMKM di Indonesia. Giliran usahamu.
           </h2>
           <Link
             href="/start"
@@ -240,7 +244,7 @@ export default function LandingPage() {
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-5 py-8 text-xs text-paper/50 sm:flex-row sm:px-8">
           <p>© 2026 UMKM Craft — dibuat untuk kemajuan UMKM Indonesia.</p>
           <p>
-            Dibuat dengan ❤️ oleh Wahyu ·{" "}
+            Dibuat oleh Wahyu ·{" "}
             <Link href="/api/health" className="underline decoration-dotted underline-offset-4">
               status sistem
             </Link>

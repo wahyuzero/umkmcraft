@@ -4,6 +4,8 @@
 > **Status:** Canonical Schema Specification v1.0
 
 > ⚠️ **Status Implementasi:** Schema di bawah belum diimplementasi di kode — ini kontrak yang disepakati sebelum development dimulai. Lihat ARCHITECTURE.md untuk konteks desain lengkap.
+>
+> ⚠️ **SUPERSEDED (implementasi nyata):** skema Zod kanonis kini ada di `packages/schema/src/v1/config.ts` — memakai **discriminated union per tipe section** (bukan `props: z.record(z.any())` sebagaimana contoh §2 di bawah) sesuai koreksi SYSTEM_DESIGN §6/§15, plus `schema_version` + mekanisme migrasi (§4.3). Contoh JSON §1 tetap valid sebagai referensi bentuk data.
 
 ---
 

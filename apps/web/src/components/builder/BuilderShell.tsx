@@ -15,6 +15,7 @@ import { Inspector } from "./Inspector";
 import { PhonePreview } from "./PhonePreview";
 import { ThemeSwitcher } from "./ThemeSwitcher";
 import { PublishButton } from "./PublishButton";
+import { AnalyticsCard } from "./AnalyticsCard";
 
 export function BuilderShell({
   siteId,
@@ -43,7 +44,7 @@ export function BuilderShell({
   return (
     <div className="flex h-dvh flex-col overflow-hidden bg-paper">
       {/* ===== Header rak alat ===== */}
-      <header className="flex h-16 shrink-0 items-center justify-between gap-4 border-b border-cutline/80 bg-paper px-4 sm:px-6">
+      <header className="flex h-16 shrink-0 items-center justify-between gap-2 border-b border-cutline/80 bg-paper px-3 sm:gap-4 sm:px-6">
         <div className="flex min-w-0 items-center gap-3">
           <Link href="/" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-ink font-display text-lg font-extrabold text-paper" aria-label="Beranda UMKM Craft">
             U
@@ -52,22 +53,29 @@ export function BuilderShell({
             <input
               value={businessName}
               onChange={(e) => useEditor.getState().setBusinessName(e.target.value)}
-              className="w-full max-w-[220px] truncate rounded-lg border border-transparent bg-transparent px-1.5 py-0.5 font-display text-lg font-bold text-ink hover:border-cutline focus:border-signal focus:outline-none sm:max-w-[280px]"
+              className="w-full max-w-[120px] truncate rounded-lg border border-transparent bg-transparent px-1.5 py-0.5 font-display text-base font-bold text-ink hover:border-cutline focus:border-signal focus:outline-none sm:max-w-[280px] sm:text-lg"
               aria-label="Nama usaha"
             />
-            <p className="px-1.5 text-[0.7rem] text-ink-soft">
+            <p className="hidden px-1.5 text-[0.7rem] text-ink-soft sm:block">
               {slug}.lvh.me
               {published ? <span className="ml-2 font-semibold text-live">● live</span> : null}
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
           <SaveIndicator state={saveState} />
-          <ThemeSwitcher />
+          <div className="hidden sm:block">
+            <ThemeSwitcher />
+          </div>
           <PublishButton />
         </div>
       </header>
+
+      {/* Tema di mobile: baris sendiri agar header tak meluber */}
+      <div className="shrink-0 border-b border-cutline/60 bg-paper px-3 py-2 sm:hidden">
+        <ThemeSwitcher />
+      </div>
 
       {/* ===== Body 3 kolom ===== */}
       <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
@@ -93,6 +101,7 @@ export function BuilderShell({
               Tambah Seksi
             </button>
           </div>
+          <AnalyticsCard />
         </aside>
 
         {/* Tengah: kemasan HP */}

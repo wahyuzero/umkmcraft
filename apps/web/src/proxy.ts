@@ -37,6 +37,7 @@ export function proxy(request: NextRequest) {
       res.cookies.set(SESSION_COOKIE, crypto.randomUUID(), {
         httpOnly: true,
         sameSite: "lax",
+        secure: process.env.NODE_ENV === "production" && !(process.env.NEXT_PUBLIC_TENANT_DOMAIN ?? "").includes("lvh.me"), // Oracle #12b; dev lvh.me tetap http
         maxAge: 60 * 60 * 24 * 90,
         path: "/",
       });
@@ -45,7 +46,11 @@ export function proxy(request: NextRequest) {
   };
 
   if (isBuilderHost(host)) {
-    return ensureSession(NextResponse.next());
+    // Buang x-tenant-host palsu dari klien (Oracle #9) — builder tidak boleh
+    // menyamarkan diri sebagai tenant.
+    const headers = new Headers(request.headers);
+    headers.delete("x-tenant-host");
+    return ensureSession(NextResponse.next({ request: { headers } }));
   }
 
   // Tenant host → rewrite ke renderer
@@ -57,5 +62,7 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next|favicon.ico|robots.txt|sitemap.xml|api/t).*)"],
+  // robots/sitemap TIDAK dikecualikan — host tenant perlu rewrite ke /sites/*;
+  // host builder tetap dilayani route app (app/robots.ts) karena isBuilderHost → next()
+  matcher: ["/((?!_next|favicon.ico|api/t).*)"],
 };
