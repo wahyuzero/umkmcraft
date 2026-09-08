@@ -83,6 +83,19 @@ export function generateTemplateConfig(slots: IntakeSlots): UmkmWebsiteConfig {
       },
     },
     {
+      id: "sec-valueprops-1",
+      type: "value_props_grid",
+      props: {
+        section_title: "Kenapa Pilih Kami?",
+        section_subtitle: "",
+        items: [
+          { icon: "star", title: "Kualitas Terjaga", description: "Setiap pesanan dikerjakan dengan teliti dan penuh perhatian." },
+          { icon: "chat", title: "Respon Cepat", description: "Chat WhatsApp dibalas secepatnya di jam operasional." },
+          { icon: "wallet", title: "Harga Jujur", description: "Harga jelas di awal, tanpa biaya tersembunyi." },
+        ],
+      },
+    },
+    {
       id: "sec-hours-1",
       type: "operating_hours_map",
       props: {
@@ -118,6 +131,18 @@ export function generateTemplateConfig(slots: IntakeSlots): UmkmWebsiteConfig {
         email: "",
         gmaps_url: "",
         prefill_message: `Halo ${name}! 👋`,
+      },
+    },
+    {
+      id: "sec-ctabanner-1",
+      type: "cta_banner_full",
+      props: {
+        title: "Siap pesan sekarang?",
+        subtitle: "Chat admin langsung — fast respon di jam operasional.",
+        button_label: "Chat WhatsApp Sekarang",
+        prefill_message: `Halo ${name}! 👋 Saya mau order kak.`,
+        secondary_label: "",
+        secondary_url: "",
       },
     },
   ];

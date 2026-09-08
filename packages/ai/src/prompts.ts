@@ -4,13 +4,13 @@
  * anti-halusinasi). AI DILARANG membuat ulasan palsu (§15 SPEC).
  */
 export const CATEGORY_MODULE_HINTS: Record<string, string[]> = {
-  kuliner: ["hero_storefront", "promo_banner", "product_catalog_wa", "operating_hours_map", "channel_marketplace", "faq_accordion", "trust_badges_strip"],
-  coffee: ["hero_storefront", "product_catalog_wa", "operating_hours_map", "gallery_grid", "channel_marketplace", "faq_accordion"],
-  barbershop: ["hero_storefront", "gallery_grid", "service_pricing_table", "operating_hours_map", "faq_accordion"],
-  fashion: ["hero_storefront", "product_catalog_wa", "promo_banner", "channel_marketplace", "trust_badges_strip", "faq_accordion"],
-  bengkel: ["hero_storefront", "service_pricing_table", "rich_text_block", "operating_hours_map", "step_how_to_order", "social_proof_reviews"],
-  laundry: ["hero_storefront", "service_pricing_table", "step_how_to_order", "operating_hours_map", "contact_direct"],
-  default: ["hero_storefront", "product_catalog_wa", "operating_hours_map", "faq_accordion", "contact_direct"],
+  kuliner: ["hero_storefront", "promo_banner", "product_catalog_wa", "menu_price_list", "operating_hours_map", "channel_marketplace", "faq_accordion", "trust_badges_strip", "qr_code_whatsapp", "cta_banner_full"],
+  coffee: ["hero_storefront", "product_catalog_wa", "menu_price_list", "operating_hours_map", "gallery_grid", "instagram_showcase_grid", "channel_marketplace", "faq_accordion", "timeline_story", "cta_banner_full"],
+  barbershop: ["hero_storefront", "booking_whatsapp_form", "gallery_grid", "service_pricing_table", "team_members_grid", "instagram_showcase_grid", "operating_hours_map", "stats_counter_strip", "faq_accordion", "cta_banner_full"],
+  fashion: ["hero_storefront", "product_catalog_wa", "product_spotlight", "promo_banner", "instagram_showcase_grid", "value_props_grid", "channel_marketplace", "trust_badges_strip", "download_catalog_cta", "faq_accordion", "cta_banner_full"],
+  bengkel: ["hero_storefront", "service_pricing_table", "booking_whatsapp_form", "value_props_grid", "rich_text_block", "branch_locations_list", "operating_hours_map", "step_how_to_order", "social_proof_reviews", "cta_banner_full"],
+  laundry: ["hero_storefront", "service_pricing_table", "booking_whatsapp_form", "value_props_grid", "branch_locations_list", "step_how_to_order", "operating_hours_map", "contact_direct", "cta_banner_full"],
+  default: ["hero_storefront", "product_catalog_wa", "value_props_grid", "stats_counter_strip", "operating_hours_map", "faq_accordion", "contact_direct", "cta_banner_full"],
 };
 
 export function categoryHint(category: string): string[] {
@@ -36,10 +36,40 @@ ATURAN WAJIB:
 9. id section: format "sec-<tipe>-<urut>" (contoh sec-hero-1); id produk: "prod-<urut>".
 10. Harga produk: angka penuh rupiah tanpa titik (35000), original_price hanya bila ada diskon nyata.`;
 
+/** Semua tipe modul yang dikenal schema v1 — saringan anti-halusinasi tipe. */
+export const ALL_KNOWN_MODULES: string[] = [
+  "hero_storefront",
+  "product_catalog_wa",
+  "promo_banner",
+  "operating_hours_map",
+  "social_proof_reviews",
+  "channel_marketplace",
+  "faq_accordion",
+  "contact_direct",
+  "rich_text_block",
+  "gallery_grid",
+  "service_pricing_table",
+  "trust_badges_strip",
+  "step_how_to_order",
+  "stats_counter_strip",
+  "value_props_grid",
+  "menu_price_list",
+  "product_spotlight",
+  "cta_banner_full",
+  "team_members_grid",
+  "timeline_story",
+  "booking_whatsapp_form",
+  "event_schedule_list",
+  "branch_locations_list",
+  "instagram_showcase_grid",
+  "updates_blog_list",
+  "download_catalog_cta",
+  "qr_code_whatsapp",
+];
+
 export function buildSlicedSystemPrompt(category: string): string {
   const modules = categoryHint(category);
-  const allowedModules = ["hero_storefront", "product_catalog_wa", "promo_banner", "operating_hours_map", "social_proof_reviews", "channel_marketplace", "faq_accordion", "contact_direct", "rich_text_block", "gallery_grid", "service_pricing_table", "trust_badges_strip", "step_how_to_order"];
-  const filtered = modules.filter((m) => allowedModules.includes(m));
+  const filtered = modules.filter((m) => ALL_KNOWN_MODULES.includes(m));
   return `${BASE_SYSTEM_PROMPT}
 
 KONTEKS KATEGORI BISNIS: "${category}".

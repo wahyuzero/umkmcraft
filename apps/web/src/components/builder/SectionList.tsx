@@ -24,9 +24,42 @@ const TYPE_LABEL: Record<SectionType, string> = {
   service_pricing_table: "Tabel Harga",
   trust_badges_strip: "Badge Kepercayaan",
   step_how_to_order: "Cara Pesan",
+  stats_counter_strip: "Statistik",
+  value_props_grid: "Kenapa Pilih Kami",
+  menu_price_list: "Daftar Menu",
+  product_spotlight: "Produk Unggulan",
+  cta_banner_full: "Band CTA",
+  team_members_grid: "Tim Kami",
+  timeline_story: "Cerita & Perjalanan",
+  booking_whatsapp_form: "Form Booking",
+  event_schedule_list: "Jadwal Acara",
+  branch_locations_list: "Daftar Cabang",
+  instagram_showcase_grid: "Instagram Showcase",
+  updates_blog_list: "Info & Kabar",
+  download_catalog_cta: "Katalog PDF",
+  qr_code_whatsapp: "QR WhatsApp",
 };
 
-const EXTENDED: Set<SectionType> = new Set(["gallery_grid", "service_pricing_table", "trust_badges_strip", "step_how_to_order"]);
+const EXTENDED: Set<SectionType> = new Set([
+  "gallery_grid",
+  "service_pricing_table",
+  "trust_badges_strip",
+  "step_how_to_order",
+  "stats_counter_strip",
+  "value_props_grid",
+  "menu_price_list",
+  "product_spotlight",
+  "cta_banner_full",
+  "team_members_grid",
+  "timeline_story",
+  "booking_whatsapp_form",
+  "event_schedule_list",
+  "branch_locations_list",
+  "instagram_showcase_grid",
+  "updates_blog_list",
+  "download_catalog_cta",
+  "qr_code_whatsapp",
+]);
 
 export function SectionList() {
   const sections = useEditor((s) => s.config.sections);

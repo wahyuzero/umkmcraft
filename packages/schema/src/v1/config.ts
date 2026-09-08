@@ -266,6 +266,175 @@ export const StepsPropsSchema = z.object({
 });
 
 /* ------------------------------------------------------------------ */
+/* Props modul gelombang 2 (riset TEMPLATE_RESEARCH.md §4)             */
+/* ------------------------------------------------------------------ */
+
+export const StatItemSchema = z.object({
+  value: z.string().min(1).max(20), // teks bebas: "500+", "4.9★", "10 Thn"
+  label: z.string().min(1).max(40),
+});
+
+export const StatsCounterPropsSchema = z.object({
+  section_title: z.string().max(80).default(""),
+  stats: z.array(StatItemSchema).min(1).max(4),
+});
+
+export const ValuePropIconSchema = z.enum([
+  "star", "truck", "shield", "clock", "chat", "wallet", "leaf", "flame", "tool", "heart",
+]);
+
+export const ValuePropItemSchema = z.object({
+  icon: ValuePropIconSchema.default("star"),
+  title: z.string().min(1).max(60),
+  description: z.string().max(200).default(""),
+});
+
+export const ValuePropsGridPropsSchema = z.object({
+  section_title: z.string().max(80).default("Kenapa Pilih Kami?"),
+  section_subtitle: z.string().max(160).default(""),
+  items: z.array(ValuePropItemSchema).min(1).max(6),
+});
+
+export const MenuItemSchema = z.object({
+  name: z.string().min(1).max(80),
+  description: z.string().max(160).default(""),
+  price: z.number().nonnegative().max(1_000_000_000),
+  category: z.string().max(40).default("Menu"),
+  is_recommended: z.boolean().default(false),
+});
+
+export const MenuListPropsSchema = z.object({
+  section_title: z.string().max(80).default("Menu Kami"),
+  section_subtitle: z.string().max(160).default(""),
+  items: z.array(MenuItemSchema).min(1).max(30),
+});
+
+export const SpotlightPropsSchema = z.object({
+  eyebrow: z.string().max(40).default(""),
+  title: z.string().min(1).max(80),
+  description: z.string().max(400).default(""),
+  price: z.number().nonnegative().max(1_000_000_000),
+  original_price: z.number().nonnegative().max(1_000_000_000).optional(),
+  image_url: ImageUrlSchema,
+  image_position: z.enum(["left", "right"]).default("right"),
+  highlights: z.array(z.string().max(80)).max(5).default([]),
+  cta_label: z.string().max(40).default("Pesan Produk Ini"),
+  prefill_message: z.string().max(300).default(""),
+});
+
+export const CtaBannerPropsSchema = z.object({
+  title: z.string().min(1).max(80),
+  subtitle: z.string().max(200).default(""),
+  button_label: z.string().max(40).default("Chat WhatsApp Sekarang"),
+  prefill_message: z.string().max(300).default(""),
+  secondary_label: z.string().max(40).default(""),
+  secondary_url: SafeUrlSchema.default(""),
+});
+
+export const TeamMemberSchema = z.object({
+  name: z.string().min(1).max(60),
+  role: z.string().max(60).default(""),
+  bio: z.string().max(200).default(""),
+  avatar_url: ImageUrlSchema,
+});
+
+export const TeamPropsSchema = z.object({
+  section_title: z.string().max(80).default("Tim Kami"),
+  section_subtitle: z.string().max(160).default(""),
+  members: z.array(TeamMemberSchema).min(1).max(8),
+});
+
+export const MilestoneSchema = z.object({
+  year: z.string().max(20),
+  title: z.string().min(1).max(60),
+  description: z.string().max(200).default(""),
+});
+
+export const TimelinePropsSchema = z.object({
+  section_title: z.string().max(80).default("Cerita Kami"),
+  section_subtitle: z.string().max(160).default(""),
+  milestones: z.array(MilestoneSchema).min(2).max(6),
+});
+
+export const BookingPropsSchema = z.object({
+  section_title: z.string().max(80).default("Booking Jadwal"),
+  section_subtitle: z.string().max(160).default(""),
+  service_options: z.array(z.string().max(60)).max(8).default([]),
+  time_slots: z.array(z.string().max(40)).max(12).default([]),
+  button_label: z.string().max(40).default("Kirim Booking via WhatsApp"),
+  prefill_note: z.string().max(300).default(""),
+});
+
+export const EventItemSchema = z.object({
+  date_label: z.string().max(40),
+  title: z.string().min(1).max(80),
+  location: z.string().max(120).default(""),
+  note: z.string().max(120).default(""),
+  maps_url: SafeUrlSchema.default(""),
+});
+
+export const EventsPropsSchema = z.object({
+  section_title: z.string().max(80).default("Jadwal Acara & Bazar"),
+  section_subtitle: z.string().max(160).default(""),
+  events: z.array(EventItemSchema).min(1).max(8),
+});
+
+export const BranchSchema = z.object({
+  name: z.string().min(1).max(60),
+  address: z.string().max(200).default(""),
+  hours: z.string().max(80).default(""),
+  gmaps_url: SafeUrlSchema.default(""),
+  whatsapp_number: WaNumberSchema.optional(),
+});
+
+export const BranchesPropsSchema = z.object({
+  section_title: z.string().max(80).default("Cabang Kami"),
+  section_subtitle: z.string().max(160).default(""),
+  branches: z.array(BranchSchema).min(1).max(8),
+});
+
+export const InstagramPostSchema = z.object({
+  image_url: ImageUrlSchema,
+  caption: z.string().max(120).default(""),
+  post_url: SafeUrlSchema.default(""),
+});
+
+export const InstagramShowcasePropsSchema = z.object({
+  section_title: z.string().max(80).default("Ikuti Kami di Instagram"),
+  handle: z.string().max(60).default(""),
+  profile_url: SafeUrlSchema.default(""),
+  posts: z.array(InstagramPostSchema).min(1).max(8),
+});
+
+export const UpdatePostSchema = z.object({
+  title: z.string().min(1).max(80),
+  date_label: z.string().max(40).default(""),
+  excerpt: z.string().max(200).default(""),
+  url: SafeUrlSchema.default(""),
+  image_url: ImageUrlSchema,
+});
+
+export const UpdatesPropsSchema = z.object({
+  section_title: z.string().max(80).default("Info & Kabar Terbaru"),
+  section_subtitle: z.string().max(160).default(""),
+  posts: z.array(UpdatePostSchema).min(1).max(9),
+});
+
+export const DownloadCtaPropsSchema = z.object({
+  section_title: z.string().max(80).default("Katalog / Brosur"),
+  description: z.string().max(200).default(""),
+  file_url: SafeUrlSchema.default(""),
+  file_label: z.string().max(40).default("Unduh Katalog (PDF)"),
+});
+
+export const QrCodePropsSchema = z.object({
+  section_title: z.string().max(80).default("Scan untuk Chat"),
+  section_subtitle: z.string().max(160).default("Arahkan kamera HP ke kode ini untuk mulai chat WhatsApp."),
+  qr_image_url: ImageUrlSchema,
+  caption: z.string().max(120).default(""),
+});
+
+/* ------------------------------------------------------------------ */
 /* Section = discriminated union (inti Zero-Runtime-Error)             */
 /* ------------------------------------------------------------------ */
 
@@ -283,6 +452,20 @@ export const SectionTypes = [
   "service_pricing_table",
   "trust_badges_strip",
   "step_how_to_order",
+  "stats_counter_strip",
+  "value_props_grid",
+  "menu_price_list",
+  "product_spotlight",
+  "cta_banner_full",
+  "team_members_grid",
+  "timeline_story",
+  "booking_whatsapp_form",
+  "event_schedule_list",
+  "branch_locations_list",
+  "instagram_showcase_grid",
+  "updates_blog_list",
+  "download_catalog_cta",
+  "qr_code_whatsapp",
 ] as const;
 
 export type SectionType = (typeof SectionTypes)[number];
@@ -304,6 +487,20 @@ export const SectionSchema = z.discriminatedUnion("type", [
   SectionEnvelope("service_pricing_table", PricingPropsSchema),
   SectionEnvelope("trust_badges_strip", TrustPropsSchema),
   SectionEnvelope("step_how_to_order", StepsPropsSchema),
+  SectionEnvelope("stats_counter_strip", StatsCounterPropsSchema),
+  SectionEnvelope("value_props_grid", ValuePropsGridPropsSchema),
+  SectionEnvelope("menu_price_list", MenuListPropsSchema),
+  SectionEnvelope("product_spotlight", SpotlightPropsSchema),
+  SectionEnvelope("cta_banner_full", CtaBannerPropsSchema),
+  SectionEnvelope("team_members_grid", TeamPropsSchema),
+  SectionEnvelope("timeline_story", TimelinePropsSchema),
+  SectionEnvelope("booking_whatsapp_form", BookingPropsSchema),
+  SectionEnvelope("event_schedule_list", EventsPropsSchema),
+  SectionEnvelope("branch_locations_list", BranchesPropsSchema),
+  SectionEnvelope("instagram_showcase_grid", InstagramShowcasePropsSchema),
+  SectionEnvelope("updates_blog_list", UpdatesPropsSchema),
+  SectionEnvelope("download_catalog_cta", DownloadCtaPropsSchema),
+  SectionEnvelope("qr_code_whatsapp", QrCodePropsSchema),
 ]);
 
 /* ------------------------------------------------------------------ */
@@ -325,6 +522,15 @@ export type Review = z.infer<typeof ReviewSchema>;
 export type Channel = z.infer<typeof ChannelSchema>;
 export type GalleryItem = z.infer<typeof GalleryItemSchema>;
 export type Step = z.infer<typeof StepSchema>;
+export type StatItem = z.infer<typeof StatItemSchema>;
+export type ValuePropItem = z.infer<typeof ValuePropItemSchema>;
+export type MenuItem = z.infer<typeof MenuItemSchema>;
+export type TeamMember = z.infer<typeof TeamMemberSchema>;
+export type Milestone = z.infer<typeof MilestoneSchema>;
+export type EventItem = z.infer<typeof EventItemSchema>;
+export type Branch = z.infer<typeof BranchSchema>;
+export type InstagramPost = z.infer<typeof InstagramPostSchema>;
+export type UpdatePost = z.infer<typeof UpdatePostSchema>;
 
 /** Tipe helper: ambil tipe props dari literal tipe section. */
 export type SectionProps<T extends SectionType> = Extract<

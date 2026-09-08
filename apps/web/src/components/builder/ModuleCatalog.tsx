@@ -23,7 +23,51 @@ const CATALOG: Array<{ type: SectionType; label: string; desc: string; extended:
   { type: "service_pricing_table", label: "Tabel Harga", desc: "Paket layanan berjenjang", extended: true },
   { type: "trust_badges_strip", label: "Badge Kepercayaan", desc: "QRIS, kurir, Halal/BPOM/P-IRT", extended: true },
   { type: "step_how_to_order", label: "Cara Pesan", desc: "Timeline langkah pemesanan", extended: true },
+  { type: "stats_counter_strip", label: "Statistik", desc: "Angka pencapaian: pelanggan, tahun, rating", extended: true },
+  { type: "value_props_grid", label: "Kenapa Pilih Kami", desc: "Grid keunggulan dengan ikon", extended: true },
+  { type: "menu_price_list", label: "Daftar Menu", desc: "Menu + harga ala restoran, tanpa foto", extended: true },
+  { type: "product_spotlight", label: "Produk Unggulan", desc: "Sorotan 1 produk + harga + CTA", extended: true },
+  { type: "cta_banner_full", label: "Band CTA", desc: "Ajakan pesan besar penutup halaman", extended: true },
+  { type: "team_members_grid", label: "Tim Kami", desc: "Foto/inisial + peran + bio kru", extended: true },
+  { type: "timeline_story", label: "Cerita & Perjalanan", desc: "Timeline sejarah usaha", extended: true },
+  { type: "booking_whatsapp_form", label: "Form Booking", desc: "Pilih layanan & jam → kirim ke WA", extended: true },
+  { type: "event_schedule_list", label: "Jadwal Acara", desc: "Bazar, pop-up stand, event kota", extended: true },
+  { type: "branch_locations_list", label: "Daftar Cabang", desc: "Outlet + rute maps + WA per cabang", extended: true },
+  { type: "instagram_showcase_grid", label: "Instagram Showcase", desc: "Grid foto IG + tombol follow", extended: true },
+  { type: "updates_blog_list", label: "Info & Kabar", desc: "Berita, pengumuman, blog singkat", extended: true },
+  { type: "download_catalog_cta", label: "Katalog PDF", desc: "Unduh brosur/katalog lengkap", extended: true },
+  { type: "qr_code_whatsapp", label: "QR WhatsApp", desc: "Scan kode → langsung chat", extended: true },
 ];
+
+const DEFAULTS_KEY: Record<SectionType, string> = {
+  hero_storefront: "heroDefaults",
+  product_catalog_wa: "catalogDefaults",
+  promo_banner: "promoDefaults",
+  operating_hours_map: "hoursDefaults",
+  social_proof_reviews: "reviewsDefaults",
+  channel_marketplace: "channelsDefaults",
+  faq_accordion: "faqDefaults",
+  contact_direct: "contactDefaults",
+  rich_text_block: "richTextDefaults",
+  gallery_grid: "galleryDefaults",
+  service_pricing_table: "pricingDefaults",
+  trust_badges_strip: "trustDefaults",
+  step_how_to_order: "stepsDefaults",
+  stats_counter_strip: "statsDefaults",
+  value_props_grid: "valuePropsDefaults",
+  menu_price_list: "menuDefaults",
+  product_spotlight: "spotlightDefaults",
+  cta_banner_full: "ctaBannerDefaults",
+  team_members_grid: "teamDefaults",
+  timeline_story: "timelineDefaults",
+  booking_whatsapp_form: "bookingDefaults",
+  event_schedule_list: "eventsDefaults",
+  branch_locations_list: "branchesDefaults",
+  instagram_showcase_grid: "instagramDefaults",
+  updates_blog_list: "updatesDefaults",
+  download_catalog_cta: "downloadCtaDefaults",
+  qr_code_whatsapp: "qrCodeDefaults",
+};
 
 export function ModuleCatalog({ onClose }: { onClose: () => void }) {
   const addSection = useEditor((s) => s.addSection);
@@ -38,23 +82,7 @@ export function ModuleCatalog({ onClose }: { onClose: () => void }) {
   }, [onClose]);
 
   function add(type: SectionType) {
-    const defaultProps = (defaults as Record<string, unknown>)[
-      ({
-        hero_storefront: "heroDefaults",
-        product_catalog_wa: "catalogDefaults",
-        promo_banner: "promoDefaults",
-        operating_hours_map: "hoursDefaults",
-        social_proof_reviews: "reviewsDefaults",
-        channel_marketplace: "channelsDefaults",
-        faq_accordion: "faqDefaults",
-        contact_direct: "contactDefaults",
-        rich_text_block: "richTextDefaults",
-        gallery_grid: "galleryDefaults",
-        service_pricing_table: "pricingDefaults",
-        trust_badges_strip: "trustDefaults",
-        step_how_to_order: "stepsDefaults",
-      })[type]!
-    ] as Record<string, unknown>;
+    const defaultProps = (defaults as Record<string, unknown>)[DEFAULTS_KEY[type]!] as Record<string, unknown>;
     addSection(type, JSON.parse(JSON.stringify(defaultProps)));
     onClose();
   }

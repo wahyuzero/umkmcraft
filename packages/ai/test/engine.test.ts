@@ -61,7 +61,7 @@ describe("slot extraction deterministik (ADR-3)", () => {
 
 describe("fixture config = kontrak nyata", () => {
   it("semua fixture lolos parse", () => {
-    for (const f of ["kuliner-sambal", "barbershop", "laundry", "bengkel-jasa"]) {
+    for (const f of ["kuliner-sambal", "barbershop", "barbershop-lengkap", "laundry", "bengkel-jasa"]) {
       const raw = JSON.parse(readFileSync(`${fixturesDir}/${f}.json`, "utf8")) as unknown;
       expect(parseUmkmConfig(raw).ok).toBe(true);
     }

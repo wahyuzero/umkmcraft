@@ -103,6 +103,82 @@ const SPECS: Partial<Record<SectionType, TypeSpec>> = {
       { key: "steps", label: "Langkah", itemLabel: "Langkah", fields: [F("title", "Judul langkah"), F("description", "Penjelasan", "textarea")], newItem: (i = 0) => ({ step_number: i + 1, title: "Langkah baru", description: "" }) },
     ],
   },
+  stats_counter_strip: {
+    simple: [F("section_title", "Judul section (boleh kosong)")],
+    repeaters: [
+      { key: "stats", label: "Statistik", itemLabel: "Angka", fields: [F("value", "Angka (contoh: 500+)"), F("label", "Keterangan")], newItem: () => ({ value: "100+", label: "Pelanggan Puas" }) },
+    ],
+  },
+  value_props_grid: {
+    simple: [F("section_title", "Judul section"), F("section_subtitle", "Subjudul", "textarea")],
+    repeaters: [
+      { key: "items", label: "Keunggulan", itemLabel: "Keunggulan", fields: [F("icon", "Ikon", "text", "star / truck / shield / clock / chat / wallet / leaf / flame / tool / heart"), F("title", "Judul"), F("description", "Penjelasan", "textarea")], newItem: () => ({ icon: "star", title: "Keunggulan Baru", description: "" }) },
+    ],
+  },
+  menu_price_list: {
+    simple: [F("section_title", "Judul section"), F("section_subtitle", "Subjudul", "textarea")],
+    repeaters: [
+      { key: "items", label: "Menu", itemLabel: "Menu", fields: [F("name", "Nama menu"), F("description", "Deskripsi", "textarea"), F("price", "Harga", "number"), F("category", "Kelompok (Minuman, dll)"), F("is_recommended", "Rekomendasi?", "toggle")], newItem: () => ({ name: "Menu Baru", description: "", price: 15000, category: "Menu", is_recommended: false }) },
+    ],
+  },
+  product_spotlight: {
+    simple: [F("eyebrow", "Label kecil di atas judul"), F("title", "Nama produk"), F("description", "Deskripsi", "textarea"), F("price", "Harga", "number"), F("original_price", "Harga asli (coret)", "number"), F("image_url", "Foto produk", "image"), F("cta_label", "Label tombol"), F("prefill_message", "Pesan otomatis WA", "textarea")],
+    repeaters: [
+      { key: "highlights", label: "Poin keunggulan", itemLabel: "Poin", fields: [F("", "Teks")], newItem: () => "" },
+    ],
+  },
+  cta_banner_full: {
+    simple: [F("title", "Judul besar"), F("subtitle", "Subjudul", "textarea"), F("button_label", "Label tombol WA"), F("prefill_message", "Pesan otomatis WA", "textarea"), F("secondary_label", "Label tombol kedua (opsional)"), F("secondary_url", "URL tombol kedua", "url")],
+  },
+  team_members_grid: {
+    simple: [F("section_title", "Judul section"), F("section_subtitle", "Subjudul", "textarea")],
+    repeaters: [
+      { key: "members", label: "Anggota tim", itemLabel: "Anggota", fields: [F("name", "Nama"), F("role", "Peran/jabatan"), F("bio", "Bio singkat", "textarea"), F("avatar_url", "Foto", "image")], newItem: () => ({ name: "Anggota Baru", role: "", bio: "", avatar_url: "" }) },
+    ],
+  },
+  timeline_story: {
+    simple: [F("section_title", "Judul section"), F("section_subtitle", "Subjudul", "textarea")],
+    repeaters: [
+      { key: "milestones", label: "Momen", itemLabel: "Momen", fields: [F("year", "Tahun/label waktu"), F("title", "Judul momen"), F("description", "Cerita singkat", "textarea")], newItem: () => ({ year: "2026", title: "Momen baru", description: "" }) },
+    ],
+  },
+  booking_whatsapp_form: {
+    simple: [F("section_title", "Judul section"), F("section_subtitle", "Subjudul", "textarea"), F("button_label", "Label tombol kirim"), F("prefill_note", "Kalimat pembuka pesan WA", "textarea")],
+    repeaters: [
+      { key: "service_options", label: "Pilihan layanan", itemLabel: "Layanan", fields: [F("", "Nama layanan")], newItem: () => "Layanan Baru" },
+      { key: "time_slots", label: "Pilihan jam", itemLabel: "Jam", fields: [F("", "Jam (contoh: 09:00)")], newItem: () => "09:00" },
+    ],
+  },
+  event_schedule_list: {
+    simple: [F("section_title", "Judul section"), F("section_subtitle", "Subjudul", "textarea")],
+    repeaters: [
+      { key: "events", label: "Acara", itemLabel: "Acara", fields: [F("date_label", "Tanggal (contoh: 12 Sep)"), F("title", "Nama acara"), F("location", "Lokasi"), F("note", "Catatan"), F("maps_url", "Link Maps", "url")], newItem: () => ({ date_label: "", title: "Acara Baru", location: "", note: "", maps_url: "" }) },
+    ],
+  },
+  branch_locations_list: {
+    simple: [F("section_title", "Judul section"), F("section_subtitle", "Subjudul", "textarea")],
+    repeaters: [
+      { key: "branches", label: "Cabang", itemLabel: "Cabang", fields: [F("name", "Nama cabang"), F("address", "Alamat", "textarea"), F("hours", "Jam buka"), F("gmaps_url", "Link Maps", "url"), F("whatsapp_number", "WA cabang (62xxx)")], newItem: () => ({ name: "Cabang Baru", address: "", hours: "", gmaps_url: "" }) },
+    ],
+  },
+  instagram_showcase_grid: {
+    simple: [F("section_title", "Judul section"), F("handle", "Username IG (@nama)"), F("profile_url", "Link profil IG", "url")],
+    repeaters: [
+      { key: "posts", label: "Foto", itemLabel: "Foto", fields: [F("image_url", "Gambar", "image"), F("caption", "Caption"), F("post_url", "Link post IG", "url")], newItem: () => ({ image_url: "", caption: "", post_url: "" }) },
+    ],
+  },
+  updates_blog_list: {
+    simple: [F("section_title", "Judul section"), F("section_subtitle", "Subjudul", "textarea")],
+    repeaters: [
+      { key: "posts", label: "Kabar", itemLabel: "Kabar", fields: [F("title", "Judul"), F("date_label", "Tanggal"), F("excerpt", "Ringkasan", "textarea"), F("url", "Link (opsional)", "url"), F("image_url", "Thumbnail", "image")], newItem: () => ({ title: "Kabar Baru", date_label: "", excerpt: "", url: "", image_url: "" }) },
+    ],
+  },
+  download_catalog_cta: {
+    simple: [F("section_title", "Judul section"), F("description", "Deskripsi", "textarea"), F("file_url", "Link file (PDF)", "url"), F("file_label", "Label tombol unduh")],
+  },
+  qr_code_whatsapp: {
+    simple: [F("section_title", "Judul section"), F("section_subtitle", "Subjudul", "textarea"), F("qr_image_url", "Gambar QR WhatsApp", "image", "Screenshot/gambar QR dari WhatsApp Business"), F("caption", "Caption")],
+  },
 };
 
 export function Inspector() {

@@ -19,6 +19,20 @@ import { GalleryGrid } from "./modules/GalleryGrid";
 import { ServicePricingTable } from "./modules/ServicePricingTable";
 import { TrustBadgesStrip } from "./modules/TrustBadgesStrip";
 import { StepHowToOrder } from "./modules/StepHowToOrder";
+import { StatsCounterStrip } from "./modules/StatsCounterStrip";
+import { ValuePropsGrid } from "./modules/ValuePropsGrid";
+import { MenuPriceList } from "./modules/MenuPriceList";
+import { ProductSpotlight } from "./modules/ProductSpotlight";
+import { CtaBannerFull } from "./modules/CtaBannerFull";
+import { TeamMembersGrid } from "./modules/TeamMembersGrid";
+import { TimelineStory } from "./modules/TimelineStory";
+import { BookingWhatsAppForm } from "./modules/BookingWhatsAppForm";
+import { EventScheduleList } from "./modules/EventScheduleList";
+import { BranchLocationsList } from "./modules/BranchLocationsList";
+import { InstagramShowcaseGrid } from "./modules/InstagramShowcaseGrid";
+import { UpdatesBlogList } from "./modules/UpdatesBlogList";
+import { DownloadCatalogCta } from "./modules/DownloadCatalogCta";
+import { QrCodeWhatsApp } from "./modules/QrCodeWhatsApp";
 
 /** Props umum yang diterima semua modul. */
 export interface ModuleCommonProps {
@@ -61,6 +75,38 @@ export const MODULE_REGISTRY: Record<SectionType, ModuleComponent> = {
   ),
   trust_badges_strip: ({ id, props }) => <TrustBadgesStrip id={id} props={props as never} />,
   step_how_to_order: ({ id, props }) => <StepHowToOrder id={id} props={props as never} />,
+  stats_counter_strip: ({ id, props }) => <StatsCounterStrip id={id} props={props as never} />,
+  value_props_grid: ({ id, props }) => <ValuePropsGrid id={id} props={props as never} />,
+  menu_price_list: ({ id, props }) => <MenuPriceList id={id} props={props as never} />,
+  product_spotlight: ({ id, props, businessName, whatsappNumber, category }) => (
+    <ProductSpotlight id={id} props={props as never} businessName={businessName} whatsappNumber={whatsappNumber} category={category} />
+  ),
+  cta_banner_full: ({ id, props, businessName, whatsappNumber }) => (
+    <CtaBannerFull id={id} props={props as never} businessName={businessName} whatsappNumber={whatsappNumber} />
+  ),
+  team_members_grid: ({ id, props, category }) => (
+    <TeamMembersGrid id={id} props={props as never} category={category} />
+  ),
+  timeline_story: ({ id, props }) => <TimelineStory id={id} props={props as never} />,
+  booking_whatsapp_form: ({ id, props, businessName, whatsappNumber }) => (
+    <BookingWhatsAppForm id={id} props={props as never} businessName={businessName} whatsappNumber={whatsappNumber} />
+  ),
+  event_schedule_list: ({ id, props }) => <EventScheduleList id={id} props={props as never} />,
+  branch_locations_list: ({ id, props, businessName }) => (
+    <BranchLocationsList id={id} props={props as never} businessName={businessName} />
+  ),
+  instagram_showcase_grid: ({ id, props, category }) => (
+    <InstagramShowcaseGrid id={id} props={props as never} category={category} />
+  ),
+  updates_blog_list: ({ id, props, category }) => (
+    <UpdatesBlogList id={id} props={props as never} category={category} />
+  ),
+  download_catalog_cta: ({ id, props, businessName, whatsappNumber }) => (
+    <DownloadCatalogCta id={id} props={props as never} businessName={businessName} whatsappNumber={whatsappNumber} />
+  ),
+  qr_code_whatsapp: ({ id, props, businessName, category }) => (
+    <QrCodeWhatsApp id={id} props={props as never} businessName={businessName} category={category} />
+  ),
 };
 
 /**
