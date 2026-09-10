@@ -75,7 +75,10 @@ export async function GET(req: Request) {
     name = config.meta.business_name;
     tagline = config.meta.tagline || "Katalog, jam buka, dan pesan WhatsApp — semua di sini.";
     category = config.meta.business_category;
-    hostLabel = host;
+    // Tampilkan alamat publik situs, bukan host hasil fetch (bisa localhost/
+    // origin internal) — kartu pratinjau WhatsApp adalah sigma kepercayaan.
+    const tenantDomain = process.env.NEXT_PUBLIC_TENANT_DOMAIN ?? "umkmcraft.id";
+    hostLabel = `${snap.site.slug}.${tenantDomain.replace(/^https?:\/\//, "")}`;
     initial = name.charAt(0).toUpperCase();
   }
 

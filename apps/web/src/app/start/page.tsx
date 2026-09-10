@@ -54,6 +54,16 @@ export default function StartPage() {
     el.scrollTo({ top: el.scrollHeight, behavior: reduce ? "auto" : "smooth" });
   }, [messages, busy, ready]);
 
+  // Pengguna yang kembali: kalau sesi ini punya situs, tawarkan daftarnya —
+  // jangan biarkan ia membuat situs baru tanpa sadar.
+  const [existingSites, setExistingSites] = useState(0);
+  useEffect(() => {
+    fetch("/api/sites")
+      .then((r) => (r.ok ? r.json() : { sites: [] }))
+      .then((d: { sites?: unknown[] }) => setExistingSites(d.sites?.length ?? 0))
+      .catch(() => {});
+  }, []);
+
   function autosize() {
     const el = inputRef.current;
     if (!el) return;
@@ -135,6 +145,17 @@ export default function StartPage() {
               Ngobrol santai kayak chat — nanti aku rangkai jadi website yang siap dipesan.
             </p>
           </div>
+          {existingSites > 0 ? (
+            <Link
+              href="/situs-saya"
+              className="mt-3 flex min-h-[44px] items-center justify-between gap-3 rounded-xl border-[1.5px] border-dashed border-cutline bg-card px-3.5 py-2.5 text-sm font-semibold text-ink transition-colors duration-200 hover:border-signal hover:bg-signal-soft/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal"
+            >
+              <span>
+                Kakak punya <b>{existingSites}</b> situs di perangkat ini
+              </span>
+              <span className="shrink-0 text-signal">Lihat daftarnya →</span>
+            </Link>
+          ) : null}
           <div className="mt-4">
             <SlotSteps progress={progress} />
           </div>
