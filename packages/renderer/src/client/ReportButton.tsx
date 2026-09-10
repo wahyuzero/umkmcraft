@@ -35,7 +35,7 @@ export function ReportButton({ siteId }: { siteId: string }) {
     <div className="relative">
       <button
         onClick={() => setOpen((v) => !v)}
-        className="text-xs font-medium text-[color-mix(in_oklab,var(--uc-ink)_50%,transparent)] underline decoration-dotted underline-offset-4 transition-colors hover:text-[var(--uc-ink)] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--uc-primary)]"
+        className="text-xs font-medium text-[color-mix(in_oklab,var(--uc-ink)_65%,transparent)] underline decoration-dotted underline-offset-4 transition-colors hover:text-[var(--uc-ink)] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--uc-primary)]"
       >
         Laporkan situs
       </button>

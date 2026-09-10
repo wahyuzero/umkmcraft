@@ -45,7 +45,7 @@ export function CtaBannerFull({
         }}
       />
       <div className="relative mx-auto flex w-full max-w-3xl flex-col items-center gap-5 text-center">
-        <h2 className="font-[family-name:var(--uc-font-heading)] text-[1.9rem] font-extrabold leading-[1.12] tracking-[-0.02em] text-[var(--uc-on-primary)] sm:text-4xl">
+        <h2 className="font-[family-name:var(--uc-font-heading)] text-[1.9rem] font-extrabold leading-[1.12] tracking-[-0.02em] text-[var(--uc-on-primary-text)] sm:text-4xl">
           {props.title}
         </h2>
         {props.subtitle ? (
@@ -57,7 +57,7 @@ export function CtaBannerFull({
           <a
             href={waHref}
             data-wa-click="cta_banner"
-            className="group inline-flex min-h-[52px] items-center justify-center gap-2 rounded-2xl bg-[var(--uc-on-primary)] px-7 py-3.5 text-base font-semibold text-[var(--uc-primary)] shadow-[0_8px_24px_-8px_color-mix(in_oklab,var(--uc-ink)_45%,transparent)] transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[0_14px_32px_-8px_color-mix(in_oklab,var(--uc-ink)_50%,transparent)] active:translate-y-0 active:scale-[0.99] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--uc-on-primary)]"
+            className="group inline-flex min-h-[52px] items-center justify-center gap-2 rounded-2xl bg-[var(--uc-on-primary)] px-7 py-3.5 text-base font-semibold text-[var(--uc-primary-text)] shadow-[0_8px_24px_-8px_color-mix(in_oklab,var(--uc-ink)_45%,transparent)] transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[0_14px_32px_-8px_color-mix(in_oklab,var(--uc-ink)_50%,transparent)] active:translate-y-0 active:scale-[0.99] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--uc-on-primary)]"
           >
             <WaIcon className="h-[1.15em] w-[1.15em] shrink-0 transition-transform duration-200 ease-out group-hover:scale-110" />
             {props.button_label}
@@ -67,7 +67,7 @@ export function CtaBannerFull({
               href={props.secondary_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex min-h-[44px] items-center justify-center rounded-2xl border-2 border-[color-mix(in_oklab,var(--uc-on-primary)_45%,transparent)] px-6 py-3 text-sm font-bold text-[var(--uc-on-primary)] transition-colors duration-200 hover:bg-[color-mix(in_oklab,var(--uc-on-primary)_12%,transparent)] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--uc-on-primary)]"
+              className="inline-flex min-h-[44px] items-center justify-center rounded-2xl border-2 border-[color-mix(in_oklab,var(--uc-on-primary)_45%,transparent)] px-6 py-3 text-sm font-bold text-[var(--uc-on-primary-text)] transition-colors duration-200 hover:bg-[color-mix(in_oklab,var(--uc-on-primary)_12%,transparent)] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--uc-on-primary)]"
             >
               {props.secondary_label}
             </a>

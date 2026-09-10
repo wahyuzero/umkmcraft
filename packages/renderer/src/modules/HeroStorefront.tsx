@@ -54,8 +54,11 @@ export function HeroStorefront({
       />
       <div className="relative mx-auto grid w-full max-w-3xl gap-8 px-5 pb-14 pt-10 sm:px-8 sm:pb-16 sm:pt-14 md:grid-cols-[1.1fr_0.9fr] md:items-center">
         <div className="flex flex-col items-start gap-5">
+          {/* Teks chip di-campur 12% ke arah ink: bg chip sendiri adalah sapuan
+              secondary 10% di atas surface — token secondary-text saja belum
+              cukup (4.4:1); kontrak AA ≥4.5:1 untuk teks 12px. */}
           {props.badge ? (
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-[color-mix(in_oklab,var(--uc-secondary)_25%,transparent)] bg-[color-mix(in_oklab,var(--uc-secondary)_10%,var(--uc-surface))] px-3.5 py-1.5 text-xs font-bold tracking-wide text-[var(--uc-secondary)]">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-[color-mix(in_oklab,var(--uc-secondary)_25%,transparent)] bg-[color-mix(in_oklab,var(--uc-secondary)_10%,var(--uc-surface))] px-3.5 py-1.5 text-xs font-bold tracking-wide text-[color-mix(in_oklab,var(--uc-secondary-text)_88%,var(--uc-ink))]">
               <svg viewBox="0 0 12 12" className="h-2.5 w-2.5" fill="currentColor" aria-hidden>
                 <path d="M6 0l1.57 3.6L11.5 4 8.6 6.4 9.7 10 6 7.9 2.3 10l1.1-3.6L.5 4l3.93-.4L6 0z" />
               </svg>
@@ -76,7 +79,7 @@ export function HeroStorefront({
                 href={props.cta_primary.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[var(--uc-primary)] px-7 py-4 text-base font-semibold text-[var(--uc-on-primary)] shadow-[0_2px_10px_color-mix(in_oklab,var(--uc-primary)_38%,transparent)] transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-0.5 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--uc-primary)]"
+                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[var(--uc-primary)] px-7 py-4 text-base font-semibold text-[var(--uc-on-primary-text)] shadow-[0_2px_10px_color-mix(in_oklab,var(--uc-primary)_38%,transparent)] transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-0.5 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--uc-primary)]"
               >
                 {props.cta_primary.label}
               </a>
@@ -88,7 +91,7 @@ export function HeroStorefront({
             {props.cta_secondary ? (
               <a
                 href={props.cta_secondary.action === "url" && props.cta_secondary.url ? props.cta_secondary.url : onCatalogHref}
-                className="inline-flex items-center justify-center rounded-2xl border-2 border-[color-mix(in_oklab,var(--uc-primary)_30%,transparent)] px-6 py-3.5 text-sm font-bold text-[var(--uc-primary)] transition-colors duration-200 hover:bg-[color-mix(in_oklab,var(--uc-primary)_8%,transparent)] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--uc-primary)]"
+                className="inline-flex items-center justify-center rounded-2xl border-2 border-[color-mix(in_oklab,var(--uc-primary)_30%,transparent)] px-6 py-3.5 text-sm font-bold text-[var(--uc-primary-text)] transition-colors duration-200 hover:bg-[color-mix(in_oklab,var(--uc-primary)_8%,transparent)] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--uc-primary)]"
               >
                 {props.cta_secondary.label}
               </a>

@@ -43,7 +43,7 @@ export function DownloadCatalogCta({
       <div className="mx-auto max-w-xl rounded-3xl border-2 border-dashed border-[color-mix(in_oklab,var(--uc-primary)_30%,transparent)] bg-[color-mix(in_oklab,var(--uc-primary)_6%,var(--uc-bg))] p-7 text-center sm:p-9">
         <span
           aria-hidden
-          className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[var(--uc-primary)] text-[var(--uc-on-primary)] shadow-[0_8px_22px_-8px_color-mix(in_oklab,var(--uc-primary)_55%,transparent)]"
+          className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[var(--uc-primary)] text-[var(--uc-on-primary-text)] shadow-[0_8px_22px_-8px_color-mix(in_oklab,var(--uc-primary)_55%,transparent)]"
         >
           <DownloadMark />
         </span>
@@ -54,7 +54,7 @@ export function DownloadCatalogCta({
               href={props.file_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex min-h-[44px] items-center gap-2 rounded-2xl bg-[var(--uc-primary)] px-5 py-2.5 text-sm font-semibold text-[var(--uc-on-primary)] shadow-[0_2px_10px_color-mix(in_oklab,var(--uc-primary)_38%,transparent)] transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[0_10px_28px_color-mix(in_oklab,var(--uc-primary)_45%,transparent)] active:translate-y-0 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--uc-primary)]"
+              className="inline-flex min-h-[44px] items-center gap-2 rounded-2xl bg-[var(--uc-primary)] px-5 py-2.5 text-sm font-semibold text-[var(--uc-on-primary-text)] shadow-[0_2px_10px_color-mix(in_oklab,var(--uc-primary)_38%,transparent)] transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[0_10px_28px_color-mix(in_oklab,var(--uc-primary)_45%,transparent)] active:translate-y-0 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--uc-primary)]"
             >
               <DownloadMark className="h-4 w-4" />
               {props.file_label}

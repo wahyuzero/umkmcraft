@@ -15,7 +15,7 @@ import { WaIcon } from "../primitives";
 const LABEL_CLS = "text-sm font-semibold text-[var(--uc-ink)]";
 
 const inputCls =
-  "min-h-[44px] w-full rounded-xl border border-[color-mix(in_oklab,var(--uc-ink)_12%,transparent)] bg-[var(--uc-bg)] px-3.5 py-2.5 text-sm text-[var(--uc-ink)] transition-colors duration-150 placeholder:text-[color-mix(in_oklab,var(--uc-ink)_40%,transparent)] focus:border-[var(--uc-primary)] focus:outline-none focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--uc-primary)]";
+  "min-h-[44px] w-full rounded-xl border border-[color-mix(in_oklab,var(--uc-ink)_12%,transparent)] bg-[var(--uc-bg)] px-3.5 py-2.5 text-sm text-[var(--uc-ink)] transition-colors duration-150 placeholder:text-[color-mix(in_oklab,var(--uc-ink)_65%,transparent)] focus:border-[var(--uc-primary)] focus:outline-none focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--uc-primary)]";
 
 function OptionChips({
   legend,
@@ -155,12 +155,12 @@ export function BookingForm({
       </label>
       <button
         type="submit"
-        className="group inline-flex min-h-[52px] w-full items-center justify-center gap-2 rounded-2xl bg-[var(--uc-primary)] px-6 py-3.5 text-base font-semibold text-[var(--uc-on-primary)] shadow-[0_2px_10px_color-mix(in_oklab,var(--uc-primary)_38%,transparent)] transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[0_10px_28px_color-mix(in_oklab,var(--uc-primary)_45%,transparent)] active:translate-y-0 active:scale-[0.99] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--uc-primary)]"
+        className="group inline-flex min-h-[52px] w-full items-center justify-center gap-2 rounded-2xl bg-[var(--uc-primary)] px-6 py-3.5 text-base font-semibold text-[var(--uc-on-primary-text)] shadow-[0_2px_10px_color-mix(in_oklab,var(--uc-primary)_38%,transparent)] transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[0_10px_28px_color-mix(in_oklab,var(--uc-primary)_45%,transparent)] active:translate-y-0 active:scale-[0.99] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--uc-primary)]"
       >
         <WaIcon className="h-[1.15em] w-[1.15em] shrink-0 transition-transform duration-200 ease-out group-hover:scale-110" />
         {buttonLabel}
       </button>
-      <p className="text-center text-[0.72rem] leading-relaxed text-[color-mix(in_oklab,var(--uc-ink)_55%,transparent)]">
+      <p className="text-center text-[0.72rem] leading-relaxed text-[color-mix(in_oklab,var(--uc-ink)_65%,transparent)]">
         Pesan otomatis tersusun di WhatsApp — kak tinggal tekan kirim, admin konfirmasi jadwalnya.
       </p>
     </form>

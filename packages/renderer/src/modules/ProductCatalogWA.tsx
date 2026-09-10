@@ -67,7 +67,7 @@ export function ProductCatalogWA({
             <path d="M3.5 8 12 3.5 20.5 8v8L12 20.5 3.5 16V8Z" />
             <path d="M3.5 8 12 12.2 20.5 8M12 12.2v8.3" />
           </svg>
-          <p className="max-w-xs text-sm leading-relaxed text-[color-mix(in_oklab,var(--uc-ink)_55%,transparent)]">
+          <p className="max-w-xs text-sm leading-relaxed text-[color-mix(in_oklab,var(--uc-ink)_65%,transparent)]">
             Belum ada produk di kategori ini — cek kategori lain, ya!
           </p>
         </div>

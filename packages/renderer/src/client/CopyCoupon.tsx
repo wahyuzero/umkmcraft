@@ -102,7 +102,7 @@ export function CopyCoupon({ code }: { code: string }) {
         className={`inline-flex min-h-[44px] items-center gap-1 rounded-lg px-3.5 text-xs font-bold transition-[background-color,color,transform] duration-200 ease-out active:scale-95 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--uc-primary)] ${
           copied
             ? "bg-[var(--uc-ink)] text-[var(--uc-bg)]"
-            : "bg-[var(--uc-primary)] text-[var(--uc-on-primary)] hover:brightness-105"
+            : "bg-[var(--uc-primary)] text-[var(--uc-on-primary-text)] hover:brightness-105"
         }`}
       >
         {copied ? <CheckIcon /> : <CopyIcon />}

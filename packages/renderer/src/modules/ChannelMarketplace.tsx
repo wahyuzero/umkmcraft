@@ -118,7 +118,7 @@ function PlatformMark({ platform, filled = false }: { platform: Platform; filled
         </svg>
       );
     case "whatsapp":
-      return <WaIcon className={`h-7 w-7 ${filled ? "text-[var(--uc-on-primary)]" : "text-[#25d366]"}`} />;
+      return <WaIcon className={`h-7 w-7 ${filled ? "text-[var(--uc-on-primary-text)]" : "text-[#25d366]"}`} />;
     case "website":
       return (
         <svg
@@ -127,7 +127,7 @@ function PlatformMark({ platform, filled = false }: { platform: Platform; filled
           stroke="currentColor"
           strokeWidth="1.9"
           strokeLinecap="round"
-          className={`h-7 w-7 ${filled ? "text-[var(--uc-on-primary)]" : "text-[var(--uc-primary)]"}`}
+          className={`h-7 w-7 ${filled ? "text-[var(--uc-on-primary-text)]" : "text-[var(--uc-primary)]"}`}
           aria-hidden
         >
           <circle cx="12" cy="12" r="8.5" />
@@ -178,7 +178,7 @@ export function ChannelMarketplace({ id, props }: { id: string; props: ChannelMa
                 rel="noopener noreferrer"
                 className={`group flex h-full min-h-[44px] flex-col gap-3 rounded-2xl border p-4 transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-1 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--uc-primary)] ${
                   filled
-                    ? "border-transparent bg-[var(--uc-primary)] text-[var(--uc-on-primary)] shadow-[0_4px_16px_color-mix(in_oklab,var(--uc-primary)_38%,transparent)] hover:shadow-[0_14px_30px_-12px_color-mix(in_oklab,var(--uc-primary)_55%,transparent)]"
+                    ? "border-transparent bg-[var(--uc-primary)] text-[var(--uc-on-primary-text)] shadow-[0_4px_16px_color-mix(in_oklab,var(--uc-primary)_38%,transparent)] hover:shadow-[0_14px_30px_-12px_color-mix(in_oklab,var(--uc-primary)_55%,transparent)]"
                     : "border-[color-mix(in_oklab,var(--uc-ink)_8%,transparent)] bg-[var(--uc-surface)] shadow-[0_1px_3px_color-mix(in_oklab,var(--uc-ink)_6%,transparent)] hover:shadow-[0_14px_30px_-12px_color-mix(in_oklab,var(--uc-primary)_40%,transparent)]"
                 }`}
               >
@@ -196,7 +196,7 @@ export function ChannelMarketplace({ id, props }: { id: string; props: ChannelMa
                   className={`mt-auto inline-flex items-center gap-1 text-xs font-semibold transition-colors duration-200 ease-out ${
                     filled
                       ? "text-[color-mix(in_oklab,var(--uc-on-primary)_85%,transparent)]"
-                      : "text-[color-mix(in_oklab,var(--uc-ink)_55%,transparent)] group-hover:text-[var(--uc-primary)]"
+                      : "text-[color-mix(in_oklab,var(--uc-ink)_65%,transparent)] group-hover:text-[var(--uc-primary)]"
                   }`}
                 >
                   Buka

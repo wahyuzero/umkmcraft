@@ -32,6 +32,16 @@ Builder = meja sablon label UMKM: daftar section adalah **lembar stiker die-cut*
 6 preset kategori via CSS vars runtime `--uc-*`:
 `spicy_amber` (#d97706/#fffbeb), `roasted_mocha` (#78350f/#faf5ee), `charcoal_slate` (#1e293b/#f8fafc), `blush_rose` (#e11d48/#fff1f2), `electric_blue` (#2563eb/#f0f9ff), `fresh_emerald` (#059669/#f0fdf4). Font default tenant: **Plus Jakarta Sans** (Tokotype, Jakarta — identitas nasional; dapat dioverride per-tenant via `theme.font_*`).
 
+## Tenant v2 — pole visual (branch polish/ui-ux-overnight)
+- **Placeholder ilustratif per kategori** — motif SVG geometris deterministik (mangkuk+kopi, cup, gunting, kaos, gir, gelembung, label) yang warnanya mengalir dari `--uc-*`, dengan panggung arch + tekstur titik. Jujur (tetap berlabel "contoh"), tapi crafted.
+- **Ritme 3 tone** — `SectionShell tone="bg | surface | wash"`; wash = sapuan primary 5%. Variasi densitas antar section dipertahankan.
+- **Pola CSS murni** — `.uc-pattern-dots` / `.uc-pattern-lines` (tema-tinted) untuk hero, band promo, stats, CTA.
+- **Teks turunan AA** — `--uc-primary-text` / `--uc-secondary-text` (AA di latar terang) dan `--uc-on-primary-text` (AA di atas latar primary; putih pada amber hanya 3.19:1 → dihitung jadi gelap 4.7:1). Modul memakai var teks, var warna mentah untuk dekorasi/latar.
+- **Sentuh ≥44px** — semua tombol/tab/row interaktif; tombol WA teks nowrap, active scale 0.98.
+- **Scroll-reveal yang tidak bisa menghilang** — `.uc-reveal` memakai `animation-timeline: view()` dengan `animation-fill-mode: none`: kondisi istirahat selalu terlihat; browser tanpa dukungan/berperilaku aneh menampilkan konten penuh. Alasan: kontrak "pembeli tidak pernah melihat konten hilang" > flourish.
+- **FAQ** — satu kartu `divide-y`, ikon plus berputar via `group-open`, expand halus `::details-content` (progresif).
+- **Kartu konsisten** — `.uc-card` (bayangan dua lapis halus); anti cards-in-cards: daftar panjang memakai `divide-y`, bukan kartu dalam kartu.
+
 ## Components
 - **SectionShell / SectionHeader** — ritme vertikal konsisten; judul tanpa eyebrow, underline bar pendek warna primary.
 - **WaButton / WaIcon** — CTA WhatsApp; hover lift + glow lembut; icon SVG resmi geometris.
@@ -50,6 +60,13 @@ Builder = meja sablon label UMKM: daftar section adalah **lembar stiker die-cut*
 
 ## Motion
 Satu momen orkestrasi: stiker menempel (`uc-stick-in`, ease-out-expo). Lainnya mikro: lift hover 150–200ms, dot pulse 1.6s (motion-safe), FAQ expand 300ms. Dilarang bounce/elastic.
+
+## Builder v2 — mobile-first & ramah awam
+- **HP = tab bawah** — di <lg, 3 kolom menjadi satu panel penuh + toolbar 3 tab (Susun / Pratinjau / Atur, ≥48px, safe-area). Desktop tak berubah.
+- **Inspector** — kontrol terpadu (fokus ring signal, counter karakter dari batas skema, toggle 44px, repeater: urutkan ChevronUp/Down, hapus 2-langkah, tambah = cutline dashed), grup field Tampilan/Konten/CTA, "Opsi lanjutan" disclosure.
+- **Ikon = lucide-react** di seluruh chrome builder (ikon per tipe section di lembar stiker & katalog modul); tenant tetap inline SVG.
+- **PublishButton** — alur draft → Menyegel… → Live (hijau `--color-live` + aksi "Lihat situs"); toast lempeng bawah-tengah dengan aksi.
+- **Skeleton loading** per route; error boundary ramah ("Waduh, ada yang error"); 404 tenant & suspended bernada kak.
 
 ## Anti-patterns yang dilarang (terverifikasi detector = 0 findings)
 Eyebrow/kicker, gradient text, glass, side-tab border >1px, hard offset shadow, icon emoji di chrome UI, bounce easing, cards-in-cards, testimonial palsu (aturan produk).

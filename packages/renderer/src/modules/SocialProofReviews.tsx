@@ -187,7 +187,7 @@ function ReviewCard({ review, isSample }: { review: ReviewItem; isSample: boolea
         <div className="min-w-0 grow">
           <p className="truncate text-sm font-bold text-[var(--uc-ink)]">{review.name}</p>
           {review.date ? (
-            <p className="text-[0.7rem] text-[color-mix(in_oklab,var(--uc-ink)_52%,transparent)]">{review.date}</p>
+            <p className="text-[0.7rem] text-[color-mix(in_oklab,var(--uc-ink)_65%,transparent)]">{review.date}</p>
           ) : null}
         </div>
         <span className="flex shrink-0 flex-wrap items-center gap-1.5">
@@ -228,7 +228,7 @@ export function SocialProofReviews({ id, props }: { id: string; props: SocialPro
       <SectionHeader title={props.section_title} subtitle={props.section_subtitle} />
 
       {props.reviews.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-[color-mix(in_oklab,var(--uc-ink)_20%,transparent)] p-8 text-center text-sm text-[color-mix(in_oklab,var(--uc-ink)_55%,transparent)]">
+        <p className="rounded-2xl border border-dashed border-[color-mix(in_oklab,var(--uc-ink)_20%,transparent)] p-8 text-center text-sm text-[color-mix(in_oklab,var(--uc-ink)_65%,transparent)]">
           Belum ada ulasan — jadilah pelanggan pertama yang berbagi cerita!
         </p>
       ) : (

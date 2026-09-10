@@ -88,7 +88,7 @@ export function EventScheduleList({ id, props }: { id: string; props: EventsProp
                   </p>
                 ) : null}
                 {ev.note ? (
-                  <p className="mt-1 text-sm text-[color-mix(in_oklab,var(--uc-ink)_55%,transparent)]">{ev.note}</p>
+                  <p className="mt-1 text-sm text-[color-mix(in_oklab,var(--uc-ink)_65%,transparent)]">{ev.note}</p>
                 ) : null}
               </div>
               {ev.maps_url ? (

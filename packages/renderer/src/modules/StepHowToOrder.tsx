@@ -35,7 +35,7 @@ export function StepHowToOrder({ id, props }: { id: string; props: StepHowToOrde
               ) : null}
               <span
                 aria-hidden
-                className="relative z-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[var(--uc-primary)] font-[family-name:var(--uc-font-heading)] text-lg font-extrabold tabular-nums text-[var(--uc-on-primary)] shadow-[0_4px_14px_color-mix(in_oklab,var(--uc-primary)_35%,transparent)]"
+                className="relative z-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[var(--uc-primary)] font-[family-name:var(--uc-font-heading)] text-lg font-extrabold tabular-nums text-[var(--uc-on-primary-text)] shadow-[0_4px_14px_color-mix(in_oklab,var(--uc-primary)_35%,transparent)]"
               >
                 {step.step_number}
               </span>

@@ -48,7 +48,7 @@ export function PromoBanner({ id, props }: { id: string; props: PromoBannerProps
             <div className="flex items-start gap-4 sm:items-center">
               <span
                 aria-hidden
-                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[var(--uc-primary)] text-[var(--uc-on-primary)] shadow-[0_6px_16px_-6px_color-mix(in_oklab,var(--uc-primary)_60%,transparent)]"
+                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[var(--uc-primary)] text-[var(--uc-on-primary-text)] shadow-[0_6px_16px_-6px_color-mix(in_oklab,var(--uc-primary)_60%,transparent)]"
               >
                 <MegaphoneIcon className="h-6 w-6" />
               </span>

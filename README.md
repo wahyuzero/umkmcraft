@@ -68,6 +68,13 @@
 | 🛡️ `trust_badges_strip` | Strip logo metode bayar (QRIS/Bank), kurir ekspedisi (J&T/Paxel), & sertifikasi. |
 | 👣 `step_how_to_order` | Panduan langkah pemesanan bertahap untuk toko pre-order & kustom. |
 
+<details>
+<summary><b>🧩 14 modul extended tambahan (wave 2)</b></summary>
+
+`stats_counter_strip` (pita statistik) · `value_props_grid` (keunggulan berikon) · `menu_price_list` (daftar menu bergaya buku menu) · `product_spotlight` (sorotan produk editorial) · `team_members_grid` (tim) · `timeline_story` (cerita perjalanan) · `booking_whatsapp_form` (form booking → WA) · `event_schedule_list` (agenda acara) · `branch_locations_list` (multi-cabang dengan WA per cabang) · `instagram_showcase_grid` · `cta_banner_full` (band CTA penuh) · `qr_code_whatsapp` (QR chat) · `updates_blog_list` (info/berita) · `download_catalog_cta` (katalog unduhan)
+
+</details>
+
 ---
 
 ## 📚 Dokumentasi Lengkap
@@ -99,7 +106,7 @@ Dokumentasi teknis mendalam tersedia pada berkas berikut:
 pnpm install
 cp apps/web/.env.example apps/web/.env.local   # opsional: isi GOOGLE_GENERATIVE_AI_API_KEY
 pnpm dev                                       # → http://localhost:3000
-pnpm test                                      # 48 test (vitest + fast-check)
+pnpm test                                      # 77 test (vitest + fast-check)
 ```
 
 Alur E2E: `/start` (chat santai) → `/editor/{siteId}` (rak alat: lembar stiker + kemasan HP) → **Terbitkan Situs** → `http://{slug}.lvh.me:3000` (dev) atau `/sites/{slug}`.

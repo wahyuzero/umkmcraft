@@ -135,14 +135,22 @@ export function SectionList({ onAdd }: { onAdd?: () => void }) {
   const [overIndex, setOverIndex] = useState<number | null>(null);
 
   // Stiker baru (dari katalog) dapat entrance uc-stick-in; stiker lama tidak.
-  const knownIds = useRef<Set<string> | null>(null);
-  const freshIds = new Set<string>();
-  if (knownIds.current) {
-    for (const s of sections) if (!knownIds.current.has(s.id)) freshIds.add(s.id);
-  }
+  // Differing di effect — akses ref saat render dilarang (react-hooks/refs).
+  const knownIdsRef = useRef<Set<string> | null>(null);
+  const [freshIds, setFreshIds] = useState<Set<string>>(() => new Set());
   useEffect(() => {
-    knownIds.current = new Set(sections.map((s) => s.id));
-  });
+    const known = knownIdsRef.current;
+    if (known) {
+      const fresh = new Set(sections.filter((s) => !known.has(s.id)).map((s) => s.id));
+      if (fresh.size > 0) {
+        setFreshIds(fresh);
+        const t = setTimeout(() => setFreshIds(new Set()), 450);
+        knownIdsRef.current = new Set(sections.map((s) => s.id));
+        return () => clearTimeout(t);
+      }
+    }
+    knownIdsRef.current = new Set(sections.map((s) => s.id));
+  }, [sections]);
 
   if (sections.length === 0) {
     return (

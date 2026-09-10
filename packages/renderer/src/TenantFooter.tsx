@@ -10,7 +10,7 @@ export function TenantFooter({ siteId, businessName }: { siteId: string; busines
       <div className="mx-auto flex w-full max-w-3xl flex-col items-center justify-between gap-3 text-center sm:flex-row sm:text-left">
         <div>
           <p className="text-sm font-bold text-[var(--uc-ink)]">{businessName}</p>
-          <p className="mt-0.5 text-xs text-[color-mix(in_oklab,var(--uc-ink)_45%,transparent)]">
+          <p className="mt-0.5 text-xs text-[color-mix(in_oklab,var(--uc-ink)_65%,transparent)]">
             Dibuat gratis dengan{" "}
             <a
               href="/"

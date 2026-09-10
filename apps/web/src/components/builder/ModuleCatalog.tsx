@@ -114,9 +114,10 @@ export function ModuleCatalog({ onClose }: { onClose: () => void }) {
       }
     };
     window.addEventListener("keydown", onKey);
+    const opener = openerRef.current;
     return () => {
       window.removeEventListener("keydown", onKey);
-      openerRef.current?.focus?.();
+      opener?.focus?.();
     };
   }, [onClose]);
 

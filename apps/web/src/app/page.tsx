@@ -274,7 +274,12 @@ export default function LandingPage() {
                     <div
                       style={themeStyle(demo.meta)}
                       className="uc-site max-h-[560px] overflow-hidden [mask-image:linear-gradient(to_bottom,black_82%,transparent)]"
-                      aria-label="Contoh website yang dibuat UMKM Craft"
+                      // Mock demo bersifat dekoratif: inert mengeluarkan seluruh isi
+                      // (h1, tombol WA, filter katalog) dari pohon aksesibilitas dan
+                      // urutan tab — halaman landing punya tepat satu h1 yang bisa
+                      // diakses dan fokus keyboard tidak masuk ke mock terpotong.
+                      inert
+                      aria-hidden="true"
                     >
                       {renderSections(demo.meta, demoSections)}
                     </div>

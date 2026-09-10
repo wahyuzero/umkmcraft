@@ -81,7 +81,7 @@ export function ServicePricingTable({
             >
               {popular ? (
                 <span
-                  className="absolute -top-3.5 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded-full bg-[var(--uc-primary)] px-3.5 py-1 text-[0.68rem] font-extrabold uppercase tracking-[0.08em] text-[var(--uc-on-primary)] shadow-[0_2px_10px_color-mix(in_oklab,var(--uc-primary)_40%,transparent)]"
+                  className="absolute -top-3.5 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded-full bg-[var(--uc-primary)] px-3.5 py-1 text-[0.68rem] font-extrabold uppercase tracking-[0.08em] text-[var(--uc-on-primary-text)] shadow-[0_2px_10px_color-mix(in_oklab,var(--uc-primary)_40%,transparent)]"
                 >
                   Terpopuler
                 </span>
@@ -94,7 +94,7 @@ export function ServicePricingTable({
                   {formatRupiah(tier.price)}
                 </span>
                 {tier.unit ? (
-                  <span className="text-xs font-semibold text-[color-mix(in_oklab,var(--uc-ink)_55%,transparent)]">
+                  <span className="text-xs font-semibold text-[color-mix(in_oklab,var(--uc-ink)_65%,transparent)]">
                     / {tier.unit}
                   </span>
                 ) : null}

@@ -102,7 +102,7 @@ export function WaButton({
       href={href}
       event={productId ? "wa_product_click" : "wa_click"}
       productId={productId}
-      className={`group inline-flex items-center justify-center gap-2 rounded-2xl ${pad} font-semibold whitespace-nowrap shadow-[0_2px_10px_color-mix(in_oklab,var(--uc-primary)_38%,transparent)] transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[0_10px_28px_color-mix(in_oklab,var(--uc-primary)_45%,transparent)] active:translate-y-0 active:scale-[0.98] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--uc-primary)] ${full ? "w-full" : ""} bg-[var(--uc-primary)] text-[var(--uc-on-primary)]`}
+      className={`group inline-flex items-center justify-center gap-2 rounded-2xl ${pad} font-semibold whitespace-nowrap shadow-[0_2px_10px_color-mix(in_oklab,var(--uc-primary)_38%,transparent)] transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[0_10px_28px_color-mix(in_oklab,var(--uc-primary)_45%,transparent)] active:translate-y-0 active:scale-[0.98] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--uc-primary)] ${full ? "w-full" : ""} bg-[var(--uc-primary)] text-[var(--uc-on-primary-text)]`}
     >
       <WaIcon className="h-[1.15em] w-[1.15em] shrink-0 transition-transform duration-200 ease-out group-hover:scale-110" />
       <span>{children}</span>
@@ -131,12 +131,12 @@ export function PriceTag({ price, original }: { price: number; original?: number
   const pct = hasDiscount ? Math.round(((original! - price) / original!) * 100) : 0;
   return (
     <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-      <span className="text-[1.08rem] font-bold tabular-nums tracking-[-0.01em] text-[var(--uc-primary)]">
+      <span className="text-[1.08rem] font-bold tabular-nums tracking-[-0.01em] text-[var(--uc-primary-text)]">
         {formatRupiah(price)}
       </span>
       {hasDiscount ? (
         <>
-          <span className="text-xs tabular-nums text-[color-mix(in_oklab,var(--uc-ink)_45%,transparent)] line-through">
+          <span className="text-xs tabular-nums text-[color-mix(in_oklab,var(--uc-ink)_65%,transparent)] line-through">
             {formatRupiah(original!)}
           </span>
           <span className="rounded-full bg-[color-mix(in_oklab,var(--uc-secondary)_12%,transparent)] px-1.5 py-0.5 text-[0.65rem] font-bold tabular-nums text-[var(--uc-secondary)]">
@@ -345,7 +345,9 @@ export function PlaceholderImage({
       >
         <Motif motif={motif} />
       </svg>
-      <span className="absolute bottom-2 left-1/2 max-w-[92%] -translate-x-1/2 truncate rounded-full bg-[color-mix(in_oklab,var(--uc-ink)_55%,transparent)] px-2.5 py-1 text-[0.6rem] font-medium leading-4 text-[var(--uc-bg)]">
+      {/* Chip keterangan: ink 65% (bukan 55%) agar teks kecil tetap ≥4.5:1
+          di atas semua preset — kontras WCAG AA untuk teks tubuh. */}
+      <span className="absolute bottom-2 left-1/2 max-w-[92%] -translate-x-1/2 truncate rounded-full bg-[color-mix(in_oklab,var(--uc-ink)_65%,transparent)] px-2.5 py-1 text-[0.6rem] font-medium leading-4 text-[var(--uc-bg)]">
         Foto {label} (contoh)
       </span>
     </div>

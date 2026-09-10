@@ -93,7 +93,7 @@ export function MenuPriceList({ id, props }: { id: string; props: MenuListProps 
             </ul>
           </div>
         ))}
-        <p className="text-center text-[0.75rem] text-[color-mix(in_oklab,var(--uc-ink)_50%,transparent)]">
+        <p className="text-center text-[0.75rem] text-[color-mix(in_oklab,var(--uc-ink)_65%,transparent)]">
           Mau pesan? Chat admin — link WhatsApp ada di tombol hijau di halaman ini.
         </p>
       </div>

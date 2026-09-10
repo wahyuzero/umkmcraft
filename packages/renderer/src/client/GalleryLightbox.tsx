@@ -185,7 +185,7 @@ export function GalleryLightbox({
                   </p>
                 ) : null}
                 {items.length > 1 ? (
-                  <p className="mt-2 text-xs font-semibold tabular-nums text-[color-mix(in_oklab,var(--uc-ink)_50%,transparent)]">
+                  <p className="mt-2 text-xs font-semibold tabular-nums text-[color-mix(in_oklab,var(--uc-ink)_65%,transparent)]">
                     {(active ?? 0) + 1} / {items.length}
                   </p>
                 ) : null}

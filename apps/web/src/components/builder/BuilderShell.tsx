@@ -9,7 +9,7 @@
  * yang menukar panel full-width dengan slide/fade. Desktop (lg+): 3 kolom
  * persis seperti semula. State panel = useState lokal, tanpa store.
  */
-import { useRef, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import {
   Check, CloudOff, CloudUpload, LayoutList, LoaderCircle, Plus, SlidersHorizontal, Smartphone,
@@ -48,12 +48,12 @@ export function BuilderShell({
   const [catalogOpen, setCatalogOpen] = useState(false);
   const [mobileTab, setMobileTab] = useState<MobileTab>("pratinjau");
 
-  // Hydrate store tepat sekali sebelum interaksi (initialConfig serializable dari server)
-  const hydratedRef = useRef(false);
-  if (!hydratedRef.current) {
+  // Hydrate store tepat sekali sebelum interaksi (initialConfig serializable dari server).
+  // Lazy useState initializer = jalan sekali, tanpa akses ref saat render.
+  useState(() => {
     useEditor.setState({ siteId, slug, config: initialConfig, published, selectedId: initialConfig.sections[0]?.id ?? null, saveState: "idle" });
-    hydratedRef.current = true;
-  }
+    return true;
+  });
 
   const config = useEditor((s) => s.config);
   const saveState = useEditor((s) => s.saveState);

@@ -162,7 +162,7 @@ function StatusBadge({ isOpen, nextChange }: { isOpen: boolean; nextChange: stri
       <span
         className={`inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-xs font-bold ${
           isOpen
-            ? "bg-[var(--uc-primary)] text-[var(--uc-on-primary)] shadow-[0_2px_10px_color-mix(in_oklab,var(--uc-primary)_35%,transparent)]"
+            ? "bg-[var(--uc-primary)] text-[var(--uc-on-primary-text)] shadow-[0_2px_10px_color-mix(in_oklab,var(--uc-primary)_35%,transparent)]"
             : "bg-[color-mix(in_oklab,var(--uc-ink)_8%,transparent)] text-[color-mix(in_oklab,var(--uc-ink)_70%,transparent)]"
         }`}
       >
@@ -285,7 +285,7 @@ export function OperatingHoursMap({
               >
                 <span
                   aria-hidden
-                  className="flex h-14 w-14 items-center justify-center rounded-full bg-[var(--uc-primary)] text-[var(--uc-on-primary)] shadow-[0_8px_20px_-8px_color-mix(in_oklab,var(--uc-primary)_60%,transparent)]"
+                  className="flex h-14 w-14 items-center justify-center rounded-full bg-[var(--uc-primary)] text-[var(--uc-on-primary-text)] shadow-[0_8px_20px_-8px_color-mix(in_oklab,var(--uc-primary)_60%,transparent)]"
                 >
                   <PinIcon className="h-7 w-7" />
                 </span>
@@ -294,7 +294,7 @@ export function OperatingHoursMap({
                     {props.address}
                   </p>
                 ) : (
-                  <p className="max-w-xs text-sm leading-relaxed text-[color-mix(in_oklab,var(--uc-ink)_55%,transparent)]">
+                  <p className="max-w-xs text-sm leading-relaxed text-[color-mix(in_oklab,var(--uc-ink)_65%,transparent)]">
                     Titik lokasi kami — buka tombol rute di bawah untuk navigasi.
                   </p>
                 )}
@@ -318,7 +318,7 @@ export function OperatingHoursMap({
             </div>
           </div>
         ) : (
-          <p className="rounded-2xl border border-dashed border-[color-mix(in_oklab,var(--uc-ink)_20%,transparent)] p-6 text-center text-sm text-[color-mix(in_oklab,var(--uc-ink)_55%,transparent)]">
+          <p className="rounded-2xl border border-dashed border-[color-mix(in_oklab,var(--uc-ink)_20%,transparent)] p-6 text-center text-sm text-[color-mix(in_oklab,var(--uc-ink)_65%,transparent)]">
             Alamat dan jam operasional belum lengkap.
           </p>
         )}
