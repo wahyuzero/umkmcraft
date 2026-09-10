@@ -109,7 +109,7 @@ pnpm dev                                       # → http://localhost:3000
 pnpm test                                      # 77 test (vitest + fast-check)
 ```
 
-Alur E2E: `/start` (chat santai) → `/editor/{siteId}` (rak alat: lembar stiker + kemasan HP) → **Terbitkan Situs** → `http://{slug}.lvh.me:3000` (dev) atau `/sites/{slug}`.
+Alur E2E: `/start` (chat santai) → `/editor/{siteId}` (rak alat: lembar stiker + kemasan HP) → **Terbitkan Situs** → `http://{slug}.lvh.me:3000` (dev) atau `/sites/{slug}`. Situs yang pernah dibuat bisa ditemukan lagi di `/situs-saya`.
 
 ---
 

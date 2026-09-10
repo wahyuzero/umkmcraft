@@ -178,6 +178,12 @@ export default function LandingPage() {
               Modul
             </a>
             <Link
+              href="/situs-saya"
+              className="hidden items-center rounded-lg px-3 py-3 text-sm font-medium text-ink-soft transition-colors hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal sm:flex"
+            >
+              Situs Saya
+            </Link>
+            <Link
               href="/start"
               className="ml-2 inline-flex items-center rounded-xl bg-signal px-4 py-3 text-sm font-bold text-card shadow-[0_2px_10px_rgb(154_52_18/0.35)] transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[0_8px_22px_rgb(154_52_18/0.4)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal"
             >
@@ -419,6 +425,7 @@ export default function LandingPage() {
               {[
                 { href: "#cara", label: "Cara Kerja" },
                 { href: "#modul", label: "Modul" },
+                { href: "/situs-saya", label: "Situs Saya" },
                 { href: "/start", label: "Buat Website Gratis" },
               ].map((l) => (
                 <li key={l.label}>
