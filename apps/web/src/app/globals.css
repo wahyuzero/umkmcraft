@@ -153,8 +153,10 @@ body {
   --lc-dot: color-mix(in oklab, var(--color-paper) 10%, transparent);
 }
 
-/* Scroll-reveal murni CSS (scroll-driven animation) — enhancement saja:
-   browser tanpa animation-timeline tidak menerapkan apa pun (tetap terlihat). */
+/* Scroll-reveal murni CSS (scroll-driven animation) — enhancement saja.
+   fill-mode sengaja BUKAN "both": kondisi istirahat elemen selalu terlihat,
+   jadi browser dengan timeline rusak/aneh tidak pernah menyembunyikan konten
+   (kontrak produk: pembeli tidak pernah melihat konten hilang). */
 @keyframes lc-reveal-in {
   from {
     opacity: 0;
@@ -168,7 +170,8 @@ body {
 @media (prefers-reduced-motion: no-preference) {
   @supports (animation-timeline: view()) {
     .lc-reveal {
-      animation: lc-reveal-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation: lc-reveal-in 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+      animation-fill-mode: none;
       animation-timeline: view();
       animation-range: entry 0% entry 45%;
     }

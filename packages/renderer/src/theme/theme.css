@@ -50,12 +50,15 @@
 }
 
 /* ---------- Scroll reveal — progressive enhancement ----------
-   Hanya aktif di browser dengan animation-timeline: view() (Chromium);
-   browser lain & print menampilkan konten langsung (tanpa animasi). */
+   fill-mode sengaja BUKAN "both": kondisi istirahat elemen selalu terlihat —
+   browser tanpa animation-timeline maupun yang timeline-nya berperilaku aneh
+   tetap menampilkan konten penuh (kontrak: tidak ada konten menghilang).
+   Hanya aktif dengan prefers-reduced-motion: no-preference. */
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
     .uc-site .uc-reveal {
-      animation: uc-reveal-in linear both;
+      animation: uc-reveal-in linear;
+      animation-fill-mode: none;
       animation-timeline: view();
       animation-range: entry 0% entry 45%;
     }
