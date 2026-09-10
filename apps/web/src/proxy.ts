@@ -55,6 +55,14 @@ export function proxy(request: NextRequest) {
 
   // Tenant host → rewrite ke renderer
   const url = request.nextUrl.clone();
+  // Pratinjau OG (metadata relatif /sites/og?slug=…) harus menjangkau route
+  // OG-nya langsung — kalau ditulis-ulang ganda jadi /sites/sites/og, kartu
+  // pratinjau WhatsApp (saluran akuisisi utama) rusak.
+  if (url.pathname === "/sites/og") {
+    const headers = new Headers(request.headers);
+    headers.delete("x-tenant-host");
+    return NextResponse.next({ request: { headers } });
+  }
   url.pathname = `/sites${url.pathname === "/" ? "/index" : url.pathname}`;
   const res = NextResponse.rewrite(url);
   res.headers.set("x-tenant-host", host);

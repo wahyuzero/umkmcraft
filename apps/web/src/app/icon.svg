@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Lettermark U: kemasan tinta, goresan kertas — geometris, tajam di 16px -->
+  <rect width="32" height="32" rx="7" fill="#231c10"/>
+  <path d="M10.5 8.25v10a5.5 5.5 0 0 0 11 0v-10" fill="none" stroke="#f6f1e7" stroke-width="4.6" stroke-linecap="round"/>
+</svg>

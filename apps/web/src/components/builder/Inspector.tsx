@@ -4,10 +4,53 @@
  * Inspector — panel edit label: field per tipe section.
  * Field sederhana (teks/angka/warna/toggle) + repeater untuk list
  * (produk, langkah, FAQ, tier). Simpan via store → autosave debounce.
+ *
+ * Kontrak visual (DESIGN.md): input bg-card + border cutline, fokus =
+ * ring signal-soft; toggle ON = sinyal (bukan hijau — hijau hanya live);
+ * repeater = kartu shadow-plate dengan urutan/hapus 44px + hapus dua
+ * langkah; grup field ("Tampilan", "Konten", "CTA") sebagai caption
+ * fungsional; field yang jarang dipakai disembunyikan di "Opsi lanjutan".
  */
 import { useEditor } from "@/lib/editor-store";
 import type { SectionType } from "@umkmcraft/schema";
-import { useState } from "react";
+import {
+  CalendarCheck,
+  CalendarDays,
+  Check,
+  ChevronDown,
+  ChevronUp,
+  Clock,
+  Download,
+  FileText,
+  HelpCircle,
+  History,
+  Images,
+  Instagram,
+  ListOrdered,
+  MapPin,
+  Megaphone,
+  MousePointerClick,
+  Newspaper,
+  Package,
+  PackageOpen,
+  Phone,
+  Plus,
+  QrCode,
+  Receipt,
+  Share2,
+  ShieldCheck,
+  ShoppingBag,
+  Sparkles,
+  Star,
+  Store,
+  Trash2,
+  TrendingUp,
+  Users,
+  UtensilsCrossed,
+  X,
+  type LucideIcon,
+} from "lucide-react";
+import { useEffect, useState } from "react";
 
 type FieldType = "text" | "textarea" | "number" | "url" | "image" | "toggle";
 
@@ -32,6 +75,91 @@ interface TypeSpec {
 }
 
 const F = (key: string, label: string, type: FieldType = "text", hint?: string): FieldDef => ({ key, label, type, hint });
+
+/* Ikon + nama ramah per tipe section — kepala inspector */
+const TYPE_META: Record<SectionType, { icon: LucideIcon; label: string }> = {
+  hero_storefront: { icon: Store, label: "Hero Etalase" },
+  product_catalog_wa: { icon: ShoppingBag, label: "Katalog Produk" },
+  promo_banner: { icon: Megaphone, label: "Banner Promo" },
+  operating_hours_map: { icon: Clock, label: "Jam Buka & Peta" },
+  social_proof_reviews: { icon: Star, label: "Ulasan Pelanggan" },
+  channel_marketplace: { icon: Share2, label: "Channel & Marketplace" },
+  faq_accordion: { icon: HelpCircle, label: "FAQ" },
+  contact_direct: { icon: Phone, label: "Kontak Langsung" },
+  rich_text_block: { icon: FileText, label: "Teks Bebas" },
+  gallery_grid: { icon: Images, label: "Galeri Foto" },
+  service_pricing_table: { icon: Receipt, label: "Tabel Harga" },
+  trust_badges_strip: { icon: ShieldCheck, label: "Lencana Kepercayaan" },
+  step_how_to_order: { icon: ListOrdered, label: "Cara Pesan" },
+  stats_counter_strip: { icon: TrendingUp, label: "Statistik" },
+  value_props_grid: { icon: Sparkles, label: "Keunggulan" },
+  menu_price_list: { icon: UtensilsCrossed, label: "Daftar Menu" },
+  product_spotlight: { icon: Package, label: "Sorotan Produk" },
+  cta_banner_full: { icon: MousePointerClick, label: "Banner CTA" },
+  team_members_grid: { icon: Users, label: "Tim" },
+  timeline_story: { icon: History, label: "Cerita Toko" },
+  booking_whatsapp_form: { icon: CalendarCheck, label: "Form Booking WA" },
+  event_schedule_list: { icon: CalendarDays, label: "Jadwal Acara" },
+  branch_locations_list: { icon: MapPin, label: "Lokasi Cabang" },
+  instagram_showcase_grid: { icon: Instagram, label: "Galeri Instagram" },
+  updates_blog_list: { icon: Newspaper, label: "Kabar Terbaru" },
+  download_catalog_cta: { icon: Download, label: "Unduh Katalog" },
+  qr_code_whatsapp: { icon: QrCode, label: "QR WhatsApp" },
+};
+
+/* Batas karakter sesuai skema — counter "62/80" di label field */
+const LIMITS: Record<string, number> = {
+  title: 80,
+  section_title: 80,
+  subtitle: 220,
+  section_subtitle: 220,
+};
+
+/* Pengelompokan field: caption fungsional, bukan eyebrow.
+   Key CTA = tombol/tautan/pesan otomatis; Tampilan = judul & label;
+   sisanya Konten. */
+const CTA_KEYS = new Set([
+  "cta_label",
+  "button_label",
+  "whatsapp_label",
+  "secondary_label",
+  "secondary_url",
+  "prefill_message",
+  "prefill_note",
+  "coupon_code",
+  "discount_text",
+  "file_label",
+]);
+const APPEARANCE_KEYS = new Set([
+  "section_title",
+  "section_subtitle",
+  "title",
+  "subtitle",
+  "badge",
+  "eyebrow",
+  "handle",
+]);
+
+function groupOf(f: FieldDef): "Tampilan" | "Konten" | "CTA" {
+  if (CTA_KEYS.has(f.key)) return "CTA";
+  if (APPEARANCE_KEYS.has(f.key)) return "Tampilan";
+  return "Konten";
+}
+const GROUP_ORDER = ["Tampilan", "Konten", "CTA"] as const;
+
+/* Field yang jarang diubah — disembunyikan di balik "Opsi lanjutan" */
+const ADVANCED_KEYS = new Set([
+  "email",
+  "waze_url",
+  "delivery_note",
+  "ends_at",
+  "secondary_label",
+  "secondary_url",
+  "prefill_message",
+  "prefill_note",
+  "file_label",
+  "caption",
+]);
 
 const SPECS: Partial<Record<SectionType, TypeSpec>> = {
   hero_storefront: {
@@ -189,7 +317,7 @@ export function Inspector() {
 
   if (!section) {
     return (
-      <div className="p-6">
+      <div className="p-4">
         <div className="uc-cutline rounded-2xl bg-card p-6 text-center">
           <p className="font-display text-base font-bold text-ink">Belum ada label terpilih</p>
           <p className="mt-1.5 text-sm leading-relaxed text-ink-soft">
@@ -202,25 +330,67 @@ export function Inspector() {
 
   const spec = SPECS[section.type];
   const props = section.props as Record<string, unknown>;
+  const meta = TYPE_META[section.type];
+  const liveTitle = String(props.section_title ?? props.title ?? "").trim();
+
+  /* Bagi field sederhana per grup + pisahkan yang "lanjutan" */
+  const simple = spec?.simple ?? [];
+  const visible = simple.filter((f) => !ADVANCED_KEYS.has(f.key));
+  const advanced = simple.filter((f) => ADVANCED_KEYS.has(f.key));
+  const groups = GROUP_ORDER.map((name) => ({ name, fields: visible.filter((f) => groupOf(f) === name) })).filter((g) => g.fields.length > 0);
+  const showCaptions = groups.length > 1;
 
   return (
     <div className="p-4">
-      <div className="mb-4 flex items-center justify-between px-1">
-        <h2 className="font-display text-sm font-bold uppercase tracking-[0.06em] text-ink-soft">
-          Edit Label
-        </h2>
-        <span className="rounded-full bg-signal-soft px-2.5 py-1 text-[0.65rem] font-bold uppercase tracking-wide text-signal">
-          {section.type.replaceAll("_", " ")}
-        </span>
+      {/* Kepala: ikon tipe + judul section yang sedang diedit */}
+      <div className="mb-4">
+        <h2 className="px-1 font-display text-sm font-bold uppercase tracking-[0.06em] text-ink-soft">Edit Label</h2>
+        <div className="mt-2.5 flex items-center gap-2.5 rounded-2xl border border-cutline/60 bg-card p-3 shadow-plate">
+          <span aria-hidden className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-signal-soft text-signal">
+            <meta.icon className="h-4 w-4" />
+          </span>
+          <div className="min-w-0">
+            <p className="truncate font-display text-sm font-bold text-ink">{liveTitle || meta.label}</p>
+            <p className="text-[0.65rem] font-semibold uppercase tracking-wide text-ink-soft">{meta.label}</p>
+          </div>
+        </div>
       </div>
 
       <div className="flex flex-col gap-4">
-        {spec?.simple.map((f) => (
-          <Field key={f.key} def={f} value={props[f.key]} onChange={(v) => update(section.id, f.key, v)} />
+        {groups.map((g) => (
+          <div key={g.name}>
+            {showCaptions ? (
+              <p className="mb-2 px-1 text-[0.7rem] font-bold uppercase tracking-wide text-ink-soft/60">{g.name}</p>
+            ) : null}
+            <div className="flex flex-col gap-3">
+              {g.fields.map((f) => (
+                <Field key={f.key} def={f} value={props[f.key]} onChange={(v) => update(section.id, f.key, v)} />
+              ))}
+            </div>
+          </div>
         ))}
 
+        {advanced.length > 0 ? (
+          <details className="group rounded-xl uc-cutline bg-card/60">
+            <summary className="flex min-h-[44px] cursor-pointer list-none items-center justify-between px-3 text-sm font-semibold text-ink-soft transition-colors duration-200 hover:text-signal [&::-webkit-details-marker]:hidden">
+              Opsi lanjutan
+              <ChevronDown aria-hidden className={`h-4 w-4 shrink-0 transition-transform duration-200 group-open:rotate-180`} />
+            </summary>
+            <div className="flex flex-col gap-3 border-t border-cutline/60 p-3">
+              {advanced.map((f) => (
+                <Field key={f.key} def={f} value={props[f.key]} onChange={(v) => update(section.id, f.key, v)} />
+              ))}
+            </div>
+          </details>
+        ) : null}
+
         {spec?.repeaters?.map((r) => (
-          <Repeater key={r.key} def={r} items={props[r.key] as Array<Record<string, unknown> | string> | undefined} onChange={(items) => update(section.id, r.key, items)} />
+          <Repeater
+            key={r.key}
+            def={r}
+            items={props[r.key] as Array<Record<string, unknown> | string> | undefined}
+            onChange={(items) => update(section.id, r.key, items)}
+          />
         ))}
 
         {!spec ? (
@@ -235,36 +405,52 @@ export function Inspector() {
 
 function Field({ def, value, onChange }: { def: FieldDef; value: unknown; onChange: (v: unknown) => void }) {
   const inputCls =
-    "w-full rounded-xl border border-cutline bg-card px-3 py-2.5 text-sm text-ink placeholder:text-ink-soft/50 focus:border-signal focus:outline-none";
+    "w-full rounded-xl border border-cutline bg-card px-3 py-2.5 text-sm text-ink transition-colors duration-200 placeholder:text-ink-soft/50 focus:border-signal focus:outline-none focus:ring-3 focus:ring-signal/15";
+  const limit = LIMITS[def.key];
+  const len = String(value ?? "").length;
+
+  /* Toggle: baris penuh 44px, ON = sinyal + wash (depth-as-state) */
+  if (def.type === "toggle") {
+    const on = Boolean(value);
+    return (
+      <button
+        type="button"
+        role="switch"
+        aria-checked={on}
+        onClick={() => onChange(!on)}
+        className={`flex min-h-[44px] w-full items-center justify-between gap-3 rounded-xl border px-3 py-2 text-left transition-colors duration-200 ${
+          on ? "border-signal/40 bg-signal-soft/50" : "border-cutline bg-card"
+        }`}
+      >
+        <span className="text-sm font-medium text-ink">{def.label}</span>
+        <span aria-hidden className={`relative h-6 w-10 shrink-0 rounded-full transition-colors duration-200 ${on ? "bg-signal" : "bg-cutline"}`}>
+          <span className={`absolute left-1 top-1 h-4 w-4 rounded-full bg-white shadow-sm transition-transform duration-200 ${on ? "translate-x-4" : "translate-x-0"}`} />
+        </span>
+      </button>
+    );
+  }
+
   return (
     <label className="block">
-      <span className="mb-1.5 block text-xs font-bold text-ink-soft">{def.label}</span>
+      <span className="mb-1.5 flex items-baseline justify-between gap-2">
+        <span className="text-xs font-semibold text-ink">{def.label}</span>
+        {limit ? (
+          <span className={`text-[0.65rem] tabular-nums ${len > limit * 0.9 ? "font-bold text-signal" : "text-ink-soft/70"}`}>
+            {len}/{limit}
+          </span>
+        ) : null}
+      </span>
       {def.type === "textarea" ? (
-        <textarea
-          value={String(value ?? "")}
-          onChange={(e) => onChange(e.target.value)}
-          rows={3}
-          className={`${inputCls} resize-y`}
-        />
-      ) : def.type === "toggle" ? (
-        <button
-          type="button"
-          role="switch"
-          aria-checked={Boolean(value)}
-          onClick={() => onChange(!value)}
-          className={`relative h-7 w-12 rounded-full transition-colors duration-200 ${value ? "bg-live" : "bg-cutline"}`}
-        >
-          <span className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-all duration-200 ${value ? "left-6" : "left-1"}`} />
-        </button>
+        <textarea value={String(value ?? "")} onChange={(e) => onChange(e.target.value)} rows={3} className={`${inputCls} resize-y`} />
       ) : (
         <input
           type={def.type === "number" ? "number" : "text"}
           value={String(value ?? "")}
           onChange={(e) => onChange(def.type === "number" ? Number(e.target.value || 0) : e.target.value)}
-          className={inputCls}
+          className={`${inputCls} min-h-[44px]`}
         />
       )}
-      {def.hint ? <span className="mt-1 block text-[0.7rem] text-ink-soft/70">{def.hint}</span> : null}
+      {def.hint ? <span className="mt-1 block text-xs leading-snug text-ink-soft">{def.hint}</span> : null}
     </label>
   );
 }
@@ -280,6 +466,14 @@ function Repeater({
 }) {
   const list = items ?? [];
   const [openIdx, setOpenIdx] = useState<number | null>(null);
+  const [confirmIdx, setConfirmIdx] = useState<number | null>(null);
+
+  /* Hapus dua langkah: batal otomatis setelah 3 detik */
+  useEffect(() => {
+    if (confirmIdx === null) return;
+    const t = setTimeout(() => setConfirmIdx(null), 3000);
+    return () => clearTimeout(t);
+  }, [confirmIdx]);
 
   function setItem(idx: number, key: string, value: unknown) {
     const next = list.map((it, i) => {
@@ -289,93 +483,134 @@ function Repeater({
     onChange(next);
   }
 
+  function move(idx: number, dir: -1 | 1) {
+    const next = [...list];
+    [next[idx + dir], next[idx]] = [next[idx]!, next[idx + dir]!];
+    onChange(next);
+  }
+
+  const orderBtn =
+    "grid h-10 w-10 shrink-0 place-items-center rounded-xl text-ink-soft transition-colors duration-200 hover:bg-signal-soft hover:text-signal disabled:pointer-events-none disabled:opacity-30";
+
   return (
-    <div className="uc-cutline rounded-2xl bg-card p-3">
-      <div className="flex items-center justify-between">
-        <span className="text-xs font-bold text-ink-soft">{def.label}</span>
-        <button
-          type="button"
-          onClick={() => {
-            onChange([...list, def.newItem(list.length)]);
-            setOpenIdx(list.length);
-          }}
-          className="rounded-lg bg-signal-soft px-2.5 py-1 text-[0.7rem] font-bold text-signal transition-colors hover:bg-signal hover:text-white"
-        >
-          + Tambah
-        </button>
+    <div>
+      <div className="mb-2 flex items-center justify-between px-1">
+        <span className="text-xs font-bold uppercase tracking-wide text-ink-soft">{def.label}</span>
+        {list.length > 0 ? <span className="text-[0.65rem] font-semibold tabular-nums text-ink-soft/70">{list.length}</span> : null}
       </div>
-      <ul className="mt-2 flex flex-col gap-1.5">
-        {list.map((item, idx) => {
-          const rec = (item ?? {}) as Record<string, unknown>;
-          const title = String(rec.name ?? rec.q ?? rec.label ?? rec.title ?? (typeof item === "string" && item ? item : `${def.itemLabel} ${idx + 1}`));
-          const open = openIdx === idx;
-          return (
-            <li key={idx} className="rounded-xl border border-cutline/70 bg-paper/60">
-              <div className="flex items-center gap-1">
-                <button
-                  type="button"
-                  onClick={() => setOpenIdx(open ? null : idx)}
-                  aria-expanded={open}
-                  className="min-w-0 flex-1 truncate px-3 py-2 text-left text-sm font-medium text-ink"
-                >
-                  {title || `${def.itemLabel} ${idx + 1}`}
-                </button>
-                <button
-                  type="button"
-                  aria-label="Naikkan"
-                  disabled={idx === 0}
-                  onClick={() => {
-                    const next = [...list];
-                    [next[idx - 1], next[idx]] = [next[idx]!, next[idx - 1]!];
-                    onChange(next);
-                  }}
-                  className="rounded-md px-1.5 py-1 text-xs text-ink-soft hover:text-ink disabled:opacity-30"
-                >
-                  ↑
-                </button>
-                <button
-                  type="button"
-                  aria-label="Turunkan"
-                  disabled={idx === list.length - 1}
-                  onClick={() => {
-                    const next = [...list];
-                    [next[idx + 1], next[idx]] = [next[idx]!, next[idx + 1]!];
-                    onChange(next);
-                  }}
-                  className="rounded-md px-1.5 py-1 text-xs text-ink-soft hover:text-ink disabled:opacity-30"
-                >
-                  ↓
-                </button>
-                <button
-                  type="button"
-                  aria-label="Hapus"
-                  onClick={() => onChange(list.filter((_, i) => i !== idx))}
-                  className="rounded-md px-1.5 py-1 text-xs text-ink-soft hover:text-signal"
-                >
-                  ✕
-                </button>
-              </div>
-              {open ? (
-                <div className="flex flex-col gap-3 border-t border-cutline/60 p-3">
-                  {def.fields.map((f) => {
-                    // Field list sederhana (badges) punya key ""
-                    const key = f.key || "";
-                    const val = key ? rec[key] : item;
-                    return (
-                      <Field
-                        key={f.label}
-                        def={f}
-                        value={val}
-                        onChange={(v) => setItem(idx, key, v)}
-                      />
-                    );
-                  })}
+
+      {list.length === 0 ? (
+        <div className="flex flex-col items-center gap-2 rounded-xl bg-paper/70 px-4 py-5 text-center">
+          <span aria-hidden className="uc-cutline grid h-11 w-11 place-items-center rounded-full text-ink-soft">
+            <PackageOpen className="h-5 w-5" />
+          </span>
+          <p className="text-xs leading-relaxed text-ink-soft">
+            Belum ada {def.label.toLowerCase()}. Tambah {def.itemLabel.toLowerCase()} pertama kakak di bawah.
+          </p>
+        </div>
+      ) : (
+        <ul className="flex flex-col gap-2">
+          {list.map((item, idx) => {
+            const rec = (item ?? {}) as Record<string, unknown>;
+            const title = String(rec.name ?? rec.q ?? rec.label ?? rec.title ?? (typeof item === "string" && item ? item : `${def.itemLabel} ${idx + 1}`));
+            const open = openIdx === idx;
+            const confirming = confirmIdx === idx;
+            return (
+              <li
+                key={idx}
+                className={`overflow-hidden rounded-xl border shadow-plate transition-colors duration-200 ${
+                  open ? "border-signal/40 bg-signal-soft/30" : "border-cutline/60 bg-card"
+                }`}
+              >
+                <div className="flex items-center">
+                  <button
+                    type="button"
+                    onClick={() => setOpenIdx(open ? null : idx)}
+                    aria-expanded={open}
+                    className="flex min-h-[44px] min-w-0 flex-1 items-center gap-1.5 py-2 pl-3 pr-1 text-left"
+                  >
+                    <ChevronDown
+                      aria-hidden
+                      className={`h-4 w-4 shrink-0 text-ink-soft transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+                    />
+                    <span className="truncate text-sm font-semibold text-ink">{title || `${def.itemLabel} ${idx + 1}`}</span>
+                  </button>
+
+                  {confirming ? (
+                    <>
+                      <span className="pr-0.5 text-xs font-bold text-signal">Hapus?</span>
+                      <button
+                        type="button"
+                        aria-label={`Ya, hapus ${title}`}
+                        onClick={() => {
+                          onChange(list.filter((_, i) => i !== idx));
+                          setConfirmIdx(null);
+                          if (openIdx !== null && openIdx > idx) setOpenIdx(openIdx - 1);
+                          else if (openIdx === idx) setOpenIdx(null);
+                        }}
+                        className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-signal text-white transition-colors duration-200 hover:bg-signal/90"
+                      >
+                        <Check aria-hidden className="h-4 w-4" />
+                      </button>
+                      <button
+                        type="button"
+                        aria-label="Batal hapus"
+                        onClick={() => setConfirmIdx(null)}
+                        className={`${orderBtn} mr-1`}
+                      >
+                        <X aria-hidden className="h-4 w-4" />
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button type="button" aria-label="Naikkan" disabled={idx === 0} onClick={() => move(idx, -1)} className={orderBtn}>
+                        <ChevronUp aria-hidden className="h-4 w-4" />
+                      </button>
+                      <button type="button" aria-label="Turunkan" disabled={idx === list.length - 1} onClick={() => move(idx, 1)} className={orderBtn}>
+                        <ChevronDown aria-hidden className="h-4 w-4" />
+                      </button>
+                      <button
+                        type="button"
+                        aria-label={`Hapus ${title}`}
+                        onClick={() => setConfirmIdx(idx)}
+                        className={`${orderBtn} mr-1`}
+                      >
+                        <Trash2 aria-hidden className="h-4 w-4" />
+                      </button>
+                    </>
+                  )}
                 </div>
-              ) : null}
-            </li>
-          );
-        })}
-      </ul>
+
+                {open ? (
+                  <div className="flex flex-col gap-3 border-t border-cutline/60 p-3">
+                    {def.fields.map((f) => {
+                      // Field list sederhana (badges) punya key ""
+                      const key = f.key || "";
+                      const val = key ? rec[key] : item;
+                      return (
+                        <Field key={f.label} def={f} value={val} onChange={(v) => setItem(idx, key, v)} />
+                      );
+                    })}
+                  </div>
+                ) : null}
+              </li>
+            );
+          })}
+        </ul>
+      )}
+
+      <button
+        type="button"
+        onClick={() => {
+          onChange([...list, def.newItem(list.length)]);
+          setOpenIdx(list.length);
+          setConfirmIdx(null);
+        }}
+        className="uc-cutline mt-2.5 flex min-h-[44px] w-full items-center justify-center gap-1.5 rounded-xl bg-card/50 text-sm font-bold text-signal transition-colors duration-200 hover:bg-signal-soft"
+      >
+        <Plus aria-hidden className="h-4 w-4" />
+        Tambah {def.itemLabel}
+      </button>
     </div>
   );
 }
