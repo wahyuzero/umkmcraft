@@ -76,7 +76,7 @@ export function summarizeSlots(slots: Slots): { conversationSummary: string; int
   if (slots.category) parts.push(`Kategori: ${slots.category}`);
   if (slots.location) parts.push(`Lokasi: ${slots.location}`);
   if (slots.whatsappNumber) parts.push(`Nomor WhatsApp: ${slots.whatsappNumber}`);
-  if (slots.products.length) {
+  if (slots.products?.length) {
     parts.push(`Produk: ${slots.products.map((p) => `${p.name}${p.price ? ` (Rp${p.price})` : ""}`).join(", ")}`);
   }
   if (slots.promo) parts.push(`Promo: ${slots.promo}`);
