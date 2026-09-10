@@ -148,7 +148,8 @@ function PaymentGlyph({ method }: { method: PaymentMethod }) {
 function TrustGroup({ label, items }: { label: string; items: Array<{ key: string; text: string; glyph: ReactNode }> }) {
   return (
     <div className="flex flex-col gap-2.5">
-      <h3 className="text-[0.68rem] font-bold uppercase tracking-[0.12em] text-[color-mix(in_oklab,var(--uc-ink)_60%,transparent)]">
+      {/* Label fungsional kelompok — sentence case, bukan kicker uppercase */}
+      <h3 className="text-[0.78rem] font-bold tracking-[-0.01em] text-[color-mix(in_oklab,var(--uc-ink)_65%,transparent)]">
         {label}
       </h3>
       <ul className="flex flex-wrap gap-2">
