@@ -104,8 +104,8 @@ export const MODULE_REGISTRY: Record<SectionType, ModuleComponent> = {
   download_catalog_cta: ({ id, props, businessName, whatsappNumber }) => (
     <DownloadCatalogCta id={id} props={props as never} businessName={businessName} whatsappNumber={whatsappNumber} />
   ),
-  qr_code_whatsapp: ({ id, props, businessName, category }) => (
-    <QrCodeWhatsApp id={id} props={props as never} businessName={businessName} category={category} />
+  qr_code_whatsapp: ({ id, props, businessName, whatsappNumber, category }) => (
+    <QrCodeWhatsApp id={id} props={props as never} businessName={businessName} whatsappNumber={whatsappNumber} category={category} />
   ),
 };
 

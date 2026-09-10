@@ -27,12 +27,6 @@ function initialsOf(name: string): string {
     .join("");
 }
 
-const AVATAR_TONES = [
-  "bg-[color-mix(in_oklab,var(--uc-primary)_18%,var(--uc-surface))] text-[var(--uc-primary)]",
-  "bg-[color-mix(in_oklab,var(--uc-secondary)_18%,var(--uc-surface))] text-[var(--uc-secondary)]",
-  "bg-[color-mix(in_oklab,var(--uc-primary)_10%,var(--uc-surface))] text-[color-mix(in_oklab,var(--uc-primary)_80%,var(--uc-ink))]",
-];
-
 export function TeamMembersGrid({ id, props, category = "" }: { id: string; props: TeamMembersProps; category?: string }) {
   return (
     <SectionShell id={id} tone="surface">
@@ -55,9 +49,7 @@ export function TeamMembersGrid({ id, props, category = "" }: { id: string; prop
             ) : (
               <span
                 aria-hidden
-                className={`flex h-24 w-24 items-center justify-center rounded-full font-[family-name:var(--uc-font-heading)] text-2xl font-extrabold ${
-                  AVATAR_TONES[i % AVATAR_TONES.length]
-                }`}
+                className="flex h-24 w-24 items-center justify-center rounded-full bg-[color-mix(in_oklab,var(--uc-primary)_12%,var(--uc-surface))] font-[family-name:var(--uc-font-heading)] text-2xl font-extrabold text-[var(--uc-primary)]"
               >
                 {initialsOf(member.name)}
               </span>
@@ -67,7 +59,7 @@ export function TeamMembersGrid({ id, props, category = "" }: { id: string; prop
                 {member.name}
               </h3>
               {member.role ? (
-                <p className="mt-0.5 text-xs font-bold uppercase tracking-[0.08em] text-[var(--uc-primary)]">
+                <p className="mt-0.5 text-sm font-semibold text-[color-mix(in_oklab,var(--uc-ink)_60%,transparent)]">
                   {member.role}
                 </p>
               ) : null}

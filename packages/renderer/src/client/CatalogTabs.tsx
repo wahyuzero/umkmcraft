@@ -20,7 +20,12 @@ export function CatalogTabs({
 
   return (
     <div>
-      <div role="tablist" aria-label="Filter kategori produk" className="mb-6 flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      {/* Pil tab: scroll horizontal di mobile dengan tepi memudar (mask), tanpa scrollbar */}
+      <div
+        role="tablist"
+        aria-label="Filter kategori produk"
+        className="mb-6 flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [mask-image:linear-gradient(to_right,transparent,black_14px,black_calc(100%-14px),transparent)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:[mask-image:none]"
+      >
         {tabs.map((c) => {
           const selected = c === active;
           return (
@@ -29,10 +34,10 @@ export function CatalogTabs({
               role="tab"
               aria-selected={selected}
               onClick={() => setActive(c)}
-              className={`shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition-colors duration-150 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--uc-primary)] ${
+              className={`inline-flex min-h-[44px] shrink-0 items-center rounded-full border px-4 py-2 text-sm font-semibold transition-[background-color,border-color,color,box-shadow] duration-200 ease-out focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--uc-primary)] ${
                 selected
-                  ? "bg-[var(--uc-primary)] text-[var(--uc-on-primary)]"
-                  : "border border-[color-mix(in_oklab,var(--uc-primary)_28%,transparent)] text-[var(--uc-ink)] hover:bg-[color-mix(in_oklab,var(--uc-primary)_8%,transparent)]"
+                  ? "border-transparent bg-[var(--uc-primary)] text-[var(--uc-on-primary)] shadow-[0_2px_10px_color-mix(in_oklab,var(--uc-primary)_38%,transparent)]"
+                  : "border-[color-mix(in_oklab,var(--uc-primary)_28%,transparent)] bg-[var(--uc-surface)] text-[var(--uc-ink)] hover:bg-[color-mix(in_oklab,var(--uc-primary)_8%,var(--uc-surface))]"
               }`}
             >
               {c}

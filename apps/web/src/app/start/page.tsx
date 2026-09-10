@@ -4,15 +4,17 @@
  * /start — Conversational Intake (Fase 3, anon-first).
  * Chat WhatsApp-style: user curhat, engine ekstrak slot deterministik,
  * tombol besar "Buat Website Saya" muncul saat slot wajib lengkap.
+ * Frame: kolom tunggal max-w-2xl di atas kertas bertekstur; header berisi
+ * judul ramah + langkah slot berlabel (jangkar progres).
  */
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-
-interface Msg {
-  role: "user" | "assistant";
-  content: string;
-}
+import { LoaderCircle, Send, Sparkles, WifiOff } from "lucide-react";
+import { ChatMessage, TypingBubble, type Msg } from "@/components/start/ChatMessage";
+import { SlotSteps } from "@/components/start/SlotSteps";
+import { SlotReceipt } from "@/components/start/SlotReceipt";
+import "./start.css";
 
 interface Slots {
   businessName?: string;
@@ -41,17 +43,31 @@ export default function StartPage() {
   const [ready, setReady] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [lastInput, setLastInput] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
-    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
-  }, [messages, busy]);
+    const el = scrollRef.current;
+    if (!el) return;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    el.scrollTo({ top: el.scrollHeight, behavior: reduce ? "auto" : "smooth" });
+  }, [messages, busy, ready]);
+
+  function autosize() {
+    const el = inputRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${Math.min(el.scrollHeight, 120)}px`;
+  }
 
   async function send(text: string) {
     const trimmed = text.trim();
-    if (!trimmed || busy) return;
+    if (!trimmed || busy || generating) return;
     setError(null);
+    setLastInput(trimmed);
     setInput("");
+    if (inputRef.current) inputRef.current.style.height = "auto";
     const history = [...messages, { role: "user" as const, content: trimmed }];
     setMessages(history);
     setBusy(true);
@@ -66,8 +82,9 @@ export default function StartPage() {
       setSlots(data.slots);
       setReady(data.nextAction === "ready");
       setMessages((m) => [...m, { role: "assistant", content: data.reply }]);
+      setLastInput(null);
     } catch {
-      setError("Koneksi bermasalah — coba kirim ulang ya.");
+      setError("Koneksi bermasalah — coba kirim ulang ya, kak.");
     } finally {
       setBusy(false);
     }
@@ -97,102 +114,105 @@ export default function StartPage() {
   const progress = [Boolean(slots.businessName), Boolean(slots.category), Boolean(slots.whatsappNumber)];
 
   return (
-    <main className="flex min-h-dvh flex-col bg-paper">
-      {/* Header */}
-      <header className="border-b border-cutline/70 bg-paper/90 backdrop-blur-sm">
-        <div className="mx-auto flex h-16 max-w-3xl items-center justify-between px-5">
-          <Link href="/" className="flex items-center gap-2.5">
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-ink font-display text-lg font-extrabold text-paper">U</span>
-            <span className="font-display text-lg font-bold tracking-tight text-ink">UMKM Craft</span>
-          </Link>
-          {/* Progress slot — depth-as-state, bukan border tambahan */}
-          <div className="flex items-center gap-1.5" aria-label="Kelengkapan data usaha">
-            {["Nama", "Kategori", "WhatsApp"].map((label, i) => (
-              <span
-                key={label}
-                title={label}
-                className={`flex h-2.5 w-2.5 rounded-full transition-colors duration-300 ${progress[i] ? "bg-live" : "bg-cutline"}`}
-              />
-            ))}
+    <main className="start-paper flex h-dvh flex-col bg-paper">
+      {/* Header: logo + judul ramah + langkah slot berlabel */}
+      <header className="shrink-0 border-b border-cutline/70 bg-paper">
+        <div className="mx-auto max-w-2xl px-5 pb-4 pt-4">
+          <div className="flex items-center justify-between">
+            <Link href="/" className="flex items-center gap-2.5">
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-ink font-display text-lg font-extrabold text-paper">
+                U
+              </span>
+              <span className="font-display text-lg font-bold tracking-tight text-ink">UMKM Craft</span>
+            </Link>
+            <span className="text-[11px] font-medium text-ink-soft">Gratis · tanpa daftar</span>
+          </div>
+          <div className="mt-3">
+            <h1 className="font-display text-2xl font-bold tracking-tight text-ink sm:text-[1.75rem]">
+              Ceritakan usahamu
+            </h1>
+            <p className="mt-1 text-sm text-ink-soft">
+              Ngobrol santai kayak chat — nanti aku rangkai jadi website yang siap dipesan.
+            </p>
+          </div>
+          <div className="mt-4">
+            <SlotSteps progress={progress} />
           </div>
         </div>
       </header>
 
       {/* Chat */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto">
-        <div className="mx-auto flex max-w-2xl flex-col gap-3 px-5 py-8 pb-40">
+      <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto">
+        <div className="mx-auto flex max-w-2xl flex-col gap-3 px-5 pb-6 pt-6">
           {messages.map((m, i) => (
-            <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
-              <div
-                className={`uc-stick-in max-w-[85%] rounded-2xl px-4 py-3 text-[0.95rem] leading-relaxed shadow-plate ${
-                  m.role === "user"
-                    ? "rounded-br-md bg-signal text-white"
-                    : "rounded-bl-md border border-cutline/60 bg-card text-ink"
-                }`}
-              >
-                {m.content.split("\n").map((line, j) => (
-                  <p key={j} className={j > 0 ? "mt-2" : ""}>
-                    {line.split("**").map((part, k) =>
-                      k % 2 === 1 ? (
-                        <strong key={k} className="font-bold">{part}</strong>
-                      ) : (
-                        <span key={k}>{part}</span>
-                      ),
-                    )}
-                  </p>
-                ))}
-              </div>
-            </div>
+            <ChatMessage key={i} message={m} />
           ))}
 
-          {busy ? (
-            <div className="flex justify-start">
-              <div className="flex gap-1.5 rounded-2xl rounded-bl-md border border-cutline/60 bg-card px-4 py-3.5" aria-label="Asisten mengetik">
-                {[0, 1, 2].map((d) => (
-                  <span key={d} className="motion-safe:uc-pulse-dot h-2 w-2 rounded-full bg-cutline" style={{ animationDelay: `${d * 0.18}s` }} />
-                ))}
-              </div>
-            </div>
-          ) : null}
+          {busy ? <TypingBubble /> : null}
 
           {error ? (
-            <p role="alert" className="rounded-xl bg-signal-soft px-4 py-3 text-center text-sm font-medium text-signal">
-              {error}
-            </p>
+            <div role="alert" className="flex justify-center">
+              <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 rounded-full border border-dashed border-signal/50 bg-signal-soft px-4 py-2 text-[13px] font-medium text-signal">
+                <WifiOff className="h-4 w-4 shrink-0" aria-hidden />
+                <span>{error}</span>
+                {lastInput ? (
+                  <button
+                    onClick={() => send(lastInput)}
+                    className="underline underline-offset-2 transition-colors hover:text-ink"
+                  >
+                    Coba lagi
+                  </button>
+                ) : null}
+              </div>
+            </div>
           ) : null}
         </div>
       </div>
 
       {/* Composer + CTA */}
-      <div className="sticky bottom-0 border-t border-cutline/70 bg-paper/95 backdrop-blur-sm">
-        <div className="mx-auto max-w-2xl px-5 py-4">
+      <div className="shrink-0 border-t border-cutline/70 bg-paper">
+        <div className="mx-auto max-w-2xl px-5 pb-4 pt-3">
+          {/* Momen final: stiker ringkasan + CTA besar */}
           {ready && !generating ? (
-            <button
-              onClick={generate}
-              className="uc-live-glow mb-3 flex w-full items-center justify-center gap-2.5 rounded-2xl bg-signal px-6 py-4 text-base font-bold text-white shadow-[0_6px_22px_rgb(154_52_18/0.45)] outline-live hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgb(154_52_18/0.5)]"
-            >
-              <svg viewBox="0 0 20 20" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-                <path d="M13.5 3 17 6.5 8 15.5l-4.5 1 1-4.5L13.5 3Z" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-              Buat Website Saya
-            </button>
+            <div className="mb-3">
+              <SlotReceipt
+                businessName={slots.businessName}
+                category={slots.category}
+                whatsappNumber={slots.whatsappNumber}
+                location={slots.location}
+                productCount={slots.products.length}
+              />
+              <button
+                onClick={generate}
+                className="start-cta-glow mt-3 flex min-h-[52px] w-full items-center justify-center gap-2.5 rounded-2xl bg-signal px-6 py-3.5 font-display text-base font-bold text-white transition-transform duration-200 hover:-translate-y-0.5 active:translate-y-0 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-live"
+              >
+                <Sparkles className="h-5 w-5" aria-hidden />
+                Buat Website Saya
+              </button>
+              <p className="mt-2 text-center text-xs text-ink-soft">
+                Gratis, tanpa daftar — situs jadi ±30 detik.
+              </p>
+            </div>
           ) : null}
           {generating ? (
-            <div className="mb-3 flex items-center justify-center gap-2.5 rounded-2xl border border-cutline bg-card px-4 py-3.5 text-center text-sm font-medium text-ink-soft" role="status">
-              <svg viewBox="0 0 20 20" className="motion-safe:animate-spin h-4 w-4 text-signal" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden>
-                <path d="M10 3a7 7 0 1 1-6.6 4.6" strokeLinecap="round" />
-              </svg>
+            <div
+              className="mb-3 flex items-center justify-center gap-2.5 rounded-2xl border border-cutline bg-card px-4 py-3.5 text-center text-sm font-medium text-ink-soft"
+              role="status"
+            >
+              <LoaderCircle className="motion-safe:animate-spin h-4 w-4 text-signal" strokeWidth={2.2} aria-hidden />
               Merangkai websitemu — katalog, tema warna, tombol pesan…
             </div>
           ) : null}
 
+          {/* Chips saran — cuma sebelum obrolan pertama */}
           {messages.length <= 1 ? (
             <div className="mb-3 flex flex-wrap gap-2">
               {SUGGESTIONS.map((s) => (
                 <button
                   key={s}
                   onClick={() => send(s)}
-                  className="rounded-full border border-cutline bg-card px-3.5 py-2 text-xs font-medium text-ink-soft transition-colors hover:border-signal hover:text-signal"
+                  disabled={busy || generating}
+                  className="min-h-[40px] rounded-full border-[1.5px] border-dashed border-cutline bg-card px-4 py-2 text-[13px] font-medium text-ink-soft transition-colors duration-200 hover:border-signal hover:bg-signal-soft hover:text-signal disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-cutline disabled:hover:bg-card disabled:hover:text-ink-soft"
                 >
                   {s}
                 </button>
@@ -200,33 +220,45 @@ export default function StartPage() {
             </div>
           ) : null}
 
+          {/* Composer: kartu dengan focus ring signal, textarea tumbuh, Enter kirim */}
           <form
             onSubmit={(e) => {
               e.preventDefault();
               send(input);
             }}
-            className="flex items-center gap-2.5"
+            className="flex items-end gap-2.5"
           >
-            <label htmlFor="chat-input" className="sr-only">
-              Tulis cerita usahamu
-            </label>
-            <input
-              id="chat-input"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Contoh: warung sambal kemasan, nomor WA 0812…"
-              autoComplete="off"
-              className="h-12 flex-1 rounded-2xl border border-cutline bg-card px-4 text-[0.95rem] text-ink placeholder:text-ink-soft/70 focus:border-signal focus:outline-none focus-visible:outline-3 focus-visible:outline-signal"
-            />
+            <div className="flex flex-1 items-end rounded-2xl border border-cutline bg-card px-4 py-3 transition-[border-color,box-shadow] duration-150 focus-within:border-signal focus-within:shadow-[0_0_0_3px_rgb(154_52_18/0.12)]">
+              <label htmlFor="chat-input" className="sr-only">
+                Tulis cerita usahamu
+              </label>
+              <textarea
+                id="chat-input"
+                ref={inputRef}
+                rows={1}
+                value={input}
+                onChange={(e) => {
+                  setInput(e.target.value);
+                  autosize();
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    send(input);
+                  }
+                }}
+                placeholder="Contoh: warung sambal kemasan, nomor WA 0812…"
+                autoComplete="off"
+                className="max-h-[120px] w-full resize-none bg-transparent text-[0.95rem] leading-6 text-ink outline-none placeholder:text-ink-soft/70"
+              />
+            </div>
             <button
               type="submit"
-              disabled={busy || !input.trim()}
+              disabled={busy || generating || !input.trim()}
               aria-label="Kirim"
-              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-signal text-white transition-transform duration-150 hover:-translate-y-0.5 disabled:opacity-40 disabled:hover:translate-y-0"
+              className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-signal text-white transition-transform duration-150 hover:-translate-y-0.5 active:translate-y-0 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-live disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0"
             >
-              <svg viewBox="0 0 20 20" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-                <path d="M3 10h13m-5-5 5 5-5 5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
+              <Send className="h-5 w-5" strokeWidth={2.4} aria-hidden />
             </button>
           </form>
           <p className="mt-2.5 text-center text-[0.7rem] text-ink-soft">

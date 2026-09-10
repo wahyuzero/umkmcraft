@@ -7,6 +7,7 @@
  * hydration mismatch. Setelah mount, interval per detik; sebelum mount tidak ada
  * jam runtime sama sekali.
  * prefers-reduced-motion → tetap teks statis, tanpa update per detik.
+ * Setelah mount tampil sebagai chip gelap dd:hh:mm:ss (tabular-nums).
  * Setelah lewat tenggat → render null (hilang sendiri). Interval dibersihkan saat unmount.
  */
 import { useEffect, useState } from "react";
@@ -24,6 +25,18 @@ function formatTarget(iso: string): string {
 
 function pad2(n: number): string {
   return String(n).padStart(2, "0");
+}
+
+/** Chip gelap satu satuan waktu — angka tabular + label mini. */
+function TimeChip({ value, unit }: { value: string; unit: string }) {
+  return (
+    <span className="inline-flex min-w-[2.5rem] flex-col items-center rounded-lg bg-[color-mix(in_oklab,var(--uc-ink)_88%,transparent)] px-1.5 py-1 leading-none">
+      <span className="text-sm font-extrabold tabular-nums text-[var(--uc-bg)]">{value}</span>
+      <span className="mt-0.5 text-[0.55rem] font-bold uppercase tracking-wide text-[color-mix(in_oklab,var(--uc-bg)_68%,transparent)]">
+        {unit}
+      </span>
+    </span>
+  );
 }
 
 export function PromoTimer({ endsAt, label }: { endsAt: string; label?: string }) {
@@ -46,10 +59,7 @@ export function PromoTimer({ endsAt, label }: { endsAt: string; label?: string }
   const prefix = label ?? "Berakhir";
 
   return (
-    <span
-      role="timer"
-      className="inline-flex items-center gap-1.5 text-sm font-semibold text-[color-mix(in_oklab,var(--uc-ink)_68%,transparent)]"
-    >
+    <span role="timer" className="inline-flex flex-wrap items-center gap-2 text-sm font-semibold text-[color-mix(in_oklab,var(--uc-ink)_68%,transparent)]">
       <svg
         viewBox="0 0 24 24"
         fill="none"
@@ -72,10 +82,12 @@ export function PromoTimer({ endsAt, label }: { endsAt: string; label?: string }
         </>
       ) : (
         <>
-          {label ? `${label} ` : "Berakhir dalam "}
-          <span className="font-bold tabular-nums text-[var(--uc-ink)]">
-            {Math.floor(remaining / 3_600_000)}j {Math.floor((remaining % 3_600_000) / 60_000)}m{" "}
-            {pad2(Math.floor((remaining % 60_000) / 1000))}d
+          <span className="text-[var(--uc-ink)]">{label ? `${label}` : "Berakhir dalam"}</span>
+          <span className="inline-flex items-center gap-1">
+            <TimeChip value={pad2(Math.floor(remaining / 86_400_000))} unit="hari" />
+            <TimeChip value={pad2(Math.floor((remaining % 86_400_000) / 3_600_000))} unit="jam" />
+            <TimeChip value={pad2(Math.floor((remaining % 3_600_000) / 60_000))} unit="mnt" />
+            <TimeChip value={pad2(Math.floor((remaining % 60_000) / 1000))} unit="dtk" />
           </span>
         </>
       )}

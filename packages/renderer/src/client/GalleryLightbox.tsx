@@ -84,14 +84,14 @@ export function GalleryLightbox({
 
   return (
     <div>
-      <ul className={`grid gap-3 ${gridClassName}`} aria-label={ariaLabel}>
+      <ul className={`grid gap-2.5 sm:gap-3 ${gridClassName}`} aria-label={ariaLabel}>
         {items.map((item, i) => (
           <li key={`${item.title}-${i}`}>
             <button
               type="button"
               onClick={() => setActive(i)}
               aria-label={`Perbesar foto: ${item.title || `Foto ${i + 1}`}`}
-              className="block w-full cursor-zoom-in overflow-hidden rounded-xl shadow-[0_1px_3px_color-mix(in_oklab,var(--uc-ink)_8%,transparent)] transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-1 hover:shadow-[0_12px_26px_-12px_color-mix(in_oklab,var(--uc-primary)_45%,transparent)] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--uc-primary)]"
+              className="group block w-full cursor-zoom-in overflow-hidden rounded-2xl focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--uc-primary)]"
             >
               <SafeImage
                 src={item.image_url}
@@ -99,6 +99,7 @@ export function GalleryLightbox({
                 label={item.title || `Foto ${i + 1}`}
                 aspect="aspect-square"
                 seed={i}
+                className="transition-transform duration-300 ease-out group-hover:scale-105"
               />
             </button>
           </li>
@@ -111,7 +112,7 @@ export function GalleryLightbox({
         onClick={handleBackdropClick}
         onKeyDown={handleKeyDown}
         aria-label="Pratinjau foto galeri"
-        className="m-auto w-[min(92vw,54rem)] rounded-2xl bg-[var(--uc-surface)] p-4 shadow-2xl backdrop:bg-black/70 sm:p-6"
+        className="m-auto w-[min(92vw,54rem)] rounded-2xl bg-[var(--uc-surface)] p-4 shadow-2xl backdrop:bg-[color-mix(in_oklab,var(--uc-ink)_72%,transparent)] sm:p-6"
       >
         {current ? (
           <div
@@ -123,7 +124,7 @@ export function GalleryLightbox({
               type="button"
               onClick={() => dialogRef.current?.close()}
               aria-label="Tutup galeri"
-              className="absolute -top-2 right-0 z-10 inline-flex h-10 w-10 items-center justify-center rounded-full bg-[color-mix(in_oklab,var(--uc-ink)_78%,transparent)] text-white transition-colors duration-150 hover:bg-[var(--uc-ink)] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--uc-primary)] sm:-top-3 sm:-right-3"
+              className="absolute -top-2 right-0 z-10 inline-flex h-11 w-11 items-center justify-center rounded-full bg-[color-mix(in_oklab,var(--uc-ink)_78%,transparent)] text-[var(--uc-bg)] transition-colors duration-200 hover:bg-[var(--uc-ink)] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--uc-primary)] sm:-top-3 sm:-right-3"
             >
               <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" aria-hidden>
                 <path d="M6 6l12 12M18 6 6 18" />
@@ -136,7 +137,7 @@ export function GalleryLightbox({
                   <img
                     src={current.image_url}
                     alt={current.title || `Foto ${(active ?? 0) + 1}`}
-                    className="mx-auto max-h-[62vh] w-auto max-w-full rounded-xl object-contain"
+                    className="mx-auto max-h-[62vh] w-auto max-w-full rounded-2xl object-contain"
                     decoding="async"
                   />
                 ) : (
@@ -153,7 +154,7 @@ export function GalleryLightbox({
                       type="button"
                       onClick={() => go(-1)}
                       aria-label="Foto sebelumnya"
-                      className="absolute left-2 top-1/2 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-[color-mix(in_oklab,var(--uc-ink)_78%,transparent)] text-white transition-colors duration-150 hover:bg-[var(--uc-ink)] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--uc-primary)]"
+                      className="absolute left-2 top-1/2 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-[color-mix(in_oklab,var(--uc-ink)_78%,transparent)] text-[var(--uc-bg)] transition-colors duration-200 hover:bg-[var(--uc-ink)] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--uc-primary)]"
                     >
                       <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
                         <path d="M14.5 5.5 8 12l6.5 6.5" />
@@ -163,7 +164,7 @@ export function GalleryLightbox({
                       type="button"
                       onClick={() => go(1)}
                       aria-label="Foto berikutnya"
-                      className="absolute right-2 top-1/2 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-[color-mix(in_oklab,var(--uc-ink)_78%,transparent)] text-white transition-colors duration-150 hover:bg-[var(--uc-ink)] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--uc-primary)]"
+                      className="absolute right-2 top-1/2 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-[color-mix(in_oklab,var(--uc-ink)_78%,transparent)] text-[var(--uc-bg)] transition-colors duration-200 hover:bg-[var(--uc-ink)] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--uc-primary)]"
                     >
                       <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
                         <path d="m9.5 5.5 6.5 6.5-6.5 6.5" />

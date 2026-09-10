@@ -1,7 +1,8 @@
 /**
  * Modul channel_marketplace — COMPONENTS.md §2.
- * Grid kartu kanal jualan: logo platform digambar sebagai marka geometris sederhana
- * (bentuk + warna, BUKAN tiruan logo resmi), label, hint "Kunjungi".
+ * Grid kartu kanal jualan (2 kolom mobile, 3 sm): marka platform geometris sederhana
+ * (bentuk + warna, BUKAN tiruan logo resmi), label, hint "Buka" muncul saat hover.
+ * Kanal WhatsApp jadi aksi default — kartu primary penuh; kanal lain outline.
  * Link keluar target=_blank rel=noopener noreferrer. RSC murni — 0 JS client.
  */
 import type { SectionProps } from "@umkmcraft/schema";
@@ -33,9 +34,10 @@ const PLATFORM_COLOR: Record<Platform, string> = {
 
 /* ---------------------------------------------------------------- */
 /* Marka platform — geometris flat 2–3 bentuk, dikenali dari warna+bentuk */
+/* filled: varian di atas kartu primary (ikon ikut on-primary)        */
 /* ---------------------------------------------------------------- */
 
-function PlatformMark({ platform }: { platform: Platform }) {
+function PlatformMark({ platform, filled = false }: { platform: Platform; filled?: boolean }) {
   switch (platform) {
     case "shopee":
       return (
@@ -116,7 +118,7 @@ function PlatformMark({ platform }: { platform: Platform }) {
         </svg>
       );
     case "whatsapp":
-      return <WaIcon className="h-7 w-7 text-[#25d366]" />;
+      return <WaIcon className={`h-7 w-7 ${filled ? "text-[var(--uc-on-primary)]" : "text-[#25d366]"}`} />;
     case "website":
       return (
         <svg
@@ -125,7 +127,7 @@ function PlatformMark({ platform }: { platform: Platform }) {
           stroke="currentColor"
           strokeWidth="1.9"
           strokeLinecap="round"
-          className="h-7 w-7 text-[var(--uc-primary)]"
+          className={`h-7 w-7 ${filled ? "text-[var(--uc-on-primary)]" : "text-[var(--uc-primary)]"}`}
           aria-hidden
         >
           <circle cx="12" cy="12" r="8.5" />
@@ -162,34 +164,48 @@ export function ChannelMarketplace({ id, props }: { id: string; props: ChannelMa
   return (
     <SectionShell id={id}>
       <SectionHeader title={props.section_title} />
-      <ul className="grid grid-cols-2 gap-3.5 lg:grid-cols-3">
-        {props.channels.map((channel) => (
-          <li key={`${channel.platform}-${channel.label}`}>
-            <a
-              href={channel.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group flex h-full flex-col gap-3 rounded-2xl border border-[color-mix(in_oklab,var(--uc-ink)_8%,transparent)] bg-[var(--uc-surface)] p-4 shadow-[0_1px_3px_color-mix(in_oklab,var(--uc-ink)_6%,transparent)] transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-1 hover:shadow-[0_14px_30px_-12px_color-mix(in_oklab,var(--uc-primary)_40%,transparent)] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--uc-primary)]"
-            >
-              <span
-                aria-hidden
-                className="flex h-12 w-12 items-center justify-center rounded-2xl"
-                style={{
-                  background: `color-mix(in oklab, ${PLATFORM_COLOR[channel.platform]} 10%, var(--uc-surface))`,
-                }}
+      <ul className="grid grid-cols-2 gap-3.5 sm:grid-cols-3">
+        {props.channels.map((channel) => {
+          const filled = channel.platform === "whatsapp";
+          const tileColor = filled
+            ? "color-mix(in oklab, var(--uc-on-primary) 16%, transparent)"
+            : `color-mix(in oklab, ${PLATFORM_COLOR[channel.platform]} 10%, var(--uc-surface))`;
+          return (
+            <li key={`${channel.platform}-${channel.label}`}>
+              <a
+                href={channel.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`group flex h-full min-h-[44px] flex-col gap-3 rounded-2xl border p-4 transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-1 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--uc-primary)] ${
+                  filled
+                    ? "border-transparent bg-[var(--uc-primary)] text-[var(--uc-on-primary)] shadow-[0_4px_16px_color-mix(in_oklab,var(--uc-primary)_38%,transparent)] hover:shadow-[0_14px_30px_-12px_color-mix(in_oklab,var(--uc-primary)_55%,transparent)]"
+                    : "border-[color-mix(in_oklab,var(--uc-ink)_8%,transparent)] bg-[var(--uc-surface)] shadow-[0_1px_3px_color-mix(in_oklab,var(--uc-ink)_6%,transparent)] hover:shadow-[0_14px_30px_-12px_color-mix(in_oklab,var(--uc-primary)_40%,transparent)]"
+                }`}
               >
-                <PlatformMark platform={channel.platform} />
-              </span>
-              <span className="font-[family-name:var(--uc-font-heading)] text-sm font-bold leading-snug text-[var(--uc-ink)]">
-                {channel.label}
-              </span>
-              <span className="mt-auto inline-flex items-center gap-1 text-xs font-semibold text-[color-mix(in_oklab,var(--uc-ink)_55%,transparent)] transition-colors duration-200 ease-out group-hover:text-[var(--uc-primary)]">
-                Kunjungi
-                <ArrowIcon className="h-3.5 w-3.5 transition-transform duration-200 ease-out group-hover:translate-x-0.5" />
-              </span>
-            </a>
-          </li>
-        ))}
+                <span
+                  aria-hidden
+                  className="flex h-12 w-12 items-center justify-center rounded-2xl"
+                  style={{ background: tileColor }}
+                >
+                  <PlatformMark platform={channel.platform} filled={filled} />
+                </span>
+                <span className="font-[family-name:var(--uc-font-heading)] text-sm font-bold leading-snug">
+                  {channel.label}
+                </span>
+                <span
+                  className={`mt-auto inline-flex items-center gap-1 text-xs font-semibold transition-colors duration-200 ease-out ${
+                    filled
+                      ? "text-[color-mix(in_oklab,var(--uc-on-primary)_85%,transparent)]"
+                      : "text-[color-mix(in_oklab,var(--uc-ink)_55%,transparent)] group-hover:text-[var(--uc-primary)]"
+                  }`}
+                >
+                  Buka
+                  <ArrowIcon className="h-3.5 w-3.5 transition-transform duration-200 ease-out group-hover:translate-x-0.5" />
+                </span>
+              </a>
+            </li>
+          );
+        })}
       </ul>
     </SectionShell>
   );

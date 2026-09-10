@@ -15,7 +15,7 @@ export const bookingDefaults: BookingProps = {
   section_subtitle: "Isi form singkat ini — admin konfirmasi lewat WhatsApp.",
   service_options: ["Layanan Reguler", "Layanan Premium"],
   time_slots: ["09:00", "11:00", "13:00", "15:00", "17:00"],
-  button_label: "Kirim Booking via WhatsApp",
+  button_label: "Pesan Jadwal via WhatsApp",
   prefill_note: "",
 };
 
@@ -33,16 +33,14 @@ export function BookingWhatsAppForm({
   return (
     <SectionShell id={id} tone="surface">
       <SectionHeader title={props.section_title} subtitle={props.section_subtitle} />
-      <div className="rounded-3xl border border-[color-mix(in_oklab,var(--uc-ink)_8%,transparent)] bg-[color-mix(in_oklab,var(--uc-surface)_55%,var(--uc-bg))] p-5 sm:p-7">
-        <BookingForm
-          whatsappNumber={whatsappNumber}
-          businessName={businessName}
-          serviceOptions={props.service_options}
-          timeSlots={props.time_slots}
-          buttonLabel={props.button_label}
-          prefillNote={props.prefill_note}
-        />
-      </div>
+      <BookingForm
+        whatsappNumber={whatsappNumber}
+        businessName={businessName}
+        serviceOptions={props.service_options}
+        timeSlots={props.time_slots}
+        buttonLabel={props.button_label}
+        prefillNote={props.prefill_note}
+      />
     </SectionShell>
   );
 }

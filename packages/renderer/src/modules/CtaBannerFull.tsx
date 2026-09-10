@@ -1,7 +1,9 @@
 /**
- * Modul cta_banner_full — band CTA penutup full-width (TEMPLATE_RESEARCH §4).
+ * Modul cta_banner_full — band CTA penutup full-bleed (TEMPLATE_RESEARCH §4).
  * Referensi pola: Start Bootstrap Creative/Alpha CTA band, Leadfeeder final CTA.
- * Gradasi primary → secondary dari token tema; tombol WA glow. RSC murni.
+ * Band penuh primary + tekstur garis diagonal tint secondary (CSS murni, opasitas
+ * rendah); CTA utama = on-primary (kontras AA), sekunder = outline on-primary.
+ * RSC murni.
  */
 import type { SectionProps } from "@umkmcraft/schema";
 import { createWhatsAppChatLink } from "@umkmcraft/utils";
@@ -29,50 +31,47 @@ export function CtaBannerFull({
   businessName: string;
   whatsappNumber: string;
 }) {
-  const waHref = createWhatsAppChatLink(whatsappNumber, props.prefill_message || `Halo ${businessName}! 👋 Saya mau order kak.`);
+  const waHref = createWhatsAppChatLink(whatsappNumber, props.prefill_message || `Halo ${businessName}! Saya mau order kak.`);
 
   return (
-    <section id={id} className="px-5 py-14 sm:px-8 sm:py-16">
-      <div className="relative mx-auto w-full max-w-3xl overflow-hidden rounded-[2rem] bg-[var(--uc-primary)] px-6 py-12 text-center sm:px-10">
-        {/* Dekorasi lingkaran halus (geometri, bukan ornamen) */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -left-16 -top-16 h-52 w-52 rounded-full bg-white opacity-[0.08]"
-        />
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -bottom-20 -right-14 h-64 w-64 rounded-full opacity-[0.12]"
-          style={{ background: "radial-gradient(circle, var(--uc-secondary), transparent 70%)" }}
-        />
-        <div className="relative flex flex-col items-center gap-5">
-          <h2 className="font-[family-name:var(--uc-font-heading)] text-[1.9rem] font-extrabold leading-[1.12] tracking-[-0.02em] text-[var(--uc-on-primary)] sm:text-4xl">
-            {props.title}
-          </h2>
-          {props.subtitle ? (
-            <p className="max-w-md text-[1rem] leading-relaxed text-[color-mix(in_oklab,var(--uc-on-primary)_82%,transparent)]">
-              {props.subtitle}
-            </p>
-          ) : null}
-          <div className="flex flex-wrap items-center justify-center gap-3 pt-1">
+    <section id={id} className="uc-reveal relative scroll-mt-4 overflow-hidden bg-[var(--uc-primary)] px-5 py-14 sm:px-8 sm:py-16">
+      {/* Tekstur garis diagonal tint secondary — variasi band gelap, opasitas rendah */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-70"
+        style={{
+          backgroundImage:
+            "repeating-linear-gradient(-45deg, color-mix(in oklab, var(--uc-secondary) 16%, transparent) 0 1px, transparent 1px 16px)",
+        }}
+      />
+      <div className="relative mx-auto flex w-full max-w-3xl flex-col items-center gap-5 text-center">
+        <h2 className="font-[family-name:var(--uc-font-heading)] text-[1.9rem] font-extrabold leading-[1.12] tracking-[-0.02em] text-[var(--uc-on-primary)] sm:text-4xl">
+          {props.title}
+        </h2>
+        {props.subtitle ? (
+          <p className="max-w-md text-[1rem] font-medium leading-relaxed text-[color-mix(in_oklab,var(--uc-on-primary)_92%,transparent)]">
+            {props.subtitle}
+          </p>
+        ) : null}
+        <div className="flex flex-wrap items-center justify-center gap-3 pt-1">
+          <a
+            href={waHref}
+            data-wa-click="cta_banner"
+            className="group inline-flex min-h-[52px] items-center justify-center gap-2 rounded-2xl bg-[var(--uc-on-primary)] px-7 py-3.5 text-base font-semibold text-[var(--uc-primary)] shadow-[0_8px_24px_-8px_color-mix(in_oklab,var(--uc-ink)_45%,transparent)] transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[0_14px_32px_-8px_color-mix(in_oklab,var(--uc-ink)_50%,transparent)] active:translate-y-0 active:scale-[0.99] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--uc-on-primary)]"
+          >
+            <WaIcon className="h-[1.15em] w-[1.15em] shrink-0 transition-transform duration-200 ease-out group-hover:scale-110" />
+            {props.button_label}
+          </a>
+          {props.secondary_label && props.secondary_url ? (
             <a
-              href={waHref}
-              data-wa-click="cta_banner"
-              className="group inline-flex items-center justify-center gap-2 rounded-2xl bg-white px-7 py-4 text-base font-semibold text-[var(--uc-primary)] shadow-[0_4px_16px_rgb(0_0_0/0.18)] transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[0_12px_30px_rgb(0_0_0/0.25)] active:translate-y-0 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-white"
+              href={props.secondary_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex min-h-[44px] items-center justify-center rounded-2xl border-2 border-[color-mix(in_oklab,var(--uc-on-primary)_45%,transparent)] px-6 py-3 text-sm font-bold text-[var(--uc-on-primary)] transition-colors duration-200 hover:bg-[color-mix(in_oklab,var(--uc-on-primary)_12%,transparent)] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--uc-on-primary)]"
             >
-              <WaIcon className="h-[1.15em] w-[1.15em] shrink-0" />
-              {props.button_label}
+              {props.secondary_label}
             </a>
-            {props.secondary_label && props.secondary_url ? (
-              <a
-                href={props.secondary_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center rounded-2xl border-2 border-[color-mix(in_oklab,var(--uc-on-primary)_45%,transparent)] px-6 py-3.5 text-sm font-bold text-[var(--uc-on-primary)] transition-colors duration-200 hover:bg-[color-mix(in_oklab,var(--uc-on-primary)_12%,transparent)] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-white"
-              >
-                {props.secondary_label}
-              </a>
-            ) : null}
-          </div>
+          ) : null}
         </div>
       </div>
     </section>

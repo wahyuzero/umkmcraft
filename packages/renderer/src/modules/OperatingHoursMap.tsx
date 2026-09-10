@@ -1,10 +1,11 @@
 /**
  * Modul operating_hours_map — COMPONENTS.md §2.
  * Status Buka/Tutup dihitung murni di server (computeOpenStatus, tanpa JS client),
- * kartu dua kolom: alamat + tabel jadwal + catatan antar | placeholder peta + tombol rute.
+ * chip status primary + titik berdenyut (.uc-pulse-dot) di atas kartu,
+ * baris jadwal hari ini disorot, peta = panel craft berpola titik + pin SVG.
  */
 import type { SectionProps } from "@umkmcraft/schema";
-import { SafeImage, SectionHeader, SectionShell } from "../primitives";
+import { SectionHeader, SectionShell } from "../primitives";
 
 export type OperatingHoursMapProps = SectionProps<"operating_hours_map">;
 
@@ -83,6 +84,13 @@ export function computeOpenStatus(
   return { isOpen: false, nextChange };
 }
 
+/** Baris jadwal yang mencakup hari ini — logika hari sama dengan computeOpenStatus (Date.getDay()). */
+function isTodayScheduleRow(dayLabel: string, todayDow: number): boolean {
+  const label = dayLabel.toLowerCase();
+  const todayName = (NAMA_HARI[todayDow] ?? "").toLowerCase();
+  return (todayName !== "" && label.includes(todayName)) || label.includes("setiap");
+}
+
 /* ---------------------------------------------------------------- */
 /* Ikon                                                              */
 /* ---------------------------------------------------------------- */
@@ -144,26 +152,27 @@ function TruckIcon({ className = "" }: { className?: string }) {
 }
 
 /* ---------------------------------------------------------------- */
-/* Badge status Buka/Tutup — titik SVG berdenyut (hormati reduced motion) */
+/* Badge status Buka/Tutup — primary + titik berdenyut (.uc-pulse-dot,*/
+/* hormat reduced-motion via theme.css); tutup = ink netral           */
 /* ---------------------------------------------------------------- */
 
 function StatusBadge({ isOpen, nextChange }: { isOpen: boolean; nextChange: string | null }) {
   return (
-    <p className="flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1">
+    <p className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
       <span
-        className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-bold ${
+        className={`inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-xs font-bold ${
           isOpen
-            ? "bg-[color-mix(in_oklab,#16a34a_14%,transparent)] text-[#15803d]"
-            : "bg-[color-mix(in_oklab,#dc2626_10%,transparent)] text-[#b91c1c]"
+            ? "bg-[var(--uc-primary)] text-[var(--uc-on-primary)] shadow-[0_2px_10px_color-mix(in_oklab,var(--uc-primary)_35%,transparent)]"
+            : "bg-[color-mix(in_oklab,var(--uc-ink)_8%,transparent)] text-[color-mix(in_oklab,var(--uc-ink)_70%,transparent)]"
         }`}
       >
         {isOpen ? (
-          <span aria-hidden className="relative flex h-2.5 w-2.5">
-            <span className="absolute inline-flex h-full w-full rounded-full bg-[#16a34a] opacity-60 motion-safe:animate-ping" />
-            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[#16a34a]" />
-          </span>
+          <span aria-hidden className="uc-pulse-dot h-2 w-2 shrink-0 rounded-full bg-[var(--uc-on-primary)]" />
         ) : (
-          <span aria-hidden className="h-2.5 w-2.5 rounded-full bg-[#dc2626]" />
+          <span
+            aria-hidden
+            className="h-2 w-2 shrink-0 rounded-full bg-[color-mix(in_oklab,var(--uc-ink)_40%,transparent)]"
+          />
         )}
         {isOpen ? "Buka Sekarang" : "Tutup"}
       </span>
@@ -183,7 +192,6 @@ function StatusBadge({ isOpen, nextChange }: { isOpen: boolean; nextChange: stri
 export function OperatingHoursMap({
   id,
   props,
-  category = "",
 }: {
   id: string;
   props: OperatingHoursMapProps;
@@ -191,85 +199,129 @@ export function OperatingHoursMap({
 }) {
   const showStatus = props.open_hours.length > 0;
   const status = showStatus ? computeOpenStatus(props.open_hours) : null;
+  const todayDow = new Date().getDay();
 
   const outlineBtn =
-    "inline-flex flex-1 items-center justify-center gap-2 rounded-2xl border-2 border-[color-mix(in_oklab,var(--uc-primary)_30%,transparent)] px-5 py-3 text-sm font-bold text-[var(--uc-primary)] transition-colors duration-200 ease-out hover:bg-[color-mix(in_oklab,var(--uc-primary)_8%,transparent)] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--uc-primary)]";
+    "inline-flex min-h-[44px] flex-1 items-center justify-center gap-2 rounded-2xl border-2 border-[color-mix(in_oklab,var(--uc-primary)_30%,transparent)] px-5 py-3 text-sm font-bold text-[var(--uc-primary)] transition-colors duration-200 ease-out hover:bg-[color-mix(in_oklab,var(--uc-primary)_8%,transparent)] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--uc-primary)]";
 
-  const hasLeftContent = Boolean(props.address || props.schedule.length > 0 || props.delivery_note);
+  const hasLeftContent = props.schedule.length > 0 || Boolean(props.delivery_note);
   const hasRoutes = Boolean(props.gmaps_url || props.waze_url);
+  const hasAnyContent = hasLeftContent || Boolean(props.address) || hasRoutes;
 
   return (
     <SectionShell id={id}>
       <SectionHeader title={props.section_title} />
-      {status ? (
-        <div className="mb-7 -mt-2">
-          <StatusBadge isOpen={status.isOpen} nextChange={status.nextChange} />
-        </div>
-      ) : null}
 
-      <div className="grid gap-6 rounded-3xl border border-[color-mix(in_oklab,var(--uc-ink)_8%,transparent)] bg-[var(--uc-surface)] p-5 shadow-[0_1px_3px_color-mix(in_oklab,var(--uc-ink)_6%,transparent)] sm:p-7 md:grid-cols-2">
-        {/* Kiri: alamat + jadwal + catatan antar */}
-        <div className="flex flex-col">
-          {hasLeftContent ? (
-            <>
-              {props.address ? (
-                <p className="flex items-start gap-2.5 text-sm leading-relaxed text-[color-mix(in_oklab,var(--uc-ink)_75%,transparent)]">
-                  <PinIcon className="mt-0.5 h-4 w-4 shrink-0 text-[var(--uc-primary)]" />
-                  <span className="font-medium">{props.address}</span>
-                </p>
-              ) : null}
-              {props.schedule.length > 0 ? (
-                <ul className="mt-4 divide-y divide-[color-mix(in_oklab,var(--uc-ink)_8%,transparent)]">
-                  {props.schedule.map((row) => (
-                    <li key={row.day} className="flex items-center justify-between gap-4 py-2.5 text-sm">
-                      <span className="font-semibold text-[var(--uc-ink)]">{row.day}</span>
-                      <span className="tabular-nums text-[color-mix(in_oklab,var(--uc-ink)_65%,transparent)]">
-                        {row.hours}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              ) : null}
-              {props.delivery_note ? (
-                <p className="mt-4 flex items-start gap-2.5 rounded-xl bg-[color-mix(in_oklab,var(--uc-primary)_7%,transparent)] px-3.5 py-3 text-xs font-medium leading-relaxed text-[color-mix(in_oklab,var(--uc-ink)_72%,transparent)]">
-                  <TruckIcon className="mt-0.5 h-4 w-4 shrink-0 text-[var(--uc-primary)]" />
-                  {props.delivery_note}
-                </p>
-              ) : null}
-            </>
-          ) : (
-            <p className="rounded-2xl border border-dashed border-[color-mix(in_oklab,var(--uc-ink)_20%,transparent)] p-6 text-center text-sm text-[color-mix(in_oklab,var(--uc-ink)_55%,transparent)]">
-              Alamat dan jam operasional belum lengkap.
-            </p>
-          )}
-        </div>
+      <div className="uc-card p-5 sm:p-7">
+        {status ? (
+          <div className="mb-5 border-b border-[color-mix(in_oklab,var(--uc-ink)_8%,transparent)] pb-5">
+            <StatusBadge isOpen={status.isOpen} nextChange={status.nextChange} />
+          </div>
+        ) : null}
 
-        {/* Kanan: peta + tombol rute */}
-        <div className="flex flex-col gap-4">
-          <SafeImage
-            alt="Peta lokasi usaha"
-            label="Peta Lokasi"
-            category={category}
-            aspect="aspect-[4/3]"
-            seed={0}
-          />
-          {hasRoutes ? (
-            <div className={`${hasLeftContent ? "mt-auto" : ""} flex flex-col gap-2.5 sm:flex-row`}>
-              {props.gmaps_url ? (
-                <a href={props.gmaps_url} target="_blank" rel="noopener noreferrer" className={outlineBtn}>
-                  <PinIcon className="h-4 w-4" />
-                  Google Maps
-                </a>
-              ) : null}
-              {props.waze_url ? (
-                <a href={props.waze_url} target="_blank" rel="noopener noreferrer" className={outlineBtn}>
-                  <NavIcon className="h-4 w-4" />
-                  Waze
-                </a>
+        {hasAnyContent ? (
+          <div className={hasLeftContent ? "grid gap-6 md:grid-cols-2" : ""}>
+            {/* Kiri: tabel jadwal + catatan antar */}
+            {hasLeftContent ? (
+              <div className="flex flex-col">
+                {props.schedule.length > 0 ? (
+                  <ul className="divide-y divide-[color-mix(in_oklab,var(--uc-ink)_8%,transparent)]">
+                    {props.schedule.map((row) => {
+                      const isToday = isTodayScheduleRow(row.day, todayDow);
+                      return (
+                        <li
+                          key={row.day}
+                          aria-current={isToday ? "date" : undefined}
+                          className={`flex min-h-[44px] items-center justify-between gap-4 px-3 py-2.5 text-sm ${
+                            isToday
+                              ? "-mx-3 rounded-xl bg-[color-mix(in_oklab,var(--uc-primary)_9%,transparent)]"
+                              : ""
+                          }`}
+                        >
+                          <span
+                            className={`flex items-center gap-2 text-[var(--uc-ink)] ${
+                              isToday ? "font-bold" : "font-semibold"
+                            }`}
+                          >
+                            {isToday ? (
+                              <span
+                                aria-hidden
+                                className="h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--uc-primary)]"
+                              />
+                            ) : null}
+                            {row.day}
+                          </span>
+                          <span
+                            className={`tabular-nums ${
+                              isToday
+                                ? "font-bold text-[var(--uc-primary)]"
+                                : "text-[color-mix(in_oklab,var(--uc-ink)_65%,transparent)]"
+                            }`}
+                          >
+                            {row.hours}
+                          </span>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                ) : null}
+                {props.delivery_note ? (
+                  <p
+                    className={`flex items-start gap-2.5 rounded-xl bg-[color-mix(in_oklab,var(--uc-secondary)_8%,transparent)] px-3.5 py-3 text-xs font-medium leading-relaxed text-[color-mix(in_oklab,var(--uc-ink)_72%,transparent)] ${
+                      props.schedule.length > 0 ? "mt-5" : ""
+                    }`}
+                  >
+                    <TruckIcon className="mt-0.5 h-4 w-4 shrink-0 text-[var(--uc-secondary)]" />
+                    {props.delivery_note}
+                  </p>
+                ) : null}
+              </div>
+            ) : null}
+
+            {/* Kanan: panel peta craft + tombol rute */}
+            <div className="flex flex-col gap-4">
+              <div
+                className={`uc-pattern-dots flex min-h-[200px] flex-1 flex-col items-center justify-center gap-3 rounded-2xl border border-[color-mix(in_oklab,var(--uc-primary)_14%,transparent)] bg-[color-mix(in_oklab,var(--uc-primary)_6%,var(--uc-surface))] px-6 py-8 text-center`}
+              >
+                <span
+                  aria-hidden
+                  className="flex h-14 w-14 items-center justify-center rounded-full bg-[var(--uc-primary)] text-[var(--uc-on-primary)] shadow-[0_8px_20px_-8px_color-mix(in_oklab,var(--uc-primary)_60%,transparent)]"
+                >
+                  <PinIcon className="h-7 w-7" />
+                </span>
+                {props.address ? (
+                  <p className="max-w-xs text-sm font-medium leading-relaxed text-[color-mix(in_oklab,var(--uc-ink)_75%,transparent)]">
+                    {props.address}
+                  </p>
+                ) : (
+                  <p className="max-w-xs text-sm leading-relaxed text-[color-mix(in_oklab,var(--uc-ink)_55%,transparent)]">
+                    Titik lokasi kami — buka tombol rute di bawah untuk navigasi.
+                  </p>
+                )}
+              </div>
+              {hasRoutes ? (
+                <div className="flex flex-col gap-2.5 sm:flex-row">
+                  {props.gmaps_url ? (
+                    <a href={props.gmaps_url} target="_blank" rel="noopener noreferrer" className={outlineBtn}>
+                      <PinIcon className="h-4 w-4" />
+                      Google Maps
+                    </a>
+                  ) : null}
+                  {props.waze_url ? (
+                    <a href={props.waze_url} target="_blank" rel="noopener noreferrer" className={outlineBtn}>
+                      <NavIcon className="h-4 w-4" />
+                      Waze
+                    </a>
+                  ) : null}
+                </div>
               ) : null}
             </div>
-          ) : null}
-        </div>
+          </div>
+        ) : (
+          <p className="rounded-2xl border border-dashed border-[color-mix(in_oklab,var(--uc-ink)_20%,transparent)] p-6 text-center text-sm text-[color-mix(in_oklab,var(--uc-ink)_55%,transparent)]">
+            Alamat dan jam operasional belum lengkap.
+          </p>
+        )}
       </div>
     </SectionShell>
   );

@@ -1,9 +1,9 @@
 /**
  * Modul social_proof_reviews — COMPONENTS.md §2.
- * Ulasan pelanggan: bintang SVG emas, kartu bergaya gelembung chat WhatsApp
- * untuk sumber whatsapp, tanda G empat warna untuk Google, tanda kutip netral
- * untuk manual. is_sample=true WAJIB menampilkan strip jujur "contoh tampilan"
- * (produk melarang ulasan palsu tanpa label). RSC murni — 0 JS client.
+ * Ulasan pelanggan: kartu .uc-card dengan tanda kutip dekoratif, bintang SVG
+ * warna tema, avatar inisial ber-tint deterministik, chip sumber (WhatsApp/
+ * Google). is_sample=true WAJIB berlabel jujur: strip section + chip "Contoh"
+ * per kartu (produk melarang ulasan palsu tanpa label). RSC murni — 0 JS client.
  */
 import type { SectionProps } from "@umkmcraft/schema";
 import { SafeImage, SectionHeader, SectionShell, WaIcon } from "../primitives";
@@ -12,18 +12,15 @@ export type SocialProofReviewsProps = SectionProps<"social_proof_reviews">;
 
 export const reviewsDefaults: SocialProofReviewsProps = {
   section_title: "Kata Pelanggan",
-  section_subtitle: "",
+  section_subtitle: "Cerita jujur dari pelanggan kami — pengalaman belanja kakak juga bisa nambah di sini.",
   is_sample: true, // default jujur: konten contoh harus berlabel sampai diganti ulasan asli
   reviews: [],
 };
 
 type ReviewItem = SocialProofReviewsProps["reviews"][number];
 
-/** Warna gelembung WA: fixed green via color-mix, bukan warna tema. */
-const WA_BUBBLE = "color-mix(in oklab, #22c55e 16%, var(--uc-surface))";
-
 /* ---------------------------------------------------------------- */
-/* Bintang — SVG emas, isi vs garis                                  */
+/* Bintang — SVG isi warna tema: terisi primary, kosong ink 15%      */
 /* ---------------------------------------------------------------- */
 
 const STAR_PATH =
@@ -38,10 +35,7 @@ function Stars({ rating }: { rating: number }) {
           viewBox="0 0 24 24"
           className="h-4 w-4"
           aria-hidden
-          fill={i <= rating ? "#f59e0b" : "none"}
-          stroke="#f59e0b"
-          strokeWidth={i <= rating ? 0 : 1.8}
-          strokeLinejoin="round"
+          fill={i <= rating ? "var(--uc-primary)" : "color-mix(in oklab, var(--uc-ink) 15%, transparent)"}
         >
           <path d={STAR_PATH} />
         </svg>
@@ -51,7 +45,7 @@ function Stars({ rating }: { rating: number }) {
 }
 
 /* ---------------------------------------------------------------- */
-/* Tanda sumber                                                      */
+/* Tanda sumber — marka brand di dalam chip netral tema              */
 /* ---------------------------------------------------------------- */
 
 function GoogleG({ className = "" }: { className?: string }) {
@@ -85,11 +79,14 @@ function QuoteIcon({ className = "" }: { className?: string }) {
   );
 }
 
+const SOURCE_CHIP_BASE = "inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 text-[0.65rem] font-bold";
+
 function SourceChip({ source }: { source: ReviewItem["source"] }) {
-  const base = "inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 text-[0.65rem] font-bold";
   if (source === "whatsapp") {
     return (
-      <span className={`${base} bg-[color-mix(in_oklab,#25d366_14%,transparent)] text-[#0f7a3d]`}>
+      <span
+        className={`${SOURCE_CHIP_BASE} bg-[color-mix(in_oklab,var(--uc-ink)_7%,transparent)] text-[color-mix(in_oklab,var(--uc-ink)_70%,transparent)]`}
+      >
         <WaIcon className="h-3 w-3 text-[#25d366]" />
         WhatsApp
       </span>
@@ -97,23 +94,56 @@ function SourceChip({ source }: { source: ReviewItem["source"] }) {
   }
   if (source === "google") {
     return (
-      <span className={`${base} bg-[color-mix(in_oklab,var(--uc-ink)_7%,transparent)] text-[color-mix(in_oklab,var(--uc-ink)_70%,transparent)]`}>
+      <span
+        className={`${SOURCE_CHIP_BASE} bg-[color-mix(in_oklab,var(--uc-ink)_7%,transparent)] text-[color-mix(in_oklab,var(--uc-ink)_70%,transparent)]`}
+      >
         <GoogleG className="h-3 w-3" />
         Google
       </span>
     );
   }
   return (
-    <span className={`${base} bg-[color-mix(in_oklab,var(--uc-ink)_7%,transparent)] text-[color-mix(in_oklab,var(--uc-ink)_70%,transparent)]`}>
+    <span
+      className={`${SOURCE_CHIP_BASE} bg-[color-mix(in_oklab,var(--uc-ink)_7%,transparent)] text-[color-mix(in_oklab,var(--uc-ink)_70%,transparent)]`}
+    >
       <QuoteIcon className="h-3 w-3" />
       Ulasan
     </span>
   );
 }
 
+/** Chip "Contoh" — label kejujuran untuk ulasan contoh (aturan produk, bukan review palsu). */
+function SampleChip() {
+  return (
+    <span className="inline-flex shrink-0 items-center rounded-full border border-dashed border-[color-mix(in_oklab,var(--uc-secondary)_55%,transparent)] bg-[color-mix(in_oklab,var(--uc-secondary)_8%,transparent)] px-2.5 py-1 text-[0.65rem] font-bold text-[var(--uc-secondary)]">
+      Contoh
+    </span>
+  );
+}
+
 /* ---------------------------------------------------------------- */
-/* Avatar — foto atau inisial di lingkaran warna tema                */
+/* Avatar — foto atau inisial; tint deterministik dari nama (hash)    */
+/* lewat palet kecil campuran primary/secondary tema                  */
 /* ---------------------------------------------------------------- */
+
+const AVATAR_TONES: Array<{ bg: string; fg: string }> = [
+  { bg: "color-mix(in oklab, var(--uc-primary) 16%, var(--uc-surface))", fg: "var(--uc-primary)" },
+  { bg: "color-mix(in oklab, var(--uc-secondary) 16%, var(--uc-surface))", fg: "var(--uc-secondary)" },
+  {
+    bg: "color-mix(in oklab, var(--uc-secondary) 9%, var(--uc-surface))",
+    fg: "color-mix(in oklab, var(--uc-secondary) 78%, var(--uc-ink))",
+  },
+  {
+    bg: "color-mix(in oklab, var(--uc-primary) 9%, var(--uc-surface))",
+    fg: "color-mix(in oklab, var(--uc-primary) 78%, var(--uc-ink))",
+  },
+];
+
+function toneForName(name: string): { bg: string; fg: string } {
+  let h = 0;
+  for (const ch of name) h = (h * 31 + ch.charCodeAt(0)) % 997;
+  return AVATAR_TONES[h % AVATAR_TONES.length]!;
+}
 
 function Avatar({ review }: { review: ReviewItem }) {
   if (review.avatar_url) {
@@ -123,15 +153,17 @@ function Avatar({ review }: { review: ReviewItem }) {
         alt={`Foto ${review.name}`}
         label={review.name}
         aspect="aspect-square"
-        className="h-10 w-10 shrink-0 rounded-full"
+        className="h-9 w-9 shrink-0 rounded-full"
       />
     );
   }
   const initial = review.name.trim().charAt(0).toUpperCase();
+  const tone = toneForName(review.name);
   return (
     <span
       aria-hidden
-      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--uc-primary)] font-[family-name:var(--uc-font-heading)] text-sm font-extrabold text-[var(--uc-on-primary)]"
+      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full font-[family-name:var(--uc-font-heading)] text-sm font-extrabold"
+      style={{ background: tone.bg, color: tone.fg }}
     >
       {initial || "?"}
     </span>
@@ -139,39 +171,30 @@ function Avatar({ review }: { review: ReviewItem }) {
 }
 
 /* ---------------------------------------------------------------- */
-/* Kartu ulasan                                                      */
+/* Kartu ulasan — .uc-card tunggal, kutip dekoratif primary lembut    */
 /* ---------------------------------------------------------------- */
 
-function ReviewCard({ review }: { review: ReviewItem }) {
-  const isWa = review.source === "whatsapp";
+function ReviewCard({ review, isSample }: { review: ReviewItem; isSample: boolean }) {
   return (
-    <figure
-      className={`relative flex flex-col gap-3 rounded-2xl p-4 ${
-        isWa
-          ? "rounded-tl-md shadow-[0_2px_8px_color-mix(in_oklab,var(--uc-ink)_7%,transparent)]"
-          : "border border-[color-mix(in_oklab,var(--uc-ink)_8%,transparent)] bg-[var(--uc-surface)] shadow-[0_1px_3px_color-mix(in_oklab,var(--uc-ink)_6%,transparent)]"
-      }`}
-      style={isWa ? { background: WA_BUBBLE } : undefined}
-    >
-      {isWa ? (
-        <svg viewBox="0 0 12 12" className="absolute -top-[7px] left-4 h-3 w-3" style={{ color: WA_BUBBLE }} aria-hidden>
-          <path fill="currentColor" d="M0 12C.6 5.6 4.2 1.4 11 0L11 12Z" />
-        </svg>
-      ) : null}
-      <div className="flex items-center gap-3">
+    <figure className="uc-card relative flex flex-col gap-3.5 overflow-hidden p-5">
+      <QuoteIcon className="pointer-events-none absolute -top-1.5 right-4 h-10 w-10 text-[color-mix(in_oklab,var(--uc-primary)_14%,transparent)]" />
+      <Stars rating={review.rating} />
+      <blockquote className="grow text-sm leading-relaxed text-[color-mix(in_oklab,var(--uc-ink)_78%,transparent)]">
+        {review.text}
+      </blockquote>
+      <figcaption className="mt-auto flex flex-wrap items-center gap-x-3 gap-y-2 border-t border-[color-mix(in_oklab,var(--uc-ink)_7%,transparent)] pt-3.5">
         <Avatar review={review} />
         <div className="min-w-0 grow">
-          <figcaption className="truncate text-sm font-bold text-[var(--uc-ink)]">{review.name}</figcaption>
+          <p className="truncate text-sm font-bold text-[var(--uc-ink)]">{review.name}</p>
           {review.date ? (
             <p className="text-[0.7rem] text-[color-mix(in_oklab,var(--uc-ink)_52%,transparent)]">{review.date}</p>
           ) : null}
         </div>
-        <SourceChip source={review.source} />
-      </div>
-      <Stars rating={review.rating} />
-      <blockquote className="text-sm leading-relaxed text-[color-mix(in_oklab,var(--uc-ink)_78%,transparent)]">
-        {review.text}
-      </blockquote>
+        <span className="flex shrink-0 flex-wrap items-center gap-1.5">
+          <SourceChip source={review.source} />
+          {isSample ? <SampleChip /> : null}
+        </span>
+      </figcaption>
     </figure>
   );
 }
@@ -182,7 +205,7 @@ function ReviewCard({ review }: { review: ReviewItem }) {
 
 export function SocialProofReviews({ id, props }: { id: string; props: SocialProofReviewsProps }) {
   return (
-    <SectionShell id={id}>
+    <SectionShell id={id} tone="wash">
       {props.is_sample ? (
         <p className="mb-6 flex items-start gap-2.5 rounded-xl border border-dashed border-[color-mix(in_oklab,var(--uc-secondary)_50%,transparent)] bg-[color-mix(in_oklab,var(--uc-secondary)_7%,transparent)] px-4 py-3 text-xs font-medium leading-relaxed text-[color-mix(in_oklab,var(--uc-ink)_72%,transparent)]">
           <svg
@@ -209,10 +232,10 @@ export function SocialProofReviews({ id, props }: { id: string; props: SocialPro
           Belum ada ulasan — jadilah pelanggan pertama yang berbagi cerita!
         </p>
       ) : (
-        <ul className="grid items-start gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <ul className="grid items-start gap-4 sm:grid-cols-2">
           {props.reviews.map((review, i) => (
             <li key={`${review.name}-${i}`}>
-              <ReviewCard review={review} />
+              <ReviewCard review={review} isSample={props.is_sample} />
             </li>
           ))}
         </ul>

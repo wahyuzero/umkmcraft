@@ -1,8 +1,9 @@
 /**
  * Modul menu_price_list — daftar menu gaya restoran (TEMPLATE_RESEARCH §4).
  * Referensi pola: Restaurantly/Maxim menu (leader titik-titik), Wix QR menu.
- * Item dikelompokkan per kategori oleh renderer; rekomendasi ditandai mark bintang.
- * RSC murni — tanpa gambar, ringan untuk warung dengan menu banyak.
+ * Item dikelompokkan per kategori oleh renderer; rekomendasi ditandai chip
+ * bintang + nama lebih tebal. Baris punya leader titik-titik dan sapuan warna
+ * hover di perangkat pointer (desktop). RSC murni — ringan untuk menu banyak.
  */
 import type { SectionProps } from "@umkmcraft/schema";
 import { formatRupiah } from "@umkmcraft/utils";
@@ -21,25 +22,33 @@ export const menuDefaults: MenuListProps = {
 };
 
 function RecommendedMark() {
+  /* Bintang dalam chip kecil — tanda rekomendasi (SVG, bukan emoji) */
   return (
-    <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 shrink-0 text-[var(--uc-primary)]" fill="currentColor" aria-label="Rekomendasi">
-      <path d="m12 2.6 2.9 5.9 6.5.95-4.7 4.6 1.1 6.45L12 17.45 6.2 20.5l1.1-6.45L2.6 9.45l6.5-.95L12 2.6z" />
-    </svg>
+    <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[color-mix(in_oklab,var(--uc-primary)_14%,transparent)]">
+      <svg viewBox="0 0 24 24" className="h-3 w-3 text-[var(--uc-primary)]" fill="currentColor" aria-hidden>
+        <path d="m12 2.6 2.9 5.9 6.5.95-4.7 4.6 1.1 6.45L12 17.45 6.2 20.5l1.1-6.45L2.6 9.45l6.5-.95L12 2.6z" />
+      </svg>
+      <span className="sr-only">Rekomendasi</span>
+    </span>
   );
 }
 
 function MenuRow({ item }: { item: MenuListProps["items"][number] }) {
   return (
-    <li>
+    <li className="-mx-2.5 rounded-xl px-2.5 py-1.5 transition-colors duration-200 [@media(hover:hover)]:hover:bg-[color-mix(in_oklab,var(--uc-primary)_6%,transparent)]">
       <div className="flex items-baseline gap-2">
         <div className="flex min-w-0 items-center gap-1.5">
           {item.is_recommended ? <RecommendedMark /> : null}
-          <h4 className="truncate font-[family-name:var(--uc-font-heading)] text-[0.98rem] font-bold text-[var(--uc-ink)]">
+          <h4
+            className={`truncate font-[family-name:var(--uc-font-heading)] text-[0.98rem] text-[var(--uc-ink)] ${
+              item.is_recommended ? "font-extrabold" : "font-bold"
+            }`}
+          >
             {item.name}
           </h4>
         </div>
-        {/* Leader titik-titik ala menu restoran */}
-        <span aria-hidden className="mx-1 hidden min-w-6 flex-1 border-b-2 border-dotted border-[color-mix(in_oklab,var(--uc-ink)_22%,transparent)] sm:block" />
+        {/* Leader titik-titik ala menu restoran — menyambung nama → harga */}
+        <span aria-hidden className="mx-1 min-w-4 flex-1 border-b-2 border-dotted border-[color-mix(in_oklab,var(--uc-ink)_22%,transparent)]" />
         <span className="shrink-0 text-[0.98rem] font-extrabold tabular-nums text-[var(--uc-primary)]">
           {formatRupiah(item.price)}
         </span>
@@ -77,7 +86,7 @@ export function MenuPriceList({ id, props }: { id: string; props: MenuListProps 
                 {cat}
               </h3>
             ) : null}
-            <ul className="flex flex-col gap-3.5">
+            <ul className="flex flex-col gap-1">
               {byCategory.get(cat)!.map((item, i) => (
                 <MenuRow key={i} item={item} />
               ))}

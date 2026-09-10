@@ -1,7 +1,8 @@
 /**
  * Modul updates_blog_list — info & kabar terbaru (TEMPLATE_RESEARCH §4).
  * Referensi pola: Start Bootstrap Clean Blog, HTML5 UP Massively/Editorial.
- * Kartu berita bertumpuk: tanggal, judul, ringkasan, link opsional, thumbnail opsional.
+ * Baris dibagi border halus: chip tanggal (tabular), judul tebal (hover primary),
+ * ringkasan clamp-2, thumbnail opsional, chevron meluncur 200ms saat hover.
  * RSC murni.
  */
 import type { SectionProps } from "@umkmcraft/schema";
@@ -23,54 +24,71 @@ export const updatesDefaults: UpdatesProps = {
   ],
 };
 
-function UpdateCard({ post, seed, category }: { post: UpdatesProps["posts"][number]; seed: number; category: string }) {
+function ChevronMark() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className="h-5 w-5 shrink-0 self-center text-[var(--uc-primary)] transition-transform duration-200 ease-out group-hover:translate-x-1"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2.2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <path d="m9.5 5.5 6.5 6.5-6.5 6.5" />
+    </svg>
+  );
+}
+
+function UpdateRow({ post, seed, category }: { post: UpdatesProps["posts"][number]; seed: number; category: string }) {
   const body = (
     <>
       {post.image_url ? (
-        <div className="w-full sm:w-40 sm:shrink-0">
+        <div className="w-24 shrink-0 sm:w-28">
           <SafeImage
             src={post.image_url}
             alt={post.title}
             label={post.title}
             category={category}
-            aspect="aspect-[16/10] sm:aspect-square"
+            aspect="aspect-square"
             seed={seed}
-            className="h-full rounded-xl sm:rounded-xl"
+            className="rounded-xl"
           />
         </div>
       ) : null}
       <div className="min-w-0 flex-1">
         {post.date_label ? (
-          <p className="text-[0.7rem] font-extrabold uppercase tracking-[0.1em] text-[var(--uc-primary)]">
+          <span className="inline-block rounded-full bg-[color-mix(in_oklab,var(--uc-primary)_9%,var(--uc-surface))] px-2.5 py-1 text-[0.68rem] font-extrabold uppercase tracking-[0.06em] tabular-nums text-[var(--uc-primary)]">
             {post.date_label}
-          </p>
+          </span>
         ) : null}
-        <h3 className="mt-0.5 font-[family-name:var(--uc-font-heading)] text-[1.08rem] font-extrabold text-[var(--uc-ink)] group-hover:text-[var(--uc-primary)] sm:text-lg">
+        <h3 className="font-[family-name:var(--uc-font-heading)] text-[1.05rem] font-extrabold leading-snug text-[var(--uc-ink)] transition-colors duration-200 group-hover:text-[var(--uc-primary)] sm:text-lg">
           {post.title}
         </h3>
         {post.excerpt ? (
-          <p className="mt-1.5 text-sm leading-relaxed text-[color-mix(in_oklab,var(--uc-ink)_66%,transparent)]">
+          <p className="mt-1.5 text-sm leading-relaxed text-[color-mix(in_oklab,var(--uc-ink)_66%,transparent)] line-clamp-2">
             {post.excerpt}
           </p>
         ) : null}
-        {post.url ? (
-          <span className="mt-2.5 inline-block text-xs font-bold text-[var(--uc-primary)]">
-            Baca selengkapnya →
-          </span>
-        ) : null}
       </div>
+      {post.url ? <ChevronMark /> : null}
     </>
   );
 
-  const cardCls =
-    "uc-update-card group flex gap-4 rounded-2xl border border-[color-mix(in_oklab,var(--uc-ink)_8%,transparent)] bg-[var(--uc-surface)] p-4 transition-[border-color,box-shadow] duration-200 hover:border-[color-mix(in_oklab,var(--uc-primary)_40%,transparent)] sm:p-5";
+  const rowCls = "group flex gap-4";
 
   return post.url ? (
-    <a href={post.url} target="_blank" rel="noopener noreferrer" className={`${cardCls} focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--uc-primary)]`}>
+    <a
+      href={post.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={`${rowCls} focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--uc-primary)]`}
+    >
       {body}
     </a>
   ) : (
-    <div className={cardCls}>{body}</div>
+    <div className={rowCls}>{body}</div>
   );
 }
 
@@ -78,10 +96,10 @@ export function UpdatesBlogList({ id, props, category = "" }: { id: string; prop
   return (
     <SectionShell id={id} tone="surface">
       <SectionHeader title={props.section_title} subtitle={props.section_subtitle} />
-      <ul className="flex flex-col gap-3.5">
+      <ul className="divide-y divide-[color-mix(in_oklab,var(--uc-ink)_8%,transparent)]">
         {props.posts.map((post, i) => (
-          <li key={i}>
-            <UpdateCard post={post} seed={i} category={category} />
+          <li key={i} className="py-5 first:pt-0 last:pb-0">
+            <UpdateRow post={post} seed={i} category={category} />
           </li>
         ))}
       </ul>

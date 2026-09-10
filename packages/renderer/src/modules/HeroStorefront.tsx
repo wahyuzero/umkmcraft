@@ -1,7 +1,8 @@
 /**
  * Modul hero_storefront — COMPONENTS.md §2.A.
- * Elemen: badge promo, H1 judul, tagline, foto hero, CTA WhatsApp (glow hover),
- * 3 pill badges keunggulan. RSC — 0 JS client kecuali CTA terlacak.
+ * Elemen: badge promo (chip berikon), H1 display besar, tagline, foto hero
+ * berbingkai "stiker" (ring latar + offset putus-putus), CTA WhatsApp (glow
+ * hover), 3 pill badges keunggulan. RSC — 0 JS client kecuali CTA terlacak.
  */
 import type { SectionProps } from "@umkmcraft/schema";
 import { createWhatsAppChatLink } from "@umkmcraft/utils";
@@ -41,7 +42,11 @@ export function HeroStorefront({
 
   return (
     <header className="relative overflow-hidden bg-[var(--uc-bg)]">
-      {/* Field dekoratif: lingkaran warna lembut sesuai preset (geometri, bukan ornamen) */}
+      {/* Field dekoratif: pola titik craft (memudar ke bawah) + satu blob radial lembut */}
+      <div
+        aria-hidden
+        className="uc-pattern-dots pointer-events-none absolute inset-x-0 top-0 h-64 opacity-70 [mask-image:linear-gradient(to_bottom,black,transparent)] sm:h-80"
+      />
       <div
         aria-hidden
         className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full opacity-[0.13]"
@@ -50,11 +55,14 @@ export function HeroStorefront({
       <div className="relative mx-auto grid w-full max-w-3xl gap-8 px-5 pb-14 pt-10 sm:px-8 sm:pb-16 sm:pt-14 md:grid-cols-[1.1fr_0.9fr] md:items-center">
         <div className="flex flex-col items-start gap-5">
           {props.badge ? (
-            <span className="inline-flex items-center rounded-full bg-[color-mix(in_oklab,var(--uc-secondary)_14%,transparent)] px-3.5 py-1.5 text-xs font-bold tracking-wide text-[var(--uc-secondary)]">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-[color-mix(in_oklab,var(--uc-secondary)_25%,transparent)] bg-[color-mix(in_oklab,var(--uc-secondary)_10%,var(--uc-surface))] px-3.5 py-1.5 text-xs font-bold tracking-wide text-[var(--uc-secondary)]">
+              <svg viewBox="0 0 12 12" className="h-2.5 w-2.5" fill="currentColor" aria-hidden>
+                <path d="M6 0l1.57 3.6L11.5 4 8.6 6.4 9.7 10 6 7.9 2.3 10l1.1-3.6L.5 4l3.93-.4L6 0z" />
+              </svg>
               {props.badge}
             </span>
           ) : null}
-          <h1 className="font-[family-name:var(--uc-font-heading)] text-[2.35rem] font-extrabold leading-[1.08] tracking-[-0.03em] text-[var(--uc-ink)] sm:text-5xl">
+          <h1 className="font-[family-name:var(--uc-font-heading)] text-5xl font-extrabold leading-[1.02] tracking-[-0.03em] text-[var(--uc-ink)] sm:text-6xl">
             {props.title}
           </h1>
           {props.subtitle ? (
@@ -96,14 +104,22 @@ export function HeroStorefront({
             </ul>
           ) : null}
         </div>
-        <SafeImage
-          src={props.image_url}
-          alt={businessName}
-          label={businessName}
-          category={category}
-          aspect="aspect-[4/3] md:aspect-[3.4/4]"
-          className="shadow-[0_18px_50px_-18px_color-mix(in_oklab,var(--uc-primary)_55%,transparent)]"
-        />
+        {/* Bingkai "stiker": ring warna latar + SATU offset dekoratif putus-putus di belakang */}
+        <div className="relative">
+          <div
+            aria-hidden
+            className="absolute inset-0 translate-x-2.5 translate-y-2.5 rounded-3xl border-2 border-dashed border-[color-mix(in_oklab,var(--uc-secondary)_40%,transparent)]"
+          />
+          <div className="relative overflow-hidden rounded-3xl bg-[color-mix(in_oklab,var(--uc-primary)_8%,var(--uc-surface))] shadow-[0_24px_60px_-24px_color-mix(in_oklab,var(--uc-primary)_55%,transparent)] ring-4 ring-[var(--uc-bg)]">
+            <SafeImage
+              src={props.image_url}
+              alt={businessName}
+              label={businessName}
+              category={category}
+              aspect="aspect-[4/3] md:aspect-[3.4/4]"
+            />
+          </div>
+        </div>
       </div>
     </header>
   );

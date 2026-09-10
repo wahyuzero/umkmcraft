@@ -66,24 +66,24 @@ export function BranchLocationsList({ id, props, businessName }: { id: string; p
                 {branch.hours}
               </p>
             ) : null}
-            <div className="mt-auto flex flex-wrap gap-2 pt-1">
+            <div className="mt-auto flex flex-wrap gap-2 pt-2">
               {branch.gmaps_url ? (
                 <a
                   href={branch.gmaps_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 rounded-xl border-2 border-[color-mix(in_oklab,var(--uc-primary)_30%,transparent)] px-3.5 py-2 text-xs font-bold text-[var(--uc-primary)] transition-colors hover:bg-[color-mix(in_oklab,var(--uc-primary)_8%,transparent)] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--uc-primary)]"
+                  className="inline-flex min-h-[44px] items-center gap-1.5 rounded-xl border-2 border-[color-mix(in_oklab,var(--uc-ink)_15%,transparent)] px-4 text-sm font-bold text-[color-mix(in_oklab,var(--uc-ink)_75%,transparent)] transition-colors duration-200 hover:bg-[color-mix(in_oklab,var(--uc-ink)_5%,transparent)] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--uc-primary)]"
                 >
-                  <PinMark className="h-3.5 w-3.5" />
+                  <PinMark className="h-4 w-4" />
                   Buka Rute
                 </a>
               ) : null}
               {branch.whatsapp_number ? (
                 <a
                   href={createWhatsAppChatLink(branch.whatsapp_number, `Halo ${businessName} (${branch.name})! 👋`)}
-                  className="inline-flex items-center gap-1.5 rounded-xl bg-[var(--uc-primary)] px-3.5 py-2 text-xs font-bold text-[var(--uc-on-primary)] shadow-[0_2px_8px_color-mix(in_oklab,var(--uc-primary)_35%,transparent)] transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--uc-primary)]"
+                  className="inline-flex min-h-[44px] items-center gap-1.5 rounded-xl border-2 border-[color-mix(in_oklab,var(--uc-primary)_35%,transparent)] px-4 text-sm font-bold text-[var(--uc-primary)] transition-colors duration-200 hover:bg-[color-mix(in_oklab,var(--uc-primary)_8%,transparent)] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--uc-primary)]"
                 >
-                  <WaIcon className="h-3.5 w-3.5" />
+                  <WaIcon className="h-4 w-4" />
                   Chat Cabang
                 </a>
               ) : null}

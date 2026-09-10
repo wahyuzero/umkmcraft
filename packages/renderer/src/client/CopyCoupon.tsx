@@ -2,6 +2,8 @@
 
 /**
  * CopyCoupon — island salin kode promo ke clipboard.
+ * Tampilan "tiket": border putus-putus + kode tabular. Warna sukses memakai
+ * var tema (ink/bg) — tanpa hex hardcode.
  * navigator.clipboard dulu, fallback textarea + document.execCommand("copy").
  * Status "Tersalin!" (ikon SVG centang, tanpa emoji) selama 2 detik,
  * diumumkan ke pembaca layar lewat aria-live="polite".
@@ -87,17 +89,20 @@ export function CopyCoupon({ code }: { code: string }) {
   };
 
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full border-2 border-dashed border-[color-mix(in_oklab,var(--uc-primary)_45%,transparent)] bg-[color-mix(in_oklab,var(--uc-primary)_7%,var(--uc-surface))] py-1.5 pl-4 pr-1.5">
+    /* Kupon bergaya "tiket": border putus-putus, kode tabular lebar jarak huruf */
+    <span className="inline-flex items-center gap-2 rounded-xl border-2 border-dashed border-[color-mix(in_oklab,var(--uc-primary)_45%,transparent)] bg-[color-mix(in_oklab,var(--uc-primary)_7%,var(--uc-surface))] py-1 pl-1 pr-1">
       <span aria-live="polite" className="sr-only">
         {copied ? `Kode ${code} berhasil disalin ke papan klip` : ""}
       </span>
-      <code className="text-sm font-bold tracking-[0.14em] text-[var(--uc-primary)]">{code}</code>
+      <code className="pl-3 text-sm font-bold tabular-nums tracking-[0.18em] text-[var(--uc-primary)]">{code}</code>
       <button
         type="button"
         onClick={onCopy}
         aria-label={`Salin kode promo ${code}`}
-        className={`inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-bold transition-colors duration-200 ease-out focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--uc-primary)] ${
-          copied ? "bg-[#15803d] text-white" : "bg-[var(--uc-primary)] text-[var(--uc-on-primary)] hover:brightness-105"
+        className={`inline-flex min-h-[44px] items-center gap-1 rounded-lg px-3.5 text-xs font-bold transition-[background-color,color,transform] duration-200 ease-out active:scale-95 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--uc-primary)] ${
+          copied
+            ? "bg-[var(--uc-ink)] text-[var(--uc-bg)]"
+            : "bg-[var(--uc-primary)] text-[var(--uc-on-primary)] hover:brightness-105"
         }`}
       >
         {copied ? <CheckIcon /> : <CopyIcon />}

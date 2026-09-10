@@ -1,4 +1,14 @@
 import Link from "next/link";
+import type { ReactElement } from "react";
+import type { LucideIcon } from "lucide-react";
+import {
+  CreditCard,
+  Eye,
+  Mail,
+  MessageCircle,
+  ShoppingBag,
+  Sparkles,
+} from "lucide-react";
 import { renderSections, themeStyle } from "@umkmcraft/renderer";
 import { parseUmkmConfig } from "@umkmcraft/schema";
 import { readFileSync } from "node:fs";
@@ -8,6 +18,7 @@ import path from "node:path";
  * Landing UMKM Craft (Persuade).
  * "Prove, don't claim": hero memuat mock HP yang merender fixture kuliner
  * dengan engine renderer ASLI — bukan gambar mockup palsu.
+ * Dunia: label press / lembar stiker die-cut (lihat DESIGN.md).
  */
 function loadFixture(name: string) {
   try {
@@ -20,32 +31,125 @@ function loadFixture(name: string) {
   }
 }
 
-const STEPS = [
+const STEPS: { n: string; icon: LucideIcon; title: string; body: string }[] = [
   {
     n: "1",
+    icon: MessageCircle,
     title: "Ceritakan usahamu",
     body: "Chat santai seperti balas WhatsApp. Nama, produk, harga, lokasi — asal sebut, kami rangkum sendiri.",
   },
   {
     n: "2",
+    icon: Sparkles,
     title: "Situs jadi sebelum air kopimu dingin",
     body: "AI menyusun katalog, jam buka, dan tombol pesan otomatis. Semua blok bisa kamu geser dan ganti tanpa coding.",
   },
   {
     n: "3",
+    icon: ShoppingBag,
     title: "Pembeli langsung chat kamu",
     body: "Setiap tombol produk membuka WhatsApp dengan format pesanan rapi. Nego, konfirmasi, deal — gaya Indonesia.",
   },
 ];
 
-const MODULES = [
-  { name: "Katalog + Tombol WA", desc: "Harga coret, badge Best Seller, pesanan 1-klik", core: true },
-  { name: "Jam Buka Otomatis", desc: "Badge Buka/Tutup real-time + rute Google Maps & Waze", core: true },
-  { name: "Hub Marketplace", desc: "Shopee, Tokopedia, GoFood, GrabFood, TikTok Shop", core: true },
-  { name: "Badge Legalitas", desc: "Halal MUI, BPOM, P-IRT — kepercayaan sejak detik pertama", core: false },
-  { name: "Promo & Kupon", desc: "Banner flash sale dengan timer + kode kupon 1-klik salin", core: true },
-  { name: "Galeri & Pricelist", desc: "Portofolio hasil karya dan paket layanan berjenjang", core: false },
+/* Motif mini per modul — geometri garis 1.8, satu keluarga dengan lucide */
+const MODULES: { name: string; desc: string; core: boolean; motif: ReactElement }[] = [
+  {
+    name: "Katalog + Tombol WA",
+    desc: "Harga coret, badge Best Seller, pesanan 1-klik",
+    core: true,
+    motif: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="h-6 w-6">
+        <path d="M20.6 13.3 13.3 20.6a1.9 1.9 0 0 1-2.7 0L3.4 13.4V3.4h10l7.2 7.2a1.9 1.9 0 0 1 0 2.7Z" />
+        <circle cx="8" cy="8" r="1.4" />
+      </svg>
+    ),
+  },
+  {
+    name: "Jam Buka Otomatis",
+    desc: "Badge Buka/Tutup real-time + rute Google Maps & Waze",
+    core: true,
+    motif: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="h-6 w-6">
+        <circle cx="12" cy="12" r="8.5" />
+        <path d="M12 7.5V12l3 2" />
+      </svg>
+    ),
+  },
+  {
+    name: "Hub Marketplace",
+    desc: "Shopee, Tokopedia, GoFood, GrabFood, TikTok Shop",
+    core: true,
+    motif: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="h-6 w-6">
+        <circle cx="12" cy="12" r="3" />
+        <circle cx="5" cy="5.5" r="2.2" />
+        <circle cx="19" cy="5.5" r="2.2" />
+        <circle cx="12" cy="19.5" r="2.2" />
+        <path d="M9.9 9.8 6.7 7.4M14.1 9.8l3.2-2.4M12 15v2.3" />
+      </svg>
+    ),
+  },
+  {
+    name: "Badge Legalitas",
+    desc: "Halal MUI, BPOM, P-IRT — kepercayaan sejak detik pertama",
+    core: false,
+    motif: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="h-6 w-6">
+        <path d="M12 3.5 5 6v5.2c0 4.4 3 7.6 7 9.3 4-1.7 7-4.9 7-9.3V6l-7-2.5Z" />
+        <path d="m9 11.8 2.2 2.2 4-4.2" />
+      </svg>
+    ),
+  },
+  {
+    name: "Promo & Kupon",
+    desc: "Banner flash sale dengan timer + kode kupon 1-klik salin",
+    core: true,
+    motif: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="h-6 w-6">
+        <rect x="3.5" y="6.5" width="17" height="11" rx="2" />
+        <path d="M9 6.5v11" strokeDasharray="2 2.4" />
+        <path d="m14.2 14.3 3.2-4.6" />
+        <circle cx="14.4" cy="10" r="0.5" />
+        <circle cx="17.2" cy="14" r="0.5" />
+      </svg>
+    ),
+  },
+  {
+    name: "Galeri & Pricelist",
+    desc: "Portofolio hasil karya dan paket layanan berjenjang",
+    core: false,
+    motif: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="h-6 w-6">
+        <rect x="3.5" y="5" width="11" height="9.5" rx="1.6" />
+        <circle cx="7" cy="8.4" r="1" />
+        <path d="m4.6 13.1 3.1-2.9 3.6 3.4" />
+        <path d="M17.5 7.5h3M17.5 11h3M17.5 14.5h3" />
+      </svg>
+    ),
+  },
 ];
+
+/* Label stiker: angka stamp dengan tepi die-cut */
+const STAMPS = [
+  { value: "13", label: "modul blok siap pakai", tilt: "-rotate-1" },
+  { value: "5", label: "langkah dari cerita ke live", tilt: "rotate-[0.5deg]" },
+  { value: "6", label: "tema warna kategori", tilt: "-rotate-[0.5deg]" },
+];
+
+const MICROPROOFS: { icon: LucideIcon; label: string }[] = [
+  { icon: CreditCard, label: "Tanpa kartu kredit" },
+  { icon: Eye, label: "Langsung pratinjau" },
+  { icon: Sparkles, label: "Tanpa coding" },
+];
+
+function ArrowRight({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 20 20" className={className} fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden>
+      <path d="M4 10h12m-5-5 5 5-5 5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
 
 export default function LandingPage() {
   const demo = loadFixture("kuliner-sambal");
@@ -56,7 +160,7 @@ export default function LandingPage() {
   return (
     <main className="min-h-dvh bg-paper">
       {/* ============================ NAV ============================ */}
-      <header className="sticky top-0 z-40 border-b border-cutline/70 bg-paper/85 backdrop-blur-sm">
+      <header className="sticky top-0 z-40 border-b border-cutline/70 bg-paper">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5 sm:px-8">
           <Link href="/" className="flex items-center gap-2.5">
             <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-ink font-display text-lg font-extrabold text-paper">
@@ -66,16 +170,16 @@ export default function LandingPage() {
               UMKM Craft
             </span>
           </Link>
-          <nav className="flex items-center gap-2 sm:gap-4">
-            <a href="#cara" className="hidden rounded-lg px-3 py-2 text-sm font-medium text-ink-soft transition-colors hover:text-ink sm:block">
+          <nav className="flex items-center gap-1 sm:gap-2">
+            <a href="#cara" className="hidden items-center rounded-lg px-3 py-3 text-sm font-medium text-ink-soft transition-colors hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal sm:flex">
               Cara Kerja
             </a>
-            <a href="#modul" className="hidden rounded-lg px-3 py-2 text-sm font-medium text-ink-soft transition-colors hover:text-ink sm:block">
+            <a href="#modul" className="hidden items-center rounded-lg px-3 py-3 text-sm font-medium text-ink-soft transition-colors hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal sm:flex">
               Modul
             </a>
             <Link
               href="/start"
-              className="rounded-xl bg-signal px-4 py-2.5 text-sm font-bold text-white shadow-[0_2px_10px_rgb(154_52_18/0.35)] transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[0_8px_22px_rgb(154_52_18/0.4)]"
+              className="ml-2 inline-flex items-center rounded-xl bg-signal px-4 py-3 text-sm font-bold text-card shadow-[0_2px_10px_rgb(154_52_18/0.35)] transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[0_8px_22px_rgb(154_52_18/0.4)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal"
             >
               Buat Website Gratis
             </Link>
@@ -85,76 +189,97 @@ export default function LandingPage() {
 
       {/* ============================ HERO =========================== */}
       <section className="relative overflow-hidden">
+        {/* Tekstur titik kertas — memudar ke arah kanan atas */}
+        <div
+          aria-hidden
+          className="lc-dots pointer-events-none absolute inset-0 [mask-image:radial-gradient(55%_65%_at_78%_28%,black,transparent_72%)]"
+        />
         <div
           aria-hidden
           className="pointer-events-none absolute -right-40 -top-40 h-[540px] w-[540px] rounded-full"
           style={{ background: "radial-gradient(circle, rgb(154 52 18 / 0.09), transparent 65%)" }}
         />
-        <div className="relative mx-auto grid max-w-6xl items-center gap-14 px-5 pb-20 pt-16 sm:px-8 lg:grid-cols-[1.05fr_0.95fr] lg:pb-28 lg:pt-24">
+        <div className="relative mx-auto grid max-w-6xl items-center gap-14 px-5 pb-20 pt-16 sm:px-8 sm:pt-20 lg:grid-cols-[1.05fr_0.95fr] lg:pb-28">
           <div>
-            <p className="uc-ruler mb-6 inline-block h-[5px] w-24" aria-hidden />
-            <h1 className="font-display text-[2.6rem] font-extrabold leading-[1.04] tracking-[-0.035em] text-ink sm:text-6xl">
+            <p className="uc-ruler uc-stick-in mb-6 inline-block h-[5px] w-24" aria-hidden />
+            <h1 className="uc-stick-in text-balance font-display text-5xl font-extrabold leading-[1.03] tracking-[-0.035em] text-ink sm:text-6xl lg:text-7xl [animation-delay:70ms]">
               Website usaha siap menerima pesanan,{" "}
               <span className="text-signal">secepat cerita kamu</span>.
             </h1>
-            <p className="mt-6 max-w-xl text-lg leading-relaxed text-ink-soft">
+            <p className="uc-stick-in mt-6 max-w-xl text-lg leading-relaxed text-ink-soft [animation-delay:140ms]">
               Ceritakan usahamu lewat obrolan santai. UMKM Craft merangkai katalog produk,
               jam buka, dan tombol pesan WhatsApp otomatis — rapi di HP pembeli, tanpa coding,
               gratis.
             </p>
-            <div className="mt-8 flex flex-wrap items-center gap-4">
+            <div className="uc-stick-in mt-8 [animation-delay:210ms]">
               <Link
                 href="/start"
-                className="group inline-flex items-center gap-2.5 rounded-2xl bg-signal px-7 py-4 text-base font-bold text-white shadow-[0_4px_16px_rgb(154_52_18/0.4)] transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[0_12px_30px_rgb(154_52_18/0.45)]"
+                className="group inline-flex items-center gap-2.5 rounded-2xl bg-signal px-7 py-4 text-base font-bold text-card shadow-[0_4px_16px_rgb(154_52_18/0.4)] transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[0_12px_30px_rgb(154_52_18/0.45)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal"
               >
                 Mulai dari Chat
-                <svg viewBox="0 0 20 20" className="h-4.5 w-4.5 transition-transform duration-200 group-hover:translate-x-0.5" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden>
-                  <path d="M4 10h12m-5-5 5 5-5 5" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
+                <ArrowRight className="h-4.5 w-4.5 transition-transform duration-200 group-hover:translate-x-0.5" />
               </Link>
-              <p className="text-sm font-medium text-ink-soft">
-                Tanpa daftar · Langsung pratinjau
-              </p>
+              {/* Microproof: bukti kecil, bukan klaim */}
+              <ul className="mt-5 flex flex-wrap items-center gap-2">
+                {MICROPROOFS.map(({ icon: Icon, label }) => (
+                  <li
+                    key={label}
+                    className="flex items-center gap-1.5 rounded-full bg-paper-deep px-3 py-1.5 text-xs font-semibold text-ink-soft"
+                  >
+                    <Icon className="h-3.5 w-3.5 text-signal" aria-hidden />
+                    {label}
+                  </li>
+                ))}
+              </ul>
             </div>
 
-            {/* Bukti, bukan klaim: angka fitur konkret */}
-            <dl className="mt-12 grid max-w-lg grid-cols-3 gap-6 border-t border-cutline pt-7">
-              {[
-                ["13", "modul blok siap pakai"],
-                ["5 langkah", "dari curhat ke situs live"],
-                ["6", "tema warna kategori"],
-              ].map(([v, l]) => (
-                <div key={l}>
-                  <dt className="sr-only">{l}</dt>
-                  <dd className="font-display text-2xl font-extrabold tabular-nums text-ink">{v}</dd>
-                  <dd className="mt-1 text-xs leading-snug text-ink-soft">{l}</dd>
+            {/* Strip stamp: angka konkret dengan tepi die-cut */}
+            <dl className="uc-stick-in mt-10 grid max-w-md grid-cols-3 gap-3 [animation-delay:280ms] sm:gap-4">
+              {STAMPS.map((s) => (
+                <div key={s.label} className={`uc-cutline rounded-xl bg-card px-2 py-4 text-center shadow-plate ${s.tilt}`}>
+                  <dt className="sr-only">{s.label}</dt>
+                  <dd className="font-display text-3xl font-extrabold tabular-nums leading-none text-ink">
+                    {s.value}
+                  </dd>
+                  <dd className="mt-2 text-[0.68rem] font-medium leading-snug text-ink-soft">{s.label}</dd>
                 </div>
               ))}
             </dl>
           </div>
 
           {/* Mock HP — merender engine ASLI dengan fixture nyata */}
-          <div className="relative mx-auto w-full max-w-[340px]">
-            <div className="uc-starburst absolute -right-4 -top-7 z-10 flex h-24 w-24 rotate-12 items-center justify-center bg-live text-center font-display text-[0.6rem] font-extrabold leading-tight text-white sm:-right-7">
-              CONTOH
-              <br />
-              ASLI
-            </div>
-            <div className="rounded-[2.6rem] bg-ink p-2.5 shadow-kemasan">
-              <div className="overflow-hidden rounded-[2.1rem] bg-white">
-                <div className="flex items-center justify-between bg-ink px-5 pb-2 pt-2.5">
-                  <span className="h-1.5 w-16 rounded-full bg-paper/30" aria-hidden />
-                  <span className="h-2 w-2 rounded-full bg-paper/30" aria-hidden />
-                </div>
-                {demo && demoSections.length > 0 ? (
-                  <div
-                    style={themeStyle(demo.meta)}
-                    className="uc-site max-h-[560px] overflow-hidden [mask-image:linear-gradient(to_bottom,black_82%,transparent)]"
-                    aria-label="Contoh website yang dibuat UMKM Craft"
-                  >
-                    {renderSections(demo.meta, demoSections)}
+          <div className="relative z-0 mx-auto w-full max-w-[340px]">
+            {/* Lembar die-cut di belakang kemasan */}
+            <div
+              aria-hidden
+              className="absolute left-1/2 top-1/2 -z-10 h-[430px] w-[430px] -translate-x-1/2 -translate-y-1/2 rounded-full border-[1.5px] border-dashed border-cutline"
+            />
+            <div
+              aria-hidden
+              className="absolute left-1/2 top-1/2 -z-10 h-[530px] w-[530px] -translate-x-1/2 -translate-y-1/2 rounded-full border-[1.5px] border-dashed border-cutline/50"
+            />
+            <div className="uc-stick-in relative [animation-delay:160ms]">
+              <div className="uc-starburst absolute -right-4 -top-7 z-10 flex h-24 w-24 rotate-12 items-center justify-center bg-live text-center font-display text-[0.6rem] font-extrabold leading-tight text-card sm:-right-7">
+                CONTOH
+                <br />
+                ASLI
+              </div>
+              <div className="rotate-1 rounded-[2.6rem] bg-ink p-2.5 shadow-kemasan transition-transform duration-300 ease-out hover:rotate-0">
+                <div className="overflow-hidden rounded-[2.1rem] bg-card">
+                  <div className="flex items-center justify-between bg-ink px-5 pb-2 pt-2.5">
+                    <span className="h-1.5 w-16 rounded-full bg-paper/30" aria-hidden />
+                    <span className="h-2 w-2 rounded-full bg-paper/30" aria-hidden />
                   </div>
-                ) : null}
+                  {demo && demoSections.length > 0 ? (
+                    <div
+                      style={themeStyle(demo.meta)}
+                      className="uc-site max-h-[560px] overflow-hidden [mask-image:linear-gradient(to_bottom,black_82%,transparent)]"
+                      aria-label="Contoh website yang dibuat UMKM Craft"
+                    >
+                      {renderSections(demo.meta, demoSections)}
+                    </div>
+                  ) : null}
+                </div>
               </div>
             </div>
             <p className="mt-4 text-center text-xs text-ink-soft">
@@ -165,31 +290,43 @@ export default function LandingPage() {
       </section>
 
       {/* ========================= CARA KERJA ======================== */}
-      <section id="cara" className="border-y border-cutline/70 bg-card">
-        <div className="mx-auto max-w-6xl px-5 py-20 sm:px-8">
-          <h2 className="font-display text-3xl font-extrabold tracking-[-0.025em] text-ink sm:text-4xl">
+      <section id="cara" className="scroll-mt-20 border-y border-cutline/70 bg-card">
+        <div className="mx-auto max-w-6xl px-5 py-20 sm:px-8 sm:py-28">
+          <h2 className="text-balance font-display text-3xl font-extrabold tracking-[-0.025em] text-ink sm:text-4xl">
             Tiga langkah, nol drama teknis.
           </h2>
           <div className="mt-4 h-1.5 w-14 rounded-full bg-signal" aria-hidden />
-          <ol className="mt-12 grid gap-10 md:grid-cols-3">
-            {STEPS.map((s) => (
-              <li key={s.n} className="relative">
-                <span className="font-display text-5xl font-extrabold tabular-nums text-signal/25" aria-hidden>
-                  {s.n}
-                </span>
-                <h3 className="mt-2 font-display text-xl font-bold text-ink">{s.title}</h3>
-                <p className="mt-2.5 leading-relaxed text-ink-soft">{s.body}</p>
-              </li>
-            ))}
+          <ol className="mt-14 grid gap-12 md:grid-cols-3 md:gap-0">
+            {STEPS.map((s, i) => {
+              const Icon = s.icon;
+              return (
+                <li key={s.n} className="lc-reveal relative md:pr-10 md:last:pr-0">
+                  {i < STEPS.length - 1 && (
+                    <span
+                      aria-hidden
+                      className="absolute left-16 right-0 top-7 hidden border-t-[1.5px] border-dashed border-cutline md:block"
+                    />
+                  )}
+                  <span className="relative z-10 flex h-14 w-14 items-center justify-center rounded-full border-[1.5px] border-dashed border-signal/45 bg-card font-display text-xl font-extrabold tabular-nums text-signal shadow-plate">
+                    {s.n}
+                  </span>
+                  <h3 className="mt-5 flex items-start gap-2.5 font-display text-xl font-bold leading-snug text-ink">
+                    <Icon className="mt-0.5 h-5 w-5 shrink-0 text-signal" aria-hidden />
+                    {s.title}
+                  </h3>
+                  <p className="mt-2.5 leading-relaxed text-ink-soft">{s.body}</p>
+                </li>
+              );
+            })}
           </ol>
         </div>
       </section>
 
       {/* ============================ MODUL ========================== */}
-      <section id="modul" className="mx-auto max-w-6xl px-5 py-20 sm:px-8">
-        <div className="flex flex-wrap items-end justify-between gap-6">
+      <section id="modul" className="mx-auto max-w-6xl scroll-mt-20 px-5 py-20 sm:px-8 sm:py-28">
+        <div className="lc-reveal flex flex-wrap items-end justify-between gap-6">
           <div>
-            <h2 className="font-display text-3xl font-extrabold tracking-[-0.025em] text-ink sm:text-4xl">
+            <h2 className="text-balance font-display text-3xl font-extrabold tracking-[-0.025em] text-ink sm:text-4xl">
               Blok-blok siap tempel, kayak stiker.
             </h2>
             <p className="mt-3 max-w-2xl leading-relaxed text-ink-soft">
@@ -199,20 +336,29 @@ export default function LandingPage() {
             <div className="mt-4 h-1.5 w-14 rounded-full bg-signal" aria-hidden />
           </div>
         </div>
-        <ul className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <ul className="lc-reveal mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {MODULES.map((m) => (
             <li
               key={m.name}
-              className="uc-cutline group rounded-2xl bg-card p-5 shadow-plate transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-1 hover:shadow-[0_16px_36px_-14px_rgb(35_28_16/0.28)]"
+              className="group relative rounded-2xl border-[1.5px] border-dashed border-cutline bg-card p-5 shadow-plate transition-[transform,box-shadow,border-color] duration-200 ease-out hover:-translate-y-1 hover:border-signal/50 hover:shadow-[0_16px_36px_-14px_rgb(35_28_16/0.28)]"
             >
-              <span
-                className={`inline-block rounded-full px-2.5 py-1 text-[0.6rem] font-extrabold uppercase tracking-wide ${
-                  m.core ? "bg-paper-deep text-ink-soft" : "bg-signal-soft text-signal"
-                }`}
-              >
-                {m.core ? "Modul Inti" : "Modul Opsional"}
-              </span>
-              <h3 className="mt-3 font-display text-lg font-bold text-ink">{m.name}</h3>
+              {/* Penanda stiker opsional — sudut starburst kecil */}
+              {!m.core && (
+                <span aria-hidden className="uc-starburst absolute -right-2 -top-2 h-5 w-5 rotate-12 bg-signal" />
+              )}
+              <div className="flex items-start justify-between gap-3">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-signal-soft text-signal">
+                  {m.motif}
+                </span>
+                <span
+                  className={`inline-block rounded-full px-2.5 py-1 text-[0.6rem] font-extrabold uppercase tracking-wide ${
+                    m.core ? "bg-ink text-paper" : "bg-signal-soft text-signal"
+                  }`}
+                >
+                  {m.core ? "Modul Inti" : "Modul Opsional"}
+                </span>
+              </div>
+              <h3 className="mt-4 font-display text-lg font-bold text-ink">{m.name}</h3>
               <p className="mt-1.5 text-sm leading-relaxed text-ink-soft">{m.desc}</p>
             </li>
           ))}
@@ -220,34 +366,93 @@ export default function LandingPage() {
       </section>
 
       {/* ============================= CTA =========================== */}
-      <section className="border-t border-cutline/70 bg-ink">
-        <div className="mx-auto flex max-w-6xl flex-col items-center gap-8 px-5 py-20 text-center sm:px-8">
-          <h2 className="max-w-2xl font-display text-3xl font-extrabold tracking-[-0.025em] text-paper sm:text-5xl">
-            64 juta UMKM di Indonesia. Giliran usahamu.
+      <section className="relative overflow-hidden bg-ink">
+        <div
+          aria-hidden
+          className="lc-dots lc-dots-dark absolute inset-0 [mask-image:radial-gradient(90%_130%_at_50%_0%,black_15%,transparent_78%)]"
+        />
+        <div className="lc-reveal relative mx-auto flex max-w-6xl flex-col items-center gap-9 px-5 py-20 text-center sm:px-8 sm:py-28">
+          <h2 className="max-w-3xl text-balance font-display text-4xl font-extrabold leading-[1.05] tracking-[-0.025em] text-paper sm:text-5xl lg:text-6xl">
+            64 juta UMKM di Indonesia.{" "}
+            <span className="underline decoration-dashed decoration-signal-soft/70 underline-offset-8">
+              Giliran usahamu.
+            </span>
           </h2>
           <Link
             href="/start"
-            className="inline-flex items-center gap-2.5 rounded-2xl bg-paper px-8 py-4 text-base font-bold text-ink transition-[transform] duration-200 ease-out hover:-translate-y-0.5"
+            className="group inline-flex items-center gap-2.5 rounded-2xl bg-card px-6 py-4 text-base font-bold text-ink shadow-plate transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-1 hover:shadow-[0_18px_40px_-12px_rgb(246_241_231/0.3)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal-soft sm:px-8"
           >
             Bikin Website Sekarang — Gratis
-            <svg viewBox="0 0 20 20" className="h-4.5 w-4.5" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden>
-              <path d="M4 10h12m-5-5 5 5-5 5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
+            <ArrowRight className="h-4.5 w-4.5 transition-transform duration-200 group-hover:translate-x-0.5" />
           </Link>
-          <p className="text-sm text-paper/60">
-            Tanpa kartu kredit. Tanpa istilah Inggris. Cukup cerita.
+          <p className="text-sm font-medium text-paper/60">
+            Gratis • Tanpa iklan • Data kakak aman
           </p>
         </div>
       </section>
 
-      <footer className="border-t border-ink/10 bg-ink">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-5 py-8 text-xs text-paper/50 sm:flex-row sm:px-8">
-          <p>© 2026 UMKM Craft — dibuat untuk kemajuan UMKM Indonesia.</p>
-          <p>
-            Dibuat oleh Wahyu ·{" "}
-            <Link href="/api/health" className="underline decoration-dotted underline-offset-4">
-              status sistem
+      {/* =========================== FOOTER ========================== */}
+      <footer className="border-t-[1.5px] border-dashed border-cutline bg-paper">
+        <div className="mx-auto grid max-w-6xl gap-10 px-5 py-14 sm:px-8 md:grid-cols-[1.3fr_1fr_1.3fr]">
+          {/* Zona 1: merek + tagline */}
+          <div>
+            <Link href="/" className="flex items-center gap-2.5">
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-ink font-display text-lg font-extrabold text-paper">
+                U
+              </span>
+              <span className="font-display text-lg font-bold tracking-tight text-ink">UMKM Craft</span>
             </Link>
+            <p className="mt-4 max-w-xs text-sm leading-relaxed text-ink-soft">
+              Website usaha untuk UMKM Indonesia — dari chat santai jadi situs yang siap jualan.
+            </p>
+          </div>
+
+          {/* Zona 2: navigasi mini */}
+          <nav aria-label="Footer">
+            <p className="font-display text-sm font-bold text-ink">Jelajah</p>
+            <ul className="mt-3">
+              {[
+                { href: "#cara", label: "Cara Kerja" },
+                { href: "#modul", label: "Modul" },
+                { href: "/start", label: "Buat Website Gratis" },
+              ].map((l) => (
+                <li key={l.label}>
+                  <Link
+                    href={l.href}
+                    className="flex min-h-11 items-center text-sm font-medium text-ink-soft transition-colors hover:text-signal focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal"
+                  >
+                    {l.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+
+          {/* Zona 3: kredit + kontak */}
+          <div className="md:justify-self-end">
+            <p className="font-display text-sm font-bold text-ink">
+              Dibuat oleh Wahyu — untuk UMKM Indonesia.
+            </p>
+            <div className="mt-3 flex items-center gap-3">
+              <a
+                href="mailto:halo@umkmcraft.id"
+                aria-label="Email UMKM Craft"
+                className="flex h-11 w-11 items-center justify-center rounded-xl border-[1.5px] border-dashed border-cutline text-ink-soft transition-[color,border-color,transform] duration-200 ease-out hover:-translate-y-0.5 hover:border-signal/50 hover:text-signal focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal"
+              >
+                <Mail className="h-4.5 w-4.5" aria-hidden />
+              </a>
+              <a
+                href="/api/health"
+                className="flex min-h-11 items-center text-sm text-ink-soft underline decoration-dotted underline-offset-4 transition-colors hover:text-signal focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal"
+              >
+                status sistem
+              </a>
+            </div>
+          </div>
+        </div>
+        <div className="border-t border-cutline/70">
+          <p className="mx-auto max-w-6xl px-5 py-5 text-xs text-ink-soft sm:px-8">
+            © 2026 UMKM Craft — dibuat untuk kemajuan UMKM Indonesia.
           </p>
         </div>
       </footer>

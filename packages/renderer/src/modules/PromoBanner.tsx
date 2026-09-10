@@ -1,8 +1,9 @@
 /**
  * Modul promo_banner — COMPONENTS.md §2.
- * Bar pengumuman menarik: kartu rounded-3xl bergradien hangat (color-mix dari warna tema),
- * ikon megafon, teks promo, diskon bergaya splash, kode kupon (island salin) +
- * hitung mundur (island timer). RSC — JS client hanya dari dua island.
+ * Band promo menarik: kartu rounded-3xl sapuan primary + tekstur garis CSS-murni,
+ * ikon megafon, pesan promo besar-tebal, diskon bergaya splash, kode kupon gaya
+ * "tiket" (island salin) + hitung mundur chip gelap (island timer).
+ * RSC — JS client hanya dari dua island.
  */
 import type { SectionProps } from "@umkmcraft/schema";
 import { CopyCoupon } from "../client/CopyCoupon";
@@ -37,39 +38,40 @@ export function PromoBanner({ id, props }: { id: string; props: PromoBannerProps
   return (
     <section id={id} className="bg-[var(--uc-bg)] px-5 py-10 sm:px-8">
       <div className="mx-auto w-full max-w-3xl">
-        <div
-          className="relative overflow-hidden rounded-3xl border border-[color-mix(in_oklab,var(--uc-primary)_18%,transparent)] p-5 shadow-[0_10px_34px_-18px_color-mix(in_oklab,var(--uc-primary)_45%,transparent)] sm:p-7"
-          style={{
-            background:
-              "linear-gradient(135deg, color-mix(in oklab, var(--uc-secondary) 12%, var(--uc-surface)), color-mix(in oklab, var(--uc-primary) 14%, var(--uc-surface)))",
-          }}
-        >
-          <div className="flex items-start gap-4 sm:items-center">
-            <span
-              aria-hidden
-              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[var(--uc-primary)] text-[var(--uc-on-primary)] shadow-[0_6px_16px_-6px_color-mix(in_oklab,var(--uc-primary)_60%,transparent)]"
-            >
-              <MegaphoneIcon className="h-6 w-6" />
-            </span>
-            <div className="min-w-0">
-              <p className="font-[family-name:var(--uc-font-heading)] text-[1.05rem] font-bold leading-snug text-[var(--uc-ink)] sm:text-lg">
-                {props.message}
-              </p>
-              {props.discount_text ? (
-                <p className="mt-2">
-                  <span className="inline-block -rotate-1 rounded-lg bg-[color-mix(in_oklab,var(--uc-secondary)_16%,transparent)] px-2.5 py-1 font-[family-name:var(--uc-font-heading)] text-xl font-extrabold tracking-tight text-[var(--uc-secondary)] sm:text-2xl">
-                    {props.discount_text}
-                  </span>
+        {/* Band promo: sapuan primary + tekstur garis (CSS murni), memudar diagonal */}
+        <div className="relative overflow-hidden rounded-3xl border border-[color-mix(in_oklab,var(--uc-primary)_20%,transparent)] bg-[color-mix(in_oklab,var(--uc-primary)_7%,var(--uc-surface))] shadow-[0_10px_34px_-18px_color-mix(in_oklab,var(--uc-primary)_45%,transparent)]">
+          <div
+            aria-hidden
+            className="uc-pattern-lines pointer-events-none absolute inset-0 [mask-image:linear-gradient(115deg,black,transparent_65%)]"
+          />
+          <div className="relative flex flex-col gap-5 p-5 sm:p-7">
+            <div className="flex items-start gap-4 sm:items-center">
+              <span
+                aria-hidden
+                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[var(--uc-primary)] text-[var(--uc-on-primary)] shadow-[0_6px_16px_-6px_color-mix(in_oklab,var(--uc-primary)_60%,transparent)]"
+              >
+                <MegaphoneIcon className="h-6 w-6" />
+              </span>
+              <div className="min-w-0">
+                <p className="font-[family-name:var(--uc-font-heading)] text-[1.15rem] font-extrabold leading-snug tracking-[-0.01em] text-[var(--uc-ink)] sm:text-2xl">
+                  {props.message}
                 </p>
-              ) : null}
+                {props.discount_text ? (
+                  <p className="mt-2.5">
+                    <span className="inline-block -rotate-1 rounded-lg bg-[color-mix(in_oklab,var(--uc-secondary)_16%,transparent)] px-2.5 py-1 font-[family-name:var(--uc-font-heading)] text-xl font-extrabold tabular-nums tracking-tight text-[var(--uc-secondary)] sm:text-2xl">
+                      {props.discount_text}
+                    </span>
+                  </p>
+                ) : null}
+              </div>
             </div>
+            {props.coupon_code || props.ends_at ? (
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-3 border-t border-[color-mix(in_oklab,var(--uc-primary)_16%,transparent)] pt-4">
+                {props.coupon_code ? <CopyCoupon code={props.coupon_code} /> : null}
+                {props.ends_at ? <PromoTimer endsAt={props.ends_at} /> : null}
+              </div>
+            ) : null}
           </div>
-          {props.coupon_code || props.ends_at ? (
-            <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-3 border-t border-[color-mix(in_oklab,var(--uc-ink)_12%,transparent)] pt-4">
-              {props.coupon_code ? <CopyCoupon code={props.coupon_code} /> : null}
-              {props.ends_at ? <PromoTimer endsAt={props.ends_at} /> : null}
-            </div>
-          ) : null}
         </div>
       </div>
     </section>

@@ -1,0 +1,45 @@
+/*
+ * /start — styles lokal (globals.css dimiliki agent lain, jangan disentuh).
+ * Tekstur kertas halus + denyut glow CTA final (transform/opacity saja,
+ * prefers-reduced-motion dihormati).
+ */
+
+/* Tekstur titik die-cut — nyaris tak terlihat, memberi "kertas" bukan "putih kosong" */
+.start-paper {
+  background-image: radial-gradient(rgb(35 28 16 / 0.035) 1px, transparent 1.4px);
+  background-size: 20px 20px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Denyut CTA: ring ::after bernapas via scale+opacity — tanpa animasi box-shadow */
+  .start-cta-glow {
+    position: relative;
+  }
+  .start-cta-glow::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: 0 6px 26px rgb(154 52 18 / 0.55);
+    opacity: 0.5;
+    animation: start-cta-ripple 2.6s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+    pointer-events: none;
+  }
+  @keyframes start-cta-ripple {
+    0% {
+      transform: scale(1);
+      opacity: 0.5;
+    }
+    70%,
+    100% {
+      transform: scale(1.07);
+      opacity: 0;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .start-cta-glow::after {
+    display: none;
+  }
+}
