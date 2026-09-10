@@ -207,7 +207,7 @@ export function ModuleCatalog({ onClose }: { onClose: () => void }) {
                     </span>
                     <span className="mt-1 text-xs leading-relaxed text-ink-soft">{m.desc}</span>
                     {count > 0 ? (
-                      <span className="mt-auto inline-flex items-center gap-1 pt-2 text-[0.65rem] font-semibold uppercase tracking-wide text-live">
+                      <span className="mt-auto inline-flex items-center gap-1 pt-2 text-[0.65rem] font-semibold uppercase tracking-wide text-ink-soft">
                         <Check className="h-3 w-3" strokeWidth={2.5} aria-hidden />
                         {count}× di halaman
                       </span>

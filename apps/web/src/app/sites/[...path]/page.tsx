@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
 import { parseUmkmConfig } from "@umkmcraft/schema";
 import { renderSections, themeStyle, TenantFooter } from "@umkmcraft/renderer";
 import { currentTenantHost, getTenantSnapshot } from "@/lib/server/site-data";
 import { SuspendedView } from "@/components/SuspendedView";
+import { TenantNotFound } from "@/components/TenantNotFound";
 
 // Tenant: dynamic render + data cache per host (ADR-2) — blocking di origin
 export const instant = false;
@@ -44,14 +44,17 @@ export async function generateMetadata({ params }: TenantPageProps): Promise<Met
 
 export default async function TenantSitePage({ params }: TenantPageProps) {
   const { snap } = await resolve(params);
-  if (!snap) notFound();
+  // 404 dirender INLINE, bukan notFound() — notFound() + route loading
+  // skeleton tidak komposibel di Next 16 (kerangka loading bisa menutupi
+  // payload 404 selamanya). Papan pengumuman = konten stream biasa.
+  if (!snap) return <TenantNotFound />;
   // Situs ditangguhkan ATAU snapshot belum ada → render papan pengumuman inline
   // (redirect() di konteks PPR tidak reliable — Next 16).
   if (snap.site.status === "SUSPENDED" || !snap.config) return <SuspendedView />;
 
   // Validasi ganda di renderer (defense-in-depth — lapis 1 Zod sudah di API)
   const parsed = parseUmkmConfig(snap.config);
-  if (!parsed.ok) notFound();
+  if (!parsed.ok) return <TenantNotFound />;
   const config = parsed.config;
 
   // JSON-LD LocalBusiness + Product (SYSTEM_DESIGN §11)

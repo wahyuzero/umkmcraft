@@ -29,7 +29,8 @@ export function PhonePreview() {
   }, []);
 
   return (
-    <div className="w-full max-w-[400px]">
+    // Permukaan render = 410px - 2×10px chassis = tepat 390px (janji penguasa kalibrasi)
+    <div className="w-full max-w-[410px]">
       {/* Penguasa kalibrasi */}
       <div className="mb-3 flex items-center gap-3 px-1">
         <div className="uc-ruler h-[5px] flex-1" aria-hidden />

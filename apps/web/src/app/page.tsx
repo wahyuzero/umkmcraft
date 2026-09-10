@@ -259,7 +259,7 @@ export default function LandingPage() {
               className="absolute left-1/2 top-1/2 -z-10 h-[530px] w-[530px] -translate-x-1/2 -translate-y-1/2 rounded-full border-[1.5px] border-dashed border-cutline/50"
             />
             <div className="uc-stick-in relative [animation-delay:160ms]">
-              <div className="uc-starburst absolute -right-4 -top-7 z-10 flex h-24 w-24 rotate-12 items-center justify-center bg-live text-center font-display text-[0.6rem] font-extrabold leading-tight text-card sm:-right-7">
+              <div className="uc-starburst absolute -right-4 -top-7 z-10 flex h-24 w-24 rotate-12 items-center justify-center bg-signal text-center font-display text-[0.6rem] font-extrabold leading-tight text-card sm:-right-7">
                 CONTOH
                 <br />
                 ASLI
@@ -273,7 +273,7 @@ export default function LandingPage() {
                   {demo && demoSections.length > 0 ? (
                     <div
                       style={themeStyle(demo.meta)}
-                      className="uc-site max-h-[560px] overflow-hidden [mask-image:linear-gradient(to_bottom,black_82%,transparent)]"
+                      className="uc-site max-h-[560px] overflow-hidden [mask-image:linear-gradient(to_bottom,black_88%,transparent_97%)]"
                       // Mock demo bersifat dekoratif: inert mengeluarkan seluruh isi
                       // (h1, tombol WA, filter katalog) dari pohon aksesibilitas dan
                       // urutan tab — halaman landing punya tepat satu h1 yang bisa

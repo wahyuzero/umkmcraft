@@ -53,17 +53,21 @@ export function extractPrices(text: string): Array<{ price: number }> {
 }
 
 export function extractBusinessName(text: string): string | undefined {
+  // Kata kerja/frasa umum yang TIDAK boleh dianggap nama usaha.
+  const notAName = /^(buka|jualan|jual|menjual|harga|nomor|alamat|jam|open|kak|halo|oke|siap|terima\s+kasih)\b/i;
   const patterns = [
     // pola eksplisit: "nama usahaku X", "toko saya: X"
     /(?:nama\s*(?:usaha|toko|warung|kedai|bengkel|laundry|cafe|brand|bisnis)(?:nya|ku|aku|saya)?|usaha\s*(?:saya|aku|kami|gue)|toko\s*(?:saya|aku|kami)|warung\s*(?:saya|aku|kami)|kedai\s*(?:saya|aku|kami)|brand\s*(?:saya|aku|kami)|bisnis(?:nya|ku)?)\s*(?::|adalah|itu|namanya)?\s*([^\n.,!?]{2,60})/i,
     // pola natural: "Warung X, jualan Y ..." — ambil teks sebelum koma
-    /^\s*([^,\n]{3,60}?)\s*,\s*(?:yang\s*)?(?:jualan|jual\b|menjual|produk(?:nya)?|jasa|layan(?:an)?|servis|service|paket|spesialis|buka|alamat|nomor|open)/i,
+    /^\s*([^,\n]{3,60}?)\s*,\s*(?:yang\s*)?(?:jualan|jual\b|menjual|produk(?:nya)?|jasa|layan(?:an)?|servis|service|paket|spesialis|barbershop|barber(?:shop)?|coffee\s*shop|kafe|cafe|salon|studio|catering|buka|alamat|nomor|open)/i,
+    // pola natural: "Warung X di Kota" — nama kapital sebelum "di <lokasi>"
+    /(?:^|,\s*|\.\s+)([A-Z][^,\n]{2,60}?)\s+\bdi\b\s+([A-Z][^\n.,!?]{2,80})/,
   ];
   for (const re of patterns) {
     const m = text.match(re);
     if (m?.[1]) {
       const name = m[1].trim().replace(/^(ya|adalah|itu|namanya|namaname)\s+/i, "");
-      if (name.length >= 2) return name.replace(/\s+/g, " ").trim();
+      if (name.length >= 2 && !notAName.test(name)) return name.replace(/\s+/g, " ").trim();
     }
   }
   return undefined;

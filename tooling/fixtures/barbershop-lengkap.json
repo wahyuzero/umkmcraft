@@ -17,7 +17,10 @@
     "seo": {
       "title": "Barber Lengkap — Barbershop Depok",
       "description": "Barbershop dengan booking WhatsApp, kapster berpengalaman, dan harga transparan.",
-      "keywords": ["barbershop depok", "potong rambut pria"]
+      "keywords": [
+        "barbershop depok",
+        "potong rambut pria"
+      ]
     }
   },
   "sections": [
@@ -29,8 +32,17 @@
         "title": "Barber Lengkap",
         "subtitle": "Kapster berpengalaman, alat steril, hasil rapi. Pilih jadwal lewat form booking langsung di website.",
         "image_url": "",
-        "cta_primary": { "label": "Booking Sekarang", "action": "whatsapp_direct", "prefill_message": "Halo Barber Lengkap, saya mau booking jadwal.", "url": "" },
-        "badges": ["Kapster Bersertifikat", "Alat Steril", "Harga Transparan"]
+        "cta_primary": {
+          "label": "Booking Sekarang",
+          "action": "whatsapp_direct",
+          "prefill_message": "Halo Barber Lengkap, saya mau booking jadwal.",
+          "url": ""
+        },
+        "badges": [
+          "Kapster Bersertifikat",
+          "Alat Steril",
+          "Harga Transparan"
+        ]
       }
     },
     {
@@ -39,9 +51,18 @@
       "props": {
         "section_title": "",
         "stats": [
-          { "value": "5 Thn", "label": "Pengalaman" },
-          { "value": "12.000+", "label": "Kepala Terlayani" },
-          { "value": "4.9★", "label": "Rating Google" }
+          {
+            "value": "5 Thn",
+            "label": "Pengalaman"
+          },
+          {
+            "value": "12.000+",
+            "label": "Kepala Terlayani"
+          },
+          {
+            "value": "4.9★",
+            "label": "Rating Google"
+          }
         ]
       }
     },
@@ -52,9 +73,21 @@
         "section_title": "Kenapa Pilih Kami?",
         "section_subtitle": "Bukan sekadar potong rambut — ini self-care kamu.",
         "items": [
-          { "icon": "shield", "title": "Alat Selalu Steril", "description": "Setiap alat disterilkan setelah selesai satu pelanggan." },
-          { "icon": "clock", "title": "Tepat Jadwal", "description": "Booking dihargai — kursi siap saat kamu datang." },
-          { "icon": "chat", "title": "Chat Fast Respon", "description": "Admin membalas WhatsApp dalam hitungan menit." }
+          {
+            "icon": "shield",
+            "title": "Alat Selalu Steril",
+            "description": "Setiap alat disterilkan setelah selesai satu pelanggan."
+          },
+          {
+            "icon": "clock",
+            "title": "Tepat Jadwal",
+            "description": "Booking dihargai — kursi siap saat kamu datang."
+          },
+          {
+            "icon": "chat",
+            "title": "Chat Fast Respon",
+            "description": "Admin membalas WhatsApp dalam hitungan menit."
+          }
         ]
       }
     },
@@ -64,8 +97,20 @@
       "props": {
         "section_title": "Booking Kursi Kamu",
         "section_subtitle": "Isi form, konfirmasi masuk lewat WhatsApp.",
-        "service_options": ["Potong Rambut", "Potong + Cukur Jenggot", "Paket Grooming Lengkap"],
-        "time_slots": ["10:00", "11:00", "13:00", "15:00", "17:00", "19:00", "21:00"],
+        "service_options": [
+          "Potong Rambut",
+          "Potong + Cukur Jenggot",
+          "Paket Grooming Lengkap"
+        ],
+        "time_slots": [
+          "10:00",
+          "11:00",
+          "13:00",
+          "15:00",
+          "17:00",
+          "19:00",
+          "21:00"
+        ],
         "button_label": "Kirim Booking via WhatsApp",
         "prefill_note": "Halo Barber Lengkap! Saya mau booking ya kak."
       }
@@ -77,9 +122,24 @@
         "section_title": "Kapster Kami",
         "section_subtitle": "Tangan-tangan berpengalaman yang siap menata gayamu.",
         "members": [
-          { "name": "Bang Raka", "role": "Senior Kapster", "bio": "Spesialis fade dan pompadour, 8 tahun pengalaman.", "avatar_url": "" },
-          { "name": "Bang Dimas", "role": "Kapster", "bio": "Ahli Korean texture dan hairstyling anak muda.", "avatar_url": "" },
-          { "name": "Bang Yusuf", "role": "Beard Specialist", "bio": "Membentuk jenggot rapi sesuai bentuk wajah.", "avatar_url": "" }
+          {
+            "name": "Bang Raka",
+            "role": "Senior Kapster",
+            "bio": "Spesialis fade dan pompadour, 8 tahun pengalaman.",
+            "avatar_url": ""
+          },
+          {
+            "name": "Bang Dimas",
+            "role": "Kapster",
+            "bio": "Ahli Korean texture dan hairstyling anak muda.",
+            "avatar_url": ""
+          },
+          {
+            "name": "Bang Yusuf",
+            "role": "Beard Specialist",
+            "bio": "Membentuk jenggot rapi sesuai bentuk wajah.",
+            "avatar_url": ""
+          }
         ]
       }
     },
@@ -90,9 +150,61 @@
         "section_title": "Perjalanan Kami",
         "section_subtitle": "Dari satu kursi di teras rumah jadi barbershop favorit warga.",
         "milestones": [
-          { "year": "2021", "title": "Buka di teras rumah", "description": "Satu kursi, satu cermin, dan pelanggan tetangga sekitar." },
-          { "year": "2023", "title": "Ruko pertama", "description": "Pindah ke ruko dengan 3 kursi dan AC." },
-          { "year": "2026", "title": "Booking online", "description": "Antrean pindah ke WhatsApp — datang tinggal duduk." }
+          {
+            "year": "2021",
+            "title": "Buka di teras rumah",
+            "description": "Satu kursi, satu cermin, dan pelanggan tetangga sekitar."
+          },
+          {
+            "year": "2023",
+            "title": "Ruko pertama",
+            "description": "Pindah ke ruko dengan 3 kursi dan AC."
+          },
+          {
+            "year": "2026",
+            "title": "Booking online",
+            "description": "Antrean pindah ke WhatsApp — datang tinggal duduk."
+          }
+        ]
+      }
+    },
+    {
+      "id": "sec-gallery-1",
+      "type": "gallery_grid",
+      "props": {
+        "section_title": "Galeri Hasil Karya",
+        "layout": "grid_3_col",
+        "items": [
+          {
+            "id": "g1",
+            "image_url": "",
+            "caption": "Fade rapi"
+          },
+          {
+            "id": "g2",
+            "image_url": "",
+            "caption": "Pompadour klasik"
+          },
+          {
+            "id": "g3",
+            "image_url": "",
+            "caption": "Hair coloring"
+          },
+          {
+            "id": "g4",
+            "image_url": "",
+            "caption": "Beard sculpting"
+          },
+          {
+            "id": "g5",
+            "image_url": "",
+            "caption": "Kids haircut"
+          },
+          {
+            "id": "g6",
+            "image_url": "",
+            "caption": "Suasana studio"
+          }
         ]
       }
     },
@@ -104,10 +216,70 @@
         "handle": "@barberlengkap",
         "profile_url": "https://instagram.com/barberlengkap",
         "posts": [
-          { "image_url": "", "caption": "Clean fade hari ini", "post_url": "" },
-          { "image_url": "", "caption": "Before after beard", "post_url": "" },
-          { "image_url": "", "caption": "Suasana shop", "post_url": "" },
-          { "image_url": "", "caption": "Promo akhir bulan", "post_url": "" }
+          {
+            "image_url": "",
+            "caption": "Clean fade hari ini",
+            "post_url": ""
+          },
+          {
+            "image_url": "",
+            "caption": "Before after beard",
+            "post_url": ""
+          },
+          {
+            "image_url": "",
+            "caption": "Suasana shop",
+            "post_url": ""
+          },
+          {
+            "image_url": "",
+            "caption": "Promo akhir bulan",
+            "post_url": ""
+          }
+        ]
+      }
+    },
+    {
+      "id": "sec-pricing-1",
+      "type": "service_pricing_table",
+      "props": {
+        "section_title": "Pricelist",
+        "tiers": [
+          {
+            "id": "t1",
+            "name": "Klasik",
+            "price": 35000,
+            "description": "Potong dewasa",
+            "features": [
+              "Potong rambut",
+              "Cetak belakang"
+            ],
+            "is_popular": false
+          },
+          {
+            "id": "t2",
+            "name": "Signature",
+            "price": 75000,
+            "description": "Paling laris",
+            "features": [
+              "Potong + styling",
+              "Hair wash + massage",
+              "Free minuman"
+            ],
+            "is_popular": true
+          },
+          {
+            "id": "t3",
+            "name": "Paket Hemat",
+            "price": 95000,
+            "description": "Potong + cukur jenggot",
+            "features": [
+              "Potong rambut",
+              "Beard sculpting",
+              "Hair tonik"
+            ],
+            "is_popular": false
+          }
         ]
       }
     },
@@ -158,8 +330,14 @@
       "props": {
         "section_title": "Pertanyaan yang Sering Diajukan",
         "items": [
-          { "q": "Bisa walk-in tanpa booking?", "a": "Bisa, tapi yang booking dilayani duluan." },
-          { "q": "Ada layanan panggilan rumah?", "a": "Ada untuk area Depok & Bogor, minimal 3 orang." }
+          {
+            "q": "Bisa walk-in tanpa booking?",
+            "a": "Bisa, tapi yang booking dilayani duluan."
+          },
+          {
+            "q": "Ada layanan panggilan rumah?",
+            "a": "Ada untuk area Depok & Bogor, minimal 3 orang."
+          }
         ]
       }
     },
