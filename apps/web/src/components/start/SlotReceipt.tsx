@@ -7,9 +7,9 @@
  * jalan keluar kalau angka/nama yang diekstrak salah) — Simpan/Batal per baris.
  */
 import { useEffect, useRef, useState } from "react";
-import { MapPin, Package, Pencil, Phone, Store, Tag, type LucideIcon } from "lucide-react";
+import { Clock, MapPin, Package, Pencil, Phone, Store, Tag, type LucideIcon } from "lucide-react";
 
-export type SlotKey = "businessName" | "category" | "whatsappNumber" | "location" | "products";
+export type SlotKey = "businessName" | "category" | "whatsappNumber" | "location" | "hours" | "products";
 
 export interface ProductEntry {
   name: string;
@@ -21,9 +21,12 @@ interface SlotReceiptProps {
   category?: string;
   whatsappNumber?: string;
   location?: string;
+  hours?: string;
   products: ProductEntry[];
-  /** Dipanggil saat baris disimpan. Nilai mentah — normalisasi milik pemilik state. */
-  onEdit?: (key: SlotKey, value: string) => void;
+  /** Dipanggil saat baris disimpan. Nilai mentah — normalisasi milik pemilik state.
+   *  Balas string pesan error bila nilai DITOLAK: baris tetap terbuka dan pesan
+   *  ditampilkan inline (dulu ditolaknya senyap, user tidak tahu kenapa). */
+  onEdit?: (key: SlotKey, value: string) => string | undefined;
 }
 
 /** Tampilan saja: "6281234567890" → "+62 812-3456-7890". Nilai asli tetap di state. */
@@ -56,11 +59,13 @@ export function SlotReceipt({
   category,
   whatsappNumber,
   location,
+  hours,
   products,
   onEdit,
 }: SlotReceiptProps) {
   const [editing, setEditing] = useState<SlotKey | null>(null);
   const [draft, setDraft] = useState("");
+  const [rowError, setRowError] = useState<string | null>(null);
   const editInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -94,6 +99,16 @@ export function SlotReceipt({
   if (location) {
     rows.push({ key: "location", icon: MapPin, label: "Lokasi", value: location, editValue: location });
   }
+  if (hours) {
+    rows.push({
+      key: "hours",
+      icon: Clock,
+      label: "Jam",
+      value: hours,
+      editValue: hours,
+      hint: "Contoh: tiap hari 7 pagi sampai 3 sore",
+    });
+  }
   if (products.length > 0) {
     rows.push({
       key: "products",
@@ -110,18 +125,24 @@ export function SlotReceipt({
   function beginEdit(row: Row) {
     setEditing(row.key);
     setDraft(row.editValue);
+    setRowError(null);
   }
 
   function cancelEdit() {
     setEditing(null);
     setDraft("");
+    setRowError(null);
   }
 
   function saveEdit() {
     if (!editing) return;
-    const value = draft.trim();
-    // Daftar produk boleh dikosongkan (menghapus barisnya); slot lain wajib ada isinya.
-    if (value || editing === "products") onEdit?.(editing, value);
+    // Validasi milik pemilik state (page): balasan string = nilai ditolak,
+    // baris tetap terbuka supaya pesannya kelihatan langsung di inputnya.
+    const err = onEdit?.(editing, draft.trim());
+    if (err) {
+      setRowError(err);
+      return;
+    }
     cancelEdit();
   }
 
@@ -158,10 +179,17 @@ export function SlotReceipt({
                     }}
                     placeholder={row.hint}
                     aria-label={`Perbaiki ${row.label.toLowerCase()}`}
+                    aria-invalid={rowError ? true : undefined}
                     autoComplete="off"
                     className="min-h-[44px] w-full rounded-xl border-[1.5px] border-dashed border-signal/50 bg-paper px-3 py-2.5 text-sm font-medium text-ink outline-none placeholder:text-ink-soft/70 focus:border-signal"
                   />
-                  <p className="text-[11px] text-ink-soft">{row.hint}</p>
+                  {rowError ? (
+                    <p role="alert" className="text-[11px] font-medium text-signal">
+                      {rowError}
+                    </p>
+                  ) : (
+                    <p className="text-[11px] text-ink-soft">{row.hint}</p>
+                  )}
                   <div className="flex gap-2">
                     <button
                       type="submit"

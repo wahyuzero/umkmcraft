@@ -118,8 +118,11 @@ export function PublishButton({ staleInitially = false }: { staleInitially?: boo
     }
   }
 
+  // px TIDAK termasuk base — override padding bernilai lebih kecil kalah di
+  // urutan kaskade Tailwind (px-5 selalu menang atas px-2.5), jadi tiap
+  // pemakaian memasang px-nya sendiri.
   const btnBase =
-    "flex min-h-11 items-center justify-center gap-2 rounded-2xl px-5 py-2.5 text-sm font-bold transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 disabled:pointer-events-none disabled:opacity-50 disabled:hover:translate-y-0";
+    "flex min-h-11 items-center justify-center gap-2 rounded-2xl py-2.5 text-sm font-bold transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 disabled:pointer-events-none disabled:opacity-50 disabled:hover:translate-y-0";
 
   return (
     <div className="relative flex items-center gap-1.5">
@@ -142,7 +145,7 @@ export function PublishButton({ staleInitially = false }: { staleInitially?: boo
               disabled={busy || saving}
               title={saving ? "Simpan dulu — perubahan kakak masih disimpan otomatis" : "Ada perubahan yang belum tampil di situs live"}
               aria-label="Perbarui situs"
-              className={`${btnBase} bg-signal px-3.5 text-card shadow-plate sm:px-5`}
+              className={`${btnBase} bg-signal px-2.5 text-card shadow-plate sm:px-5`}
             >
               {busy ? (
                 <>
@@ -152,7 +155,14 @@ export function PublishButton({ staleInitially = false }: { staleInitially?: boo
               ) : (
                 <>
                   <RefreshCw aria-hidden className="h-4 w-4" />
-                  <span className="hidden sm:inline">Perbarui situs</span>
+                  {/* Label selalu tampil (aksi paling penting tak boleh ikon
+                      saja). Di layar sempit teksnya dipendekkan agar nama
+                      usaha di header tak tergencet — nama akses penuh tetap
+                      "Perbarui situs" (aria-label). */}
+                  <span aria-hidden className="whitespace-nowrap text-xs sm:hidden">
+                    Perbarui
+                  </span>
+                  <span className="hidden whitespace-nowrap text-sm sm:inline">Perbarui situs</span>
                 </>
               )}
             </button>
@@ -161,9 +171,11 @@ export function PublishButton({ staleInitially = false }: { staleInitially?: boo
             href={siteUrl}
             target="_blank"
             rel="noreferrer"
-            className="flex items-center gap-1.5 rounded-2xl border-2 border-live/40 px-3.5 py-2 text-sm font-bold text-live transition-colors duration-200 hover:bg-live/10"
+            aria-label="Lihat situs"
+            className="flex min-h-11 items-center gap-1.5 whitespace-nowrap rounded-2xl border-2 border-live/40 px-2 py-2 text-xs font-bold text-live transition-colors duration-200 hover:bg-live/10 sm:px-3.5 sm:text-sm"
           >
             <ExternalLink aria-hidden className="h-4 w-4" />
+            <span aria-hidden className="sm:hidden">Lihat</span>
             <span className="hidden sm:inline">Lihat situs</span>
           </a>
         </>
@@ -172,7 +184,7 @@ export function PublishButton({ staleInitially = false }: { staleInitially?: boo
           onClick={requestPublish}
           disabled={busy || saving}
           title={saving ? "Simpan dulu — perubahan kakak masih disimpan otomatis" : undefined}
-          className={`${btnBase} bg-signal text-card shadow-plate`}
+          className={`${btnBase} bg-signal px-5 text-card shadow-plate`}
         >
           {busy ? (
             <>

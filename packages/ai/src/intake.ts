@@ -28,8 +28,9 @@ export function deterministicIntakeReply(slots: Slots): string {
   if (!slots.whatsappNumber) {
     return "Oke dicatat! Sekarang yang paling penting: **nomor WhatsApp** untuk menerima pesanan pembeli, kakak? (contoh: 0812-3456-7890)";
   }
-  // Semua slot wajib terisi — tanya opsional ringan lalu selesai.
-  return "Sip, semua data utama lengkap! Kalau ada **produk unggulan + harga kira-kira** atau **promo yang lagi jalan**, tulis saja di sini — biar websitenya makin menjual. Kalau mau langsung jadi, klik tombol **Buat Website Saya** ya, kakak!";
+  // Semua slot wajib terisi — composer terkunci saat ready, jadi jangan menjanjikan
+  // "tulis di sini": arahkan langsung ke tombol besar.
+  return "Sip, semua data utama lengkap, kakak! Tinggal klik tombol **Buat Website Saya** di bawah — situsnya langsung kami rangkai dari ceritamu.";
 }
 
 export interface IntakeTurnResult {

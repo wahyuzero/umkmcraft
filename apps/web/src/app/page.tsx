@@ -133,7 +133,7 @@ const MODULES: { name: string; desc: string; core: boolean; motif: ReactElement 
 
 /* Label stiker: hasil nyata untuk pemilik usaha (bukan istilah internal) */
 const STAMPS = [
-  { label: "±30 detik situs jadi", tilt: "-rotate-1" },
+  { label: "Hitungan menit situs jadi", tilt: "-rotate-1" },
   { label: "Gratis, tanpa kartu kredit", tilt: "rotate-[0.5deg]" },
   { label: "Pesan masuk ke WhatsApp kakak", tilt: "-rotate-[0.5deg]" },
 ];
@@ -287,7 +287,7 @@ export default function LandingPage() {
               </div>
             </div>
             <p className="mt-4 text-center text-xs text-pretty text-ink-soft">
-              Ini contoh situs asli — coba tombolnya, pesan langsung masuk ke WhatsApp.
+              Contoh tampilan situs — lihat situs aslinya lewat tombol di bawah.
             </p>
             <div className="mt-3 flex justify-center">
               <Link

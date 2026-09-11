@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { Eye } from "lucide-react";
-import { getPreset, parseUmkmConfig } from "@umkmcraft/schema";
-import { renderSections, themeStyle, StickyOrderBar, TenantFooter } from "@umkmcraft/renderer";
+import { getPreset, parseUmkmConfig, type SectionType } from "@umkmcraft/schema";
+import { orderedSections, renderSections, SectionNav, StickyOrderBar, TenantFooter, themeStyle } from "@umkmcraft/renderer";
 import { currentTenantHost, getTenantSnapshot } from "@/lib/server/site-data";
 import { store } from "@/lib/server/store";
 import { SuspendedView } from "@/components/SuspendedView";
@@ -15,6 +15,41 @@ export const instant = false;
 interface TenantPageProps {
   params: Promise<{ path?: string[] }>;
 }
+
+/**
+ * Label pendek chip navigasi tenant (SectionNav) — peta kompak terpisah dari
+ * TYPE_LABEL builder: label builder ("Jam Buka & Peta", "Badge Kepercayaan")
+ * terlalu panjang untuk chip horizontal di layar 390px.
+ */
+const NAV_LABEL: Record<SectionType, string> = {
+  hero_storefront: "Utama",
+  product_catalog_wa: "Katalog",
+  promo_banner: "Promo",
+  operating_hours_map: "Jam Buka",
+  social_proof_reviews: "Ulasan",
+  channel_marketplace: "Marketplace",
+  faq_accordion: "FAQ",
+  contact_direct: "Kontak",
+  rich_text_block: "Info",
+  gallery_grid: "Galeri",
+  service_pricing_table: "Harga",
+  trust_badges_strip: "Kepercayaan",
+  step_how_to_order: "Cara Pesan",
+  stats_counter_strip: "Statistik",
+  value_props_grid: "Keunggulan",
+  menu_price_list: "Menu",
+  product_spotlight: "Unggulan",
+  cta_banner_full: "Aksi",
+  team_members_grid: "Tim",
+  timeline_story: "Cerita",
+  booking_whatsapp_form: "Booking",
+  event_schedule_list: "Jadwal",
+  branch_locations_list: "Cabang",
+  instagram_showcase_grid: "Instagram",
+  updates_blog_list: "Kabar",
+  download_catalog_cta: "Katalog PDF",
+  qr_code_whatsapp: "QR WA",
+};
 
 interface TenantResolution {
   snap: Awaited<ReturnType<typeof getTenantSnapshot>>;
@@ -82,9 +117,14 @@ export default async function TenantSitePage({ params }: TenantPageProps) {
   // 404 dirender INLINE, bukan notFound() — notFound() + route loading
   // skeleton tidak komposibel di Next 16 (kerangka loading bisa menutupi
   // payload 404 selamanya). Papan pengumuman = konten stream biasa.
-  // Beranda tenant: path-based → /sites/<slug>; host-based → "/" (proxy
+  // Beranda tenant: path-based → /sites/<slug> HANYA bila slug-nya benar-benar
+  // ada situsnya — kalau tidak, tautan itu cuma me-reload 404 yang sama
+  // (dead-loop) → fallback ke beranda platform "/". Host-based → "/" (proxy
   // me-rewrite "/" ke /sites/index pada host tenant — root MEMANG beranda).
-  if (!snap) return <TenantNotFound homeHref={slug ? `/sites/${slug}` : "/"} />;
+  if (!snap) {
+    const slugSite = slug ? await store.getSiteBySlug(slug) : null;
+    return <TenantNotFound homeHref={slug && slugSite ? `/sites/${slug}` : "/"} />;
+  }
   // Situs ditangguhkan ATAU snapshot belum ada → render papan pengumuman inline
   // (redirect() di konteks PPR tidak reliable — Next 16).
   if (snap.site.status === "SUSPENDED" || !snap.config) return <SuspendedView />;
@@ -93,6 +133,16 @@ export default async function TenantSitePage({ params }: TenantPageProps) {
   const parsed = parseUmkmConfig(snap.config);
   if (!parsed.ok) return <TenantNotFound homeHref={slug ? `/sites/${slug}` : "/"} />;
   const config = parsed.config;
+
+  // Navigasi chip halaman panjang (>6 section): hero dirender terpisah agar
+  // SectionNav bisa disisipkan TEPAT di bawah hero (sticky top-0 perlu posisi
+  // DOM sesudah hero). renderSections(meta, [hero]) memakai jalur registry
+  // yang sama; section lain dipertahankan urutannya (partition identitas
+  // tanpa hero). Label chip = peta type di atas, dibangun di server.
+  const ordered = orderedSections(config.sections);
+  const heroSection = ordered.find((s) => s.type === "hero_storefront");
+  const bodySections = ordered.filter((s) => s.type !== "hero_storefront");
+  const navItems = bodySections.map((s) => ({ id: s.id, label: NAV_LABEL[s.type] }));
 
   // JSON-LD LocalBusiness + Product (SYSTEM_DESIGN §11)
   const hoursSection = config.sections.find((s) => s.type === "operating_hours_map");
@@ -146,7 +196,9 @@ export default async function TenantSitePage({ params }: TenantPageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(graph).replace(/</g, "\\u003c") }}
       />
       <style dangerouslySetInnerHTML={{ __html: `html{background:${tenantBg}}body{background:${tenantBg}}` }} />
-      {renderSections(config.meta, config.sections)}
+      {heroSection ? renderSections(config.meta, [heroSection]) : null}
+      {ordered.length > 6 ? <SectionNav items={navItems} /> : null}
+      {renderSections(config.meta, bodySections)}
       {/* Bar pesan sticky hanya untuk render PUBLIK (config hanya ada saat
           PUBLISHED — lihat getTenantSnapshot) dengan nomor WA terdaftar.
           Saat pratinjau draf, bar ditahan: CTA pesan belum pantas tampil

@@ -44,7 +44,9 @@ export function SlotSteps({ progress }: { progress: boolean[] }) {
                 }`}
               >
                 {label}
-                <span className="sr-only">{done ? " (terkumpul)" : " (belum)"}</span>
+                {/* "diisi", bukan "terkumpul": langkah bisa menyala dari deteksi
+                    optimistik lokal — belum tentu dikonfirmasi server. */}
+                <span className="sr-only">{done ? " (diisi)" : " (belum)"}</span>
               </span>
             </li>
           </Fragment>

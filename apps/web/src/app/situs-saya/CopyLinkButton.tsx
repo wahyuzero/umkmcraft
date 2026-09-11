@@ -72,7 +72,8 @@ export function CopyLinkButton({ path }: { path: string }) {
       type="button"
       onClick={copy}
       aria-live="polite"
-      className={`inline-flex min-h-[44px] items-center gap-1.5 rounded-xl border bg-paper px-3.5 py-2.5 text-sm font-semibold text-ink transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal ${
+      aria-label="Salin link situs"
+      className={`inline-flex min-h-[44px] items-center gap-1.5 whitespace-nowrap rounded-xl border bg-paper px-3.5 py-2.5 text-sm font-semibold text-ink transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal ${
         copied
           ? "border-live/50 bg-live/5"
           : "border-cutline hover:border-signal/40 hover:bg-signal-soft/40"
@@ -83,7 +84,9 @@ export function CopyLinkButton({ path }: { path: string }) {
       ) : (
         <Copy className="h-4 w-4" aria-hidden />
       )}
-      {copied ? "Tersalin" : "Salin link"}
+      {/* Label pendek "Salin" agar baris aksi muat satu baris di layar 390px —
+          arti lengkap tetap dibacakan lewat aria-label. */}
+      {copied ? "Tersalin" : "Salin"}
     </button>
   );
 }

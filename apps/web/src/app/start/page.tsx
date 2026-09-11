@@ -10,7 +10,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { LoaderCircle, RotateCcw, Send, Sparkles, WifiOff } from "lucide-react";
+import { ArrowRight, LoaderCircle, RotateCcw, Send, WifiOff } from "lucide-react";
 import { isValidWaNumber, normalizeWaNumber } from "@umkmcraft/utils";
 import { ChatMessage, TypingBubble, type Msg } from "@/components/start/ChatMessage";
 import { SlotSteps } from "@/components/start/SlotSteps";
@@ -24,6 +24,7 @@ interface Slots {
   location?: string;
   products: Array<{ name: string; price?: number }>;
   promo?: string;
+  hours?: string;
 }
 
 const GREETING =
@@ -145,18 +146,33 @@ export default function StartPage() {
   /**
    * Edit slot dari receipt (P0: pintu keluar kalau ekstraksi salah).
    * Setelah edit tetap `ready` — cukup perbaiki lalu lanjut membuat situs.
+   * Mengembalikan pesan error bila nilai DITOLAK — receipt menampilkannya
+   * inline di baris terkait (dulu no-op senyap: user tidak tahu kenapa tidak tersimpan).
    */
-  function handleSlotEdit(key: SlotKey, value: string) {
+  function handleSlotEdit(key: SlotKey, value: string): string | undefined {
     if (key === "products") {
       setSlots((s) => ({ ...s, products: parseProducts(value) }));
       return;
     }
     const trimmed = value.trim();
-    if (!trimmed) return;
+    if (!trimmed) {
+      // Slot wajib tidak boleh kosong; slot opsional boleh dihapus.
+      if (key === "businessName" || key === "category" || key === "whatsappNumber") {
+        return "Jangan kosongin dulu ya";
+      }
+      setSlots((s) => {
+        const next = { ...s };
+        delete next[key as "location" | "hours"];
+        return next;
+      });
+      return;
+    }
     if (key === "whatsappNumber") {
       // Konsisten dengan downstream: state menyimpan digit "62…" (normalizeWaNumber).
       const normalized = normalizeWaNumber(trimmed);
-      if (!isValidWaNumber(normalized)) return; // tidak valid → biarkan nilai lama
+      if (!isValidWaNumber(normalized)) {
+        return "Nomor WA kakak belum valid — contoh: 081234567890";
+      }
       setSlots((s) => ({ ...s, whatsappNumber: normalized }));
       return;
     }
@@ -276,6 +292,7 @@ export default function StartPage() {
                 category={slots.category}
                 whatsappNumber={slots.whatsappNumber}
                 location={slots.location}
+                hours={slots.hours}
                 products={slots.products}
                 onEdit={handleSlotEdit}
               />
@@ -283,11 +300,11 @@ export default function StartPage() {
                 onClick={generate}
                 className="start-cta-in mt-3 flex min-h-[52px] w-full items-center justify-center gap-2.5 rounded-2xl bg-signal px-6 py-3.5 font-display text-base font-bold text-card transition-transform duration-200 hover:-translate-y-0.5 active:translate-y-0 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-live"
               >
-                <Sparkles className="h-5 w-5" aria-hidden />
+                <ArrowRight className="h-5 w-5" aria-hidden />
                 Buat Website Saya
               </button>
               <p className="mt-2 text-center text-xs text-ink-soft">
-                Gratis, tanpa daftar — situs jadi ±30 detik.
+                Gratis, tanpa daftar — situsnya jadi dalam hitungan menit.
               </p>
             </div>
           ) : null}

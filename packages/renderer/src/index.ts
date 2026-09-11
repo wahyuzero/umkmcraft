@@ -3,6 +3,8 @@ export { themeStyle, FONT_VAR_MAP, uc, aaTextColor } from "./theme/theme";
 export * from "./primitives";
 export * from "./footer";
 export { StickyOrderBar } from "./client/StickyOrderBar";
+export { SectionNav, type SectionNavItem } from "./client/SectionNav";
+export { OpenNowBadge } from "./client/OpenNowBadge";
 export { heroDefaults } from "./modules/HeroStorefront";
 export { catalogDefaults } from "./modules/ProductCatalogWA";
 export { promoDefaults } from "./modules/PromoBanner";

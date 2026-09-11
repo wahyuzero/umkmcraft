@@ -31,6 +31,21 @@ function BestSellerBadge() {
   );
 }
 
+/**
+ * Petunjuk motif placeholder per produk — dulu semua produk memakai motif
+ * kategori situs (mangkuk kuliner di atas "Minuman Segar"). PlaceholderImage
+ * memetakan string kategori → motif via substring (MOTIF_KEYS di primitives),
+ * jadi tuas yang ada tanpa menyentuh primitives: kata kunci minuman pada
+ * NAMA produk → "kopi" (motif cup — satu-satunya motif minuman yang
+ * tersedia), selain itu tetap motif kategori situs. Ikat kata utuh
+ * (word-boundary), bukan substring, agar "es" tidak menangkap "keju".
+ */
+const DRINK_WORD = /\b(es|espresso|teh|jus|kopi|susu|minuman|drink|soda|matcha|lemon|limun|cendol|boba)\b/i;
+
+function placeholderCategory(productName: string, siteCategory: string): string {
+  return DRINK_WORD.test(productName) ? "kopi" : siteCategory;
+}
+
 export function ProductCatalogWA({
   id,
   props,
@@ -87,7 +102,7 @@ export function ProductCatalogWA({
             className="group relative flex flex-col overflow-hidden rounded-2xl border border-[color-mix(in_oklab,var(--uc-ink)_8%,transparent)] bg-[var(--uc-surface)] shadow-[0_1px_2px_color-mix(in_oklab,var(--uc-ink)_6%,transparent),0_12px_32px_-16px_color-mix(in_oklab,var(--uc-ink)_16%,transparent)] transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-1 hover:shadow-[0_14px_30px_-12px_color-mix(in_oklab,var(--uc-primary)_40%,transparent)] focus-within:ring-2 focus-within:ring-[var(--uc-primary)]"
           >
             <div className="relative">
-              <SafeImage src={p.image_url} alt={p.name} label={p.name} category={category} seed={i} aspect="aspect-[4/3]" className="rounded-b-none" />
+              <SafeImage src={p.image_url} alt={p.name} label={p.name} category={placeholderCategory(p.name, category)} seed={i} aspect="aspect-[4/3]" className="rounded-b-none" />
               {p.is_bestseller ? <BestSellerBadge /> : null}
             </div>
             <div className="flex grow flex-col gap-2 p-3.5">

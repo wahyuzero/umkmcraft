@@ -17,7 +17,7 @@ import { draggable, dropTargetForElements } from "@atlaskit/pragmatic-drag-and-d
 import {
   BarChart3, CalendarCheck, CalendarDays, Check, ChevronDown, ChevronUp, Clock, Download, FileText,
   GripVertical, HelpCircle, History, Images, Instagram, Lightbulb, ListOrdered, MapPin,
-  Megaphone, MegaphoneOff, Newspaper, Phone, QrCode, Receipt, Share2, ShieldCheck, ShoppingBag,
+  Megaphone, MegaphoneOff, Newspaper, Phone, Pin, QrCode, Receipt, Share2, ShieldCheck, ShoppingBag,
   Sparkles, Star, Sticker, Store, Users, UtensilsCrossed, X,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -196,12 +196,14 @@ export function SectionList({ onAdd }: { onAdd?: () => void }) {
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [overIndex, setOverIndex] = useState<number | null>(null);
   // Hapus dua langkah — mirror pola repeater Inspector: tap → "Hapus?"
-  // (ya / batal), batal otomatis setelah 3 detik.
+  // (ya / batal), batal otomatis setelah 6 detik (jangkauan tangan di HP
+  // sering lebih lama dari kelihatannya — 3 detik membatalkan di tengah
+  // jalan sehingga tap berikutnya mendarat di baris).
   const [confirmId, setConfirmId] = useState<string | null>(null);
 
   useEffect(() => {
     if (confirmId === null) return;
-    const t = setTimeout(() => setConfirmId(null), 3000);
+    const t = setTimeout(() => setConfirmId(null), 6000);
     return () => clearTimeout(t);
   }, [confirmId]);
 
@@ -273,7 +275,7 @@ export function SectionList({ onAdd }: { onAdd?: () => void }) {
               ref={(el) => {
                 if (!el) return;
                 const idx = index;
-                draggable({
+                const stopDrag = draggable({
                   element: el,
                   onDragStart: () => setDragIndex(idx),
                   onDrop: () => {
@@ -281,7 +283,7 @@ export function SectionList({ onAdd }: { onAdd?: () => void }) {
                     setOverIndex(null);
                   },
                 });
-                dropTargetForElements({
+                const stopDrop = dropTargetForElements({
                   element: el,
                   onDragEnter: () => setOverIndex(idx),
                   onDragLeave: () => setOverIndex((v) => (v === idx ? null : v)),
@@ -295,6 +297,13 @@ export function SectionList({ onAdd }: { onAdd?: () => void }) {
                     setOverIndex(null);
                   },
                 });
+                // Ref callback wajib mengembalikan cleanup — tanpa ini tiap
+                // render mendaftarkan listener BARU tanpa melepas yang lama
+                // (ratusan warning "duplicate registration" di konsol).
+                return () => {
+                  stopDrag();
+                  stopDrop();
+                };
               }}
             >
               <div
@@ -363,37 +372,50 @@ export function SectionList({ onAdd }: { onAdd?: () => void }) {
                   </>
                 ) : (
                   <>
-                    {/* Urutan eksplisit untuk layar sentuh (maks-lg), target 44px */}
-                    <div className="hidden shrink-0 items-center max-lg:flex">
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          const from = rawOf(index);
-                          const to = rawOf(index - 1);
-                          if (from >= 0 && to >= 0) moveSection(from, to);
-                        }}
-                        disabled={index === 0}
-                        aria-label={`Naikkan ${TYPE_LABEL[section.type]}`}
-                        className="grid h-11 w-11 place-items-center rounded-xl text-ink-soft transition-colors duration-150 hover:bg-signal/10 hover:text-signal disabled:pointer-events-none disabled:opacity-30"
-                      >
-                        <ChevronUp className="h-4 w-4" strokeWidth={2.2} aria-hidden />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          const from = rawOf(index);
-                          const to = rawOf(index + 1);
-                          if (from >= 0 && to >= 0) moveSection(from, to);
-                        }}
-                        disabled={index === display.length - 1}
-                        aria-label={`Turunkan ${TYPE_LABEL[section.type]}`}
-                        className="grid h-11 w-11 place-items-center rounded-xl text-ink-soft transition-colors duration-150 hover:bg-signal/10 hover:text-signal disabled:pointer-events-none disabled:opacity-30"
-                      >
-                        <ChevronDown className="h-4 w-4" strokeWidth={2.2} aria-hidden />
-                      </button>
-                    </div>
+                {section.type === "hero_storefront" ? (
+                  // Hero selalu partisi pertama (orderForDisplay) — chevron
+                  // naik/turun justru menipu (kelihatannya bisa, nyatanya
+                  // tidak). Ganti dengan hint pin: posisinya memang sah.
+                  <span
+                    title="Selalu di atas — sambutan pelanggan"
+                    className="hidden shrink-0 items-center max-lg:flex"
+                  >
+                    <Pin className="h-4 w-4 text-ink-soft/70" strokeWidth={2.2} aria-hidden />
+                    <span className="sr-only">Selalu di atas — sambutan pelanggan</span>
+                  </span>
+                ) : (
+                  /* Urutan eksplisit untuk layar sentuh (maks-lg), target 44px */
+                  <div className="hidden shrink-0 items-center max-lg:flex">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const from = rawOf(index);
+                        const to = rawOf(index - 1);
+                        if (from >= 0 && to >= 0) moveSection(from, to);
+                      }}
+                      disabled={index === 0}
+                      aria-label={`Naikkan ${TYPE_LABEL[section.type]}`}
+                      className="grid h-11 w-11 place-items-center rounded-xl text-ink-soft transition-colors duration-150 hover:bg-signal/10 hover:text-signal disabled:pointer-events-none disabled:opacity-30"
+                    >
+                      <ChevronUp className="h-4 w-4" strokeWidth={2.2} aria-hidden />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const from = rawOf(index);
+                        const to = rawOf(index + 1);
+                        if (from >= 0 && to >= 0) moveSection(from, to);
+                      }}
+                      disabled={index === display.length - 1}
+                      aria-label={`Turunkan ${TYPE_LABEL[section.type]}`}
+                      className="grid h-11 w-11 place-items-center rounded-xl text-ink-soft transition-colors duration-150 hover:bg-signal/10 hover:text-signal disabled:pointer-events-none disabled:opacity-30"
+                    >
+                      <ChevronDown className="h-4 w-4" strokeWidth={2.2} aria-hidden />
+                    </button>
+                  </div>
+                )}
                     {/* Hapus: dua langkah (tap pertama menanya dulu). Section
                         terakhir tak boleh hilang — tombol mati + penjelasan. */}
                     <button

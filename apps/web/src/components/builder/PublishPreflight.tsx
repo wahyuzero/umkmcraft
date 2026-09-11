@@ -7,9 +7,12 @@
  *  - foto kosong (hero / item produk / item galeri / spotlight) — renderer
  *    melukis placeholder generik saat image_url "" (lihat SafeImage), jadi
  *    publik akan melihat foto contoh, bukan foto usaha;
- *  - angka stats_counter_strip yang persis default modul — replika
- *    isSampleStats() di packages/renderer/src/modules/StatsCounterStrip.tsx,
- *    dijalankan client-side di atas JSON config;
+ *  - angka stats_counter_strip: DUA lapis. (1) Setiap strip yang berisi angka
+ *    apa pun selalu ditag dengan nilainya dicantumkan — angka rekaan buatan
+ *    AI ("12.000+ kepala terlayani") tidak boleh lolos tanpa konfirmasi;
+ *    (2) replika isSampleStats() menandai nilai yang PERSIS default modul
+ *    (packages/renderer/src/modules/StatsCounterStrip.tsx) dengan peringatan
+ *    yang lebih tegas — dijalankan client-side di atas JSON config;
  *  - alamat + maps kosong padahal modul jam-operasional ada (deteksi andal:
  *    schema mem-default kedua field ke "").
  * PreflightCard: kartu peringatan inline di bawah tombol publish (BUKAN
@@ -50,6 +53,18 @@ export function scanUnfinished(config: UmkmWebsiteConfig): string[] {
   }
   if (emptyPhotos > 0) {
     issues.push(`${emptyPhotos} foto masih kosong (tampil sebagai contoh)`);
+  }
+
+  // Angka statistik yang TERISI apa pun selalu ditag — bukan hanya yang
+  // persis default modul. Angka rekaan buatan AI ("12.000+ kepala terlayani
+  // / 4.9★") lolos dari deteksi exact-match, jadi nilainya dicantumkan apa
+  // adanya agar kakak mengonfirmasi kebenarannya (nada tenang, bukan menuduh).
+  for (const section of config.sections) {
+    if (section.type !== "stats_counter_strip") continue;
+    const filled = section.props.stats.filter((st) => st.value.trim() !== "");
+    if (filled.length === 0) continue;
+    const values = filled.map((st) => `${st.value} ${st.label}`.trim()).join(" · ");
+    issues.push(`Angka statistik: ${values} — pastikan angka ini benar dan memang milik usaha kakak, ya.`);
   }
 
   const sampleStats = config.sections.some(
@@ -100,18 +115,20 @@ export function PreflightCard({ issues, onFixFirst, onPublishAnyway, onDismiss }
           <li key={issue}>{issue}</li>
         ))}
       </ul>
+      {/* Hierarki jujur: perbaikan = sinyal utama (terisi penuh), menerbitkan
+          begitu saja = jalan kedua (outline). */}
       <div className="mt-3.5 flex items-center gap-2">
         <button
           type="button"
           onClick={onFixFirst}
-          className="flex min-h-[44px] flex-1 items-center justify-center rounded-xl border border-cutline bg-paper px-3 text-sm font-bold text-ink transition-colors duration-200 hover:border-signal/40 hover:bg-signal-soft/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal"
+          className="flex min-h-[44px] flex-1 items-center justify-center rounded-xl bg-signal px-3 text-sm font-bold text-card shadow-plate transition-transform duration-200 ease-out hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal"
         >
           Perbaiki dulu
         </button>
         <button
           type="button"
           onClick={onPublishAnyway}
-          className="flex min-h-[44px] flex-1 items-center justify-center rounded-xl bg-signal px-3 text-sm font-bold text-card shadow-plate transition-transform duration-200 ease-out hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal"
+          className="flex min-h-[44px] flex-1 items-center justify-center rounded-xl border border-cutline bg-paper px-3 text-sm font-bold text-ink transition-colors duration-200 hover:border-signal/40 hover:bg-signal-soft/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal"
         >
           Terbitkan saja
         </button>

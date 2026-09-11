@@ -10,6 +10,7 @@ import { UmkmWebsiteConfigSchema, type UmkmWebsiteConfig } from "@umkmcraft/sche
 import { sanitizeConfig } from "@umkmcraft/utils";
 import { buildSlicedSystemPrompt, buildRepairPrompt } from "./prompts";
 import { generateTemplateConfig, type IntakeSlots } from "./template-engine";
+import { lintCopy } from "./copy-voice";
 import type { ZodIssue } from "zod";
 
 const PRIMARY_MODEL = process.env.AI_MODEL_PRIMARY || "gemini-2.5-flash-lite";
@@ -83,13 +84,13 @@ Buat konfigurasi website JSON lengkap sesuai skema untuk bisnis "${input.slots.b
 
   if (!aiAvailable()) {
     notes.push("AI key tidak tersedia — memakai template engine deterministik.");
-    return { config: generateTemplateConfig(input.slots), engine: "template", notes };
+    return finish(generateTemplateConfig(input.slots), "template", notes);
   }
 
   // Upaya 1-2: model primary + repair loop
   try {
     const r1 = await generateWithRepair(PRIMARY_MODEL, system, prompt);
-    if (r1.config) return { config: r1.config, engine: "ai", notes };
+    if (r1.config) return finish(r1.config, "ai", notes);
     notes.push(`Primary model gagal validasi: ${r1.issues.length} issue.`);
   } catch (e) {
     notes.push(`Primary model error: ${(e as Error).message}`);
@@ -98,7 +99,7 @@ Buat konfigurasi website JSON lengkap sesuai skema untuk bisnis "${input.slots.b
   // Upaya 3: fallback model lebih besar
   try {
     const r2 = await generateWithRepair(FALLBACK_MODEL, system, prompt);
-    if (r2.config) return { config: r2.config, engine: "ai_fallback", notes };
+    if (r2.config) return finish(r2.config, "ai_fallback", notes);
     notes.push("Fallback model gagal validasi.");
   } catch (e) {
     notes.push(`Fallback model error: ${(e as Error).message}`);
@@ -106,5 +107,19 @@ Buat konfigurasi website JSON lengkap sesuai skema untuk bisnis "${input.slots.b
 
   // Graceful degradation: template kategori + slot valid
   notes.push("Semua upaya AI gagal — graceful degradation ke template.");
-  return { config: generateTemplateConfig(input.slots), engine: "template", notes };
+  return finish(generateTemplateConfig(input.slots), "template", notes);
+}
+
+/**
+ * Titik pintu keluar TUNGGAL semua jalur generate (ai / ai_fallback / template).
+ * lintCopy berjalan SETELAH sanitizeConfig: membersihkan copy brosur, de-dupe
+ * kata berulang, dan memotong ulang clamp "…" dari sanitizer di batas kata —
+ * jadi tidak ada copy generik/terpotong yang pernah keluar dari pipeline.
+ */
+function finish(
+  config: UmkmWebsiteConfig,
+  engine: "ai" | "ai_fallback" | "template",
+  notes: string[],
+): { config: UmkmWebsiteConfig; engine: "ai" | "ai_fallback" | "template"; notes: string[] } {
+  return { config: lintCopy(config), engine, notes };
 }

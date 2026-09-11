@@ -3,6 +3,8 @@
  * Prompt slicing per kategori: hanya modul relevan yang disuntik (hemat token,
  * anti-halusinasi). AI DILARANG membuat ulasan palsu (§15 SPEC).
  */
+import { voiceForCategory } from "./copy-voice";
+
 export const CATEGORY_MODULE_HINTS: Record<string, string[]> = {
   kuliner: ["hero_storefront", "promo_banner", "product_catalog_wa", "menu_price_list", "operating_hours_map", "channel_marketplace", "faq_accordion", "trust_badges_strip", "qr_code_whatsapp", "cta_banner_full"],
   coffee: ["hero_storefront", "product_catalog_wa", "menu_price_list", "operating_hours_map", "gallery_grid", "instagram_showcase_grid", "channel_marketplace", "faq_accordion", "timeline_story", "cta_banner_full"],
@@ -34,7 +36,15 @@ ATURAN WAJIB:
 7. DILARANG KERAS membuat ulasan/testimoni pelanggan fiktif. Modul social_proof_reviews hanya boleh dibuat bila user MEMBUKTIKAN memiliki ulasan asli (kutip persis); jika tidak yakin, JANGAN sertakan modul ini.
 8. Jangan mengarang klaim hukum/legalitas (Halal/BPOM/P-IRT) kecuali user menyebutnya.
 9. id section: format "sec-<tipe>-<urut>" (contoh sec-hero-1); id produk: "prod-<urut>".
-10. Harga produk: angka penuh rupiah tanpa titik (35000), original_price hanya bila ada diskon nyata.`;
+10. Harga produk: angka penuh rupiah tanpa titik (35000), original_price hanya bila ada diskon nyata.
+
+ATURAN GAYA BAHASA (KERAS — copy harus terdengar seperti pedagang sungguhan, bukan landing page korporat):
+11. Kata "solusi" dan "kebutuhan" DILARANG dipakai. Bila benar-benar terpaksa, maksimal SATU kali per kalimat — usahakan nol.
+12. Dilarang kalimat brosur generik: "terbaik untuk kebutuhan Anda", "solusi terbaik", "pilihan tepat untuk Anda", "memenuhi kebutuhan Anda", dan pola sejenis.
+13. Tagline MAKSIMAL 8 kata dan WAJIB spesifik ke produk/jasa (sebut makanan/jasa/bahannya — bukan misi perusahaan).
+14. Deskripsi produk WAJIB kalimat utuh yang selesai. DILARANG menghasilkan teks terpotong atau berakhir dengan "…".
+15. Sapakan pembeli "kakak"/"kak" atau nada pedagang netral ("kamu"). Dilarang nada korporat ("Anda yang terhormat", "pelanggan setia yang budiman").
+16. Setiap deskripsi minimal memuat SATU detail konkret: bahan, cara membuat, proses, porsi, waktu, atau harga.`;
 
 /** Semua tipe modul yang dikenal schema v1 — saringan anti-halusinasi tipe. */
 export const ALL_KNOWN_MODULES: string[] = [
@@ -70,7 +80,11 @@ export const ALL_KNOWN_MODULES: string[] = [
 export function buildSlicedSystemPrompt(category: string): string {
   const modules = categoryHint(category);
   const filtered = modules.filter((m) => ALL_KNOWN_MODULES.includes(m));
+  const voice = voiceForCategory(category);
   return `${BASE_SYSTEM_PROMPT}
+
+PANDUAN SUARA KATEGORI "${voice.label}" (WAJIB diikuti agar copy terdengar seperti usaha sungguhan):
+${voice.voiceGuide}
 
 KONTEKS KATEGORI BISNIS: "${category}".
 Modul yang relevan dan BOLEH dipakai untuk kategori ini: ${filtered.join(", ")}.

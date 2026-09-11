@@ -3,6 +3,7 @@ import path from "node:path";
 import { randomUUID } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { store } from "@/lib/server/store";
+import { stripJpegExif } from "@/lib/server/jpeg-exif";
 
 /**
  * Upload foto merchant (multipart/form-data, field "file").
@@ -57,7 +58,14 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ siteId: st
   const name = `${randomUUID()}-${Date.now()}${ext}`;
   const dir = path.join(UPLOADS_ROOT, siteId);
   await fs.mkdir(dir, { recursive: true });
-  await fs.writeFile(path.join(dir, name), Buffer.from(await file.arrayBuffer()));
+  // Privasi: JPEG ponsel membawa APP1 Exif (termasuk koordinat GPS rumah
+  // merchant) — dibuang sebelum file dilayani di URL publik /uploads/...
+  // Fail-open di dalam stripper: bila parsing gagal, file asli tetap disimpan.
+  // PNG/WebP lewat apa adanya (EXIF di format itu jarang; mekanisme chunk-nya
+  // berbeda dari marker JPEG — lihat jpeg-exif.ts).
+  const raw = Buffer.from(await file.arrayBuffer());
+  const bytes = ext === ".jpg" ? stripJpegExif(raw) : raw;
+  await fs.writeFile(path.join(dir, name), bytes);
 
   return NextResponse.json({ url: `/uploads/${siteId}/${name}` });
 }

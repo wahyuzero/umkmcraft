@@ -37,8 +37,11 @@ describe("golden fixtures — 4 kategori bisnis", () => {
     expect(html).toContain("wa.me/6281234567890");
     expect(html).toContain("Pilihan Menu Favorit");
     expect(html).toContain("Best Seller");
-    // status buka/tutup tergantung jam server — salah satu harus muncul
-    expect(html.includes("Buka Sekarang") || html.includes("Tutup")).toBe(true);
+    // Status buka/tutup kini dihitung di klien (island OpenNowBadge) — SSR
+    // merender slot netral berukuran sama; "Buka Sekarang"/"Tutup" TIDAK
+    // boleh terbake ke HTML server (badge basi di snapshot publik).
+    expect(html).toContain("Jam buka hari ini");
+    expect(html.includes("Buka Sekarang") || html.includes("Tutup")).toBe(false);
   });
 
   it("migrate + parse round-trip identik", () => {

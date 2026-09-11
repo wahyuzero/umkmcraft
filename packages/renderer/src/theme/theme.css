@@ -86,6 +86,20 @@
   }
 }
 
+/* ---------- Performa scroll halaman panjang — content-visibility ----------
+   Section .uc-reveal yang punya KAKAK .uc-reveal (selector saudara ~ otomatis
+   melewati yang pertama — hero/section pembuka selalu langsung dilukis)
+   dirender malas oleh browser: saat off-screen hanya kotak estimasi tersimpan
+   (480px ≈ tinggi section tipikal). Halaman 13 section jadi jauh lebih ringan
+   di paint. Prefiks `auto` memakai ukuran terakhir yang benar begitu section
+   pernah tampil → tidak ada layout jump saat scroll bolak-balik. Interaksi
+   aman: anchor (#id) tetap melompat benar (kotak ada), IntersectionObserver
+   nav tetap menerima entri, reduced-motion/data-saver tidak tersentuh. */
+.uc-site .uc-reveal ~ .uc-reveal {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 480px;
+}
+
 /* ---------- FAQ akordeon murni CSS — zero-JS ---------- */
 .uc-faq details summary::-webkit-details-marker {
   display: none;

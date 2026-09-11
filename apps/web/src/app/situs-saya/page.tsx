@@ -34,6 +34,10 @@ export default async function SitusSayaPage() {
         status: s.status,
         updatedAt: s.updatedAt,
         name: latest?.configJson.meta.business_name ?? s.slug,
+        // Mirror logika /sites/<slug>: pratinjau draf hanya relevan bila versi
+        // TERBARU masih DRAFT. Situs PUBLISHED yang versi terakhirnya sudah
+        // tersalip (id = publishedVersionId) tidak punya draf baru lagi.
+        hasNewerDraft: s.status === "PUBLISHED" && latest?.status === "DRAFT",
       };
     }),
   );
@@ -72,7 +76,7 @@ export default async function SitusSayaPage() {
             </span>
             <p className="font-display text-xl font-bold text-ink">Belum ada situs, kak</p>
             <p className="max-w-xs text-sm leading-relaxed text-ink-soft">
-              Ceritakan usahamu lewat obrolan santai — situsnya jadi dalam ±30 detik.
+              Ceritakan usahamu lewat obrolan santai — situsnya jadi dalam hitungan menit.
             </p>
             <Link
               href="/start"
@@ -100,6 +104,13 @@ export default async function SitusSayaPage() {
                       >
                         {live ? "Live" : "Draf"}
                       </span>
+                      {r.hasNewerDraft ? (
+                        // Live + draf lebih baru sekaligus: hijau = versi terbit,
+                        // chip putus-putus = ada draf yang belum tampil publik.
+                        <span className="inline-flex items-center gap-1.5 rounded-full border border-dashed border-cutline bg-paper px-2.5 py-1 text-[0.65rem] font-extrabold uppercase tracking-wide text-ink">
+                          Ada draf baru
+                        </span>
+                      ) : null}
                     </div>
                     <p className="mt-1 truncate font-ui text-xs text-ink-soft">
                       {/* URL tampil = persis target tombol Lihat (bentuk path,
@@ -107,7 +118,7 @@ export default async function SitusSayaPage() {
                       /sites/{r.slug} · disunting {formatTime(r.updatedAt)}
                     </p>
                   </div>
-                  <div className="flex shrink-0 items-center gap-2">
+                  <div className="flex shrink-0 flex-wrap items-center gap-2">
                     {live ? (
                       <a
                         href={`/sites/${r.slug}`}
@@ -121,11 +132,12 @@ export default async function SitusSayaPage() {
                       // Target salinan = href persis tombol Lihat di atas
                       <CopyLinkButton path={`/sites/${r.slug}`} />
                     ) : null}
-                    {r.status === "DRAFT" ? (
+                    {r.status === "DRAFT" || r.hasNewerDraft ? (
                       // Pratinjau draf — jalur khusus owner (uc_session
                       // diverifikasi di server /sites/<slug>); orang luar
                       // tetap melihat 404, makanya "Salin link" hanya untuk
-                      // situs live.
+                      // situs live. Berlaku juga untuk situs live yang punya
+                      // draf lebih baru (draf dirender dengan banner).
                       <Link
                         href={`/sites/${r.slug}`}
                         className="inline-flex min-h-[44px] items-center gap-1.5 rounded-xl border border-cutline bg-paper px-3.5 py-2.5 text-sm font-semibold text-ink transition-colors duration-200 hover:border-signal/40 hover:bg-signal-soft/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal"

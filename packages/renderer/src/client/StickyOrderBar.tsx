@@ -6,13 +6,15 @@
  * viewport — sebelum itu CTA hero sudah di layar, bar hanya menutupi.
  * Deteksi: IntersectionObserver pada elemen <header> hero (fix hero-first di
  * registry menjamin hero adalah header pertama .uc-site); tanpa hero → bar
- * langsung tampil. Spacer setinggi bar dicadangkan di alur dokumen supaya
- * footer tidak tertutup permanen. Kontras: latar --uc-primary, teks
+ * langsung tampil. Di dasar halaman bar mundur agar footer terbaca penuh
+ * (spacer tak bisa melindungi footer sendiri — dia di atasnya di alur dokumen).
+ * Spacer setinggi bar dicadangkan di alur dokumen supaya konten tidak
+ * tertutup permanen. Kontras: latar --uc-primary, teks
  * --uc-on-primary-text (turunan AA dari theme.ts). z-40: di bawah popover
  * ReportButton (z-50); lightbox memakai <dialog> top-layer (selalu teratas).
  * SSR-safe: semua akses DOM di dalam useEffect, render awal = tersembunyi.
  */
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createWhatsAppChatLink } from "@umkmcraft/utils";
 import { TrackedLink } from "./TrackedLink";
 
@@ -27,6 +29,16 @@ export function StickyOrderBar({
   label?: string;
 }) {
   const [visible, setVisible] = useState(false);
+  // Di DASAR halaman bar mundur (slide-down) supaya footer — kredit dan
+  // tombol laporkan — terbaca penuh; naik sedikit saja, bar muncul lagi.
+  // Spacer di atas footer tak bisa menutupi footer sendiri (dia berada
+  // SEBELUM footer di alur dokumen), jadi rollback di dasar adalah satu-
+  // satunya cara menjunjung janji "footer tak tertutup permanen".
+  const [atBottom, setAtBottom] = useState(false);
+  // Tinggi spacer = tinggi bar TERUKUR (pt-3 + 52px tombol + pb + safe-area),
+  // bukan tebakan h-16 — tebakan 64px membuat bar 76px+ menutup footer.
+  const barRef = useRef<HTMLDivElement | null>(null);
+  const [spacerH, setSpacerH] = useState<number | null>(null);
 
   useEffect(() => {
     const hero = document.querySelector<HTMLElement>(".uc-site > header");
@@ -41,15 +53,49 @@ export function StickyOrderBar({
     return () => io.disconnect();
   }, []);
 
+  useEffect(() => {
+    const onScroll = () => {
+      const doc = document.documentElement;
+      const max = doc.scrollHeight - window.innerHeight;
+      setAtBottom(max > 0 && window.scrollY >= max - 4);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.visualViewport?.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.visualViewport?.removeEventListener("resize", onScroll);
+    };
+  }, []);
+
+  // Ukur bar nyata: ResizeObserver mengikuti perubahan isi/label, dan
+  // visualViewport resize menangkap perubahan safe-area-inset-bottom
+  // (url-bar browser muncul/hilang, rotasi). Default SSR tetap h-16 agar
+  // tidak CLS; angka terukur menyempurnakan setelah mount.
+  useEffect(() => {
+    const bar = barRef.current;
+    if (!bar) return;
+    const measure = () => setSpacerH(bar.offsetHeight);
+    measure();
+    const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(measure) : null;
+    ro?.observe(bar);
+    window.visualViewport?.addEventListener("resize", measure);
+    return () => {
+      ro?.disconnect();
+      window.visualViewport?.removeEventListener("resize", measure);
+    };
+  }, []);
+
   const href = createWhatsAppChatLink(whatsapp, DEFAULT_PREFILL);
 
   return (
     <>
       {/* Spacer: cadangan ruang setinggi bar agar konten/footer tidak tertutup */}
-      <div aria-hidden className="h-16" />
+      <div aria-hidden className="h-16" style={spacerH === null ? undefined : { height: spacerH }} />
       <div
+        ref={barRef}
         className={`fixed inset-x-0 bottom-0 z-40 rounded-t-3xl bg-[var(--uc-primary)] shadow-[0_-10px_40px_-18px_color-mix(in_oklab,var(--uc-ink)_45%,transparent)] motion-safe:transition-[transform,opacity] motion-safe:duration-300 motion-safe:ease-[cubic-bezier(0.16,1,0.3,1)] ${
-          visible
+          visible && !atBottom
             ? "translate-y-0 opacity-100"
             : "invisible pointer-events-none translate-y-full opacity-0"
         }`}

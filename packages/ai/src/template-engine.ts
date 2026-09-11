@@ -3,9 +3,14 @@
  * bila AI gagal/absen, config tetap dihasilkan dari slot + template kategori.
  * Juga dipakai untuk demo & test. Output SELALU lolos UmkmWebsiteConfigSchema.
  * Semua input user di-clamp (Oracle #12c) supaya parse pasca-generate tak pernah gagal.
+ *
+ * Copy default berasal dari copy-voice.ts (satu sumber suara per kategori):
+ * tagline ≤ 8 kata, produk-spesifik, gaya pedagang — bukan bahasa brosur.
+ * Jalur route tetap menambahkan lintCopy() sebagai jaring pengaman terakhir.
  */
 import { guessPresetForCategory, type UmkmWebsiteConfig } from "@umkmcraft/schema";
 import { slugify } from "@umkmcraft/utils";
+import { voiceForCategory, truncateAtWordBoundary } from "./copy-voice";
 
 export interface IntakeSlots {
   businessName: string;
@@ -18,31 +23,20 @@ export interface IntakeSlots {
   story?: string;
 }
 
-const DEFAULT_PRODUCTS: Record<string, Array<{ name: string; price: number; description: string }>> = {
-  kuliner: [
-    { name: "Paket Nasi Komplit", price: 25000, description: "Nasi, lauk utama, sambal, dan sayur. Porsi kenyang." },
-    { name: "Menu Best Seller", price: 18000, description: "Menu favorit pelanggan, rasa konsisten tiap hari." },
-    { name: "Minuman Segar", price: 8000, description: "Es teh, es jeruk, dan aneka minuman dingin." },
-  ],
-  default: [
-    { name: "Layanan Reguler", price: 50000, description: "Layanan standar dengan kualitas terbaik." },
-    { name: "Layanan Premium", price: 100000, description: "Layanan lengkap dengan benefit tambahan." },
-  ],
-};
-
 export function generateTemplateConfig(slots: IntakeSlots): UmkmWebsiteConfig {
   const category = (slots.category || "lainnya").slice(0, 40);
   const preset = guessPresetForCategory(category);
+  const voice = voiceForCategory(category);
   const baseSlug = slugify(slots.businessName) || "usaha-baru";
   const name = slots.businessName.slice(0, 80);
-  const story = (slots.story || "").slice(0, 220);
+  const story = truncateAtWordBoundary((slots.story || "").slice(0, 400), 220);
   const location = (slots.location || "").slice(0, 200);
-  const products = (slots.products?.length ? slots.products : DEFAULT_PRODUCTS[category] ?? DEFAULT_PRODUCTS.default!)
+  const products = (slots.products?.length ? slots.products : voice.products)
     .slice(0, 5)
     .map((p) => ({
       name: p.name.slice(0, 80),
       price: Math.max(0, Math.min(Number(p.price) || 0, 1_000_000_000)),
-      description: (p.description || "").slice(0, 300),
+      description: truncateAtWordBoundary((p.description || "").slice(0, 600), 300),
     }));
 
   const sections: UmkmWebsiteConfig["sections"] = [
@@ -52,7 +46,7 @@ export function generateTemplateConfig(slots: IntakeSlots): UmkmWebsiteConfig {
       props: {
         badge: slots.promo ? "Promo Spesial" : "",
         title: name,
-        subtitle: story || `Solusi terbaik ${category} untuk kebutuhan Anda. Hubungi kami langsung via WhatsApp, respon cepat dan ramah.`,
+        subtitle: story || voice.subtitle,
         image_url: "",
         image_position: "right",
         cta_primary: {
@@ -61,15 +55,15 @@ export function generateTemplateConfig(slots: IntakeSlots): UmkmWebsiteConfig {
           prefill_message: `Halo ${name}! 👋 Saya dapat nomor dari website, mau tanya-tanya kak.`,
           url: "",
         },
-        badges: ["Respon Cepat", "Harga Jujur", "Kualitas Terjamin"],
+        badges: voice.badges,
       },
     },
     {
       id: "sec-catalog-1",
       type: "product_catalog_wa",
       props: {
-        section_title: "Pilihan Unggulan",
-        section_subtitle: "Klik tombol WhatsApp di produk, pesanan langsung terhubung ke admin.",
+        section_title: voice.catalogTitle,
+        section_subtitle: voice.catalogSubtitle,
         categories: ["Semua"],
         products: products.map((p, i) => ({
           id: `prod-${i + 1}`,
@@ -88,11 +82,7 @@ export function generateTemplateConfig(slots: IntakeSlots): UmkmWebsiteConfig {
       props: {
         section_title: "Kenapa Pilih Kami?",
         section_subtitle: "",
-        items: [
-          { icon: "star", title: "Kualitas Terjaga", description: "Setiap pesanan dikerjakan dengan teliti dan penuh perhatian." },
-          { icon: "chat", title: "Respon Cepat", description: "Chat WhatsApp dibalas secepatnya di jam operasional." },
-          { icon: "wallet", title: "Harga Jujur", description: "Harga jelas di awal, tanpa biaya tersembunyi." },
-        ],
+        items: voice.valueProps,
       },
     },
     {
@@ -113,10 +103,7 @@ export function generateTemplateConfig(slots: IntakeSlots): UmkmWebsiteConfig {
       type: "faq_accordion",
       props: {
         section_title: "Pertanyaan yang Sering Diajukan",
-        items: [
-          { q: "Bagaimana cara memesan?", a: "Klik tombol WhatsApp pada produk atau hubungi kami — pesanan Anda langsung diproses admin." },
-          { q: "Apakah bisa kirim ke luar kota?", a: "Bisa! Silakan chat admin untuk cek ongkir dan estimasi pengiriman ke lokasi Anda." },
-        ],
+        items: voice.faqs,
       },
     },
     {
@@ -137,8 +124,8 @@ export function generateTemplateConfig(slots: IntakeSlots): UmkmWebsiteConfig {
       id: "sec-ctabanner-1",
       type: "cta_banner_full",
       props: {
-        title: "Siap pesan sekarang?",
-        subtitle: "Chat admin langsung — fast respon di jam operasional.",
+        title: voice.ctaTitle,
+        subtitle: voice.ctaSubtitle,
         button_label: "Chat WhatsApp Sekarang",
         prefill_message: `Halo ${name}! 👋 Saya mau order kak.`,
         secondary_label: "",
@@ -152,7 +139,7 @@ export function generateTemplateConfig(slots: IntakeSlots): UmkmWebsiteConfig {
       site_id: baseSlug,
       business_name: name,
       business_category: category,
-      tagline: story.slice(0, 140) || `Kebutuhan ${category} Anda, solusi kami.`,
+      tagline: truncateAtWordBoundary(story, 140) || voice.tagline,
       schema_version: 1,
       theme: {
         preset: preset.id,
@@ -165,8 +152,7 @@ export function generateTemplateConfig(slots: IntakeSlots): UmkmWebsiteConfig {
       whatsapp_number: slots.whatsappNumber,
       seo: {
         title: `${name} — ${category.charAt(0).toUpperCase() + category.slice(1)}`.slice(0, 80),
-        description:
-          story.slice(0, 200) || `${name}: ${category} pilihan terbaik. Pesan mudah via WhatsApp.`,
+        description: story ? truncateAtWordBoundary(story, 200) : voice.seoDescription(name),
         keywords: [name.toLowerCase().slice(0, 40), category].slice(0, 12),
       },
     },

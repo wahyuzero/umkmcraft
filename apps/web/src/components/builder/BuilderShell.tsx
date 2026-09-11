@@ -86,7 +86,10 @@ export function BuilderShell({
         </div>
 
         <div className="flex shrink-0 items-center gap-1.5 sm:gap-3">
-          <SaveIndicator state={saveState} lastSavedAt={lastSavedAt} />
+          {/* Chip autosave hanya ≥sm — di ponsel ruangannya untuk nama usaha */}
+          <div className="hidden sm:block">
+            <SaveIndicator state={saveState} lastSavedAt={lastSavedAt} />
+          </div>
           <ThemeSwitcher />
           <PublishButton staleInitially={staleInitially} />
         </div>
