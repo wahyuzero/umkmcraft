@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { cookies } from "next/headers";
-import { Eye } from "lucide-react";
+import { Eye, LogOut, PenLine } from "lucide-react";
 import { getPreset, parseUmkmConfig, type SectionType } from "@umkmcraft/schema";
 import { orderedSections, renderSections, SectionNav, StickyOrderBar, TenantFooter, themeStyle } from "@umkmcraft/renderer";
 import { currentTenantHost, getTenantSnapshot } from "@/lib/server/site-data";
@@ -14,6 +15,7 @@ export const instant = false;
 
 interface TenantPageProps {
   params: Promise<{ path?: string[] }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
 /**
@@ -58,7 +60,10 @@ interface TenantResolution {
   draftPreview: boolean;
 }
 
-async function resolve(params: TenantPageProps["params"]): Promise<TenantResolution> {
+async function resolve(
+  params: TenantPageProps["params"],
+  searchParams?: TenantPageProps["searchParams"],
+): Promise<TenantResolution> {
   const { path } = await params;
   const parts = path ?? ["index"];
   const slug = parts[0] === "index" ? undefined : parts[0];
@@ -76,10 +81,15 @@ async function resolve(params: TenantPageProps["params"]): Promise<TenantResolut
     const site = slug ? await store.getSiteBySlug(slug) : await store.getSiteByHost(host);
     if (site && site.status !== "SUSPENDED" && (await store.ownsSite(sessionToken, site.id))) {
       const latest = (await store.getVersions(site.id)).at(-1);
+      // ?v=published (tombol "Lihat" /situs-saya): pemilik minta versi TERBIT
+      // meski draf lebih baru — snap publik yang dirender, tanpa banner
+      // pratinjau. Tanpa param → pratinjau draf seperti biasa. Orang luar tak
+      // pernah mencapai cabang ini (cek ownsSite), param diabaikan untuk mereka.
+      const wantsPublished = (await searchParams)?.v === "published";
       // Pratinjau hanya bila versi TERBARU masih DRAFT (ada perubahan yang
       // belum tampil publik). Versi terakhir sudah PUBLISHED → render publik
       // seperti biasa; draft lama yang sudah tersalip tidak dihidupkan lagi.
-      if (latest && latest.status === "DRAFT") {
+      if (latest && latest.status === "DRAFT" && !wantsPublished) {
         return { snap: { site, config: latest.configJson }, slug, draftPreview: true };
       }
     }
@@ -87,8 +97,8 @@ async function resolve(params: TenantPageProps["params"]): Promise<TenantResolut
   return { snap, slug, draftPreview: false };
 }
 
-export async function generateMetadata({ params }: TenantPageProps): Promise<Metadata> {
-  const { snap, slug, draftPreview } = await resolve(params);
+export async function generateMetadata({ params, searchParams }: TenantPageProps): Promise<Metadata> {
+  const { snap, slug, draftPreview } = await resolve(params, searchParams);
   if (!snap || !snap.config) return { title: "Situs tidak ditemukan" };
   // Pratinjau draf milik owner: melarang indeks — isinya masih bisa berubah
   // dan URL yang sama kelak menampung konten versi terbit.
@@ -112,8 +122,8 @@ export async function generateMetadata({ params }: TenantPageProps): Promise<Met
   };
 }
 
-export default async function TenantSitePage({ params }: TenantPageProps) {
-  const { snap, slug, draftPreview } = await resolve(params);
+export default async function TenantSitePage({ params, searchParams }: TenantPageProps) {
+  const { snap, slug, draftPreview } = await resolve(params, searchParams);
   // 404 dirender INLINE, bukan notFound() — notFound() + route loading
   // skeleton tidak komposibel di Next 16 (kerangka loading bisa menutupi
   // payload 404 selamanya). Papan pengumuman = konten stream biasa.
@@ -205,7 +215,7 @@ export default async function TenantSitePage({ params }: TenantPageProps) {
           sebelum konten benar-benar terbit, sekaligus menghindari tumpukan
           dengan banner pratinjau di posisi yang sama. */}
       {!draftPreview && config.meta.whatsapp_number ? <StickyOrderBar whatsapp={config.meta.whatsapp_number} /> : null}
-      {draftPreview ? <DraftPreviewBanner /> : null}
+      {draftPreview ? <DraftPreviewBanner siteId={snap.site.id} /> : null}
       <TenantFooter siteId={snap.site.id} businessName={config.meta.business_name} />
     </div>
   );
@@ -216,14 +226,35 @@ export default async function TenantSitePage({ params }: TenantPageProps) {
  * OWNER melihat versi DRAFT (hlm. memakai robots noindex,nofollow). z-30:
  * di bawah StickyOrderBar (z-40) yang memang sengaja tak dirender di mode
  * ini. Ink di atas tema tenant agar selalu terbaca di tema apa pun.
+ * Pintu keluar (kritik ronde 3: pratinjau tanpa jalan keluar): "Sunting"
+ * balik ke editor, "Keluar pratinjau" ke /situs-saya — baris flex yang
+ * wrap di layar sempit, sentuh ≥44px.
  */
-function DraftPreviewBanner() {
+function DraftPreviewBanner({ siteId }: { siteId: string }) {
   return (
-    <div className="fixed inset-x-0 bottom-0 z-30 flex min-h-[44px] items-center justify-center gap-2 bg-ink px-4 py-2.5 text-card">
-      <Eye aria-hidden className="h-4 w-4 shrink-0 text-signal-soft" />
-      <p className="text-center text-xs font-bold sm:text-sm">
-        Mode pratinjau draf — hanya kakak yang bisa lihat
-      </p>
+    <div className="fixed inset-x-0 bottom-0 z-30 bg-ink px-4 py-2.5 text-card">
+      <div className="mx-auto flex min-h-[44px] max-w-3xl flex-wrap items-center justify-center gap-x-4 gap-y-2">
+        <div className="flex items-center gap-2">
+          <Eye aria-hidden className="h-4 w-4 shrink-0 text-signal-soft" />
+          <p className="text-xs font-bold sm:text-sm">Mode pratinjau draf — hanya kakak yang bisa lihat</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Link
+            href={`/editor/${siteId}`}
+            className="inline-flex min-h-[44px] items-center gap-1.5 rounded-xl bg-card px-3.5 py-2 text-xs font-bold text-ink transition-colors duration-200 hover:bg-paper focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-card"
+          >
+            <PenLine className="h-3.5 w-3.5" aria-hidden />
+            Sunting
+          </Link>
+          <Link
+            href="/situs-saya"
+            className="inline-flex min-h-[44px] items-center gap-1.5 rounded-xl border border-card/40 px-3.5 py-2 text-xs font-bold text-card transition-colors duration-200 hover:bg-card/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-card"
+          >
+            <LogOut className="h-3.5 w-3.5" aria-hidden />
+            Keluar pratinjau
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }

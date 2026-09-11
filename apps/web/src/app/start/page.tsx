@@ -27,6 +27,11 @@ interface Slots {
   hours?: string;
 }
 
+/** Event NDJSON dari /api/ai/intake saat streaming. */
+type StreamEvent =
+  | { t: "text"; v: string }
+  | { t: "done"; slots?: Slots; ready?: boolean };
+
 const GREETING =
   "Halo kakak! Aku asisten UMKM Craft. Cerita aja soal usahamu — nama usaha apa, jualan apa aja. Nanti aku buatkan website yang bisa langsung dipesan lewat WhatsApp.";
 
@@ -56,6 +61,13 @@ function guessSteps(text: string): [boolean, boolean, boolean] {
   return [name, category, wa];
 }
 
+/** Sanity harga (Rupiah): di bawah Rp100 hampir pasti nol yang kelewat
+ *  ("150000" → "15000" → "1500"), di atas Rp10 juta hampir pasti salah ketik —
+ *  keduanya DITOLAK dengan pesan inline, bukan diam-diam disimpan. */
+const PRICE_MIN = 100;
+const PRICE_MAX = 10_000_000;
+const PRICE_ERROR = "Harga kayaknya kelewat nol — cek lagi ya (contoh: 15000)";
+
 /** Parse teks bebas "nama harga; nama harga" jadi daftar produk. */
 function parseProducts(raw: string): ProductEntry[] {
   return raw
@@ -80,6 +92,9 @@ export default function StartPage() {
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastInput, setLastInput] = useState<string | null>(null);
+  // Streaming: null = tidak sedang stream; "" = menunggu token pertama
+  // (typing bubble); string = balasan parsial yang sedang tumbuh.
+  const [streamText, setStreamText] = useState<string | null>(null);
   // Jangkar progres optimistik (lihat guessSteps): menyala sekali, tak pernah mati.
   const [optimisticSteps, setOptimisticSteps] = useState<[boolean, boolean, boolean]>([false, false, false]);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -109,37 +124,96 @@ export default function StartPage() {
     el.style.height = `${Math.min(el.scrollHeight, 120)}px`;
   }
 
-  async function send(text: string) {
+  async function send(text: string, opts?: { retry?: boolean }) {
     const trimmed = text.trim();
     if (!trimmed || busy || generating || ready) return;
     setError(null);
     setLastInput(trimmed);
     setInput("");
     if (inputRef.current) inputRef.current.style.height = "auto";
-    const history = [...messages, { role: "user" as const, content: trimmed }];
+
+    let base = messages;
+    // Retry setelah stream putus di tengah: buang sisa teks parsial — balasan
+    // utuh penggantinya, jadi "Kirim ulang" tidak menduplikasi apa pun.
+    const lastMsg = base[base.length - 1];
+    if (opts?.retry && lastMsg?.partial) {
+      base = base.slice(0, -1);
+      setMessages(base);
+    }
+
+    const history = [...base, { role: "user" as const, content: trimmed }];
     setMessages(history);
     const guess = guessSteps(trimmed);
     setOptimisticSteps((prev) => [prev[0] || guess[0], prev[1] || guess[1], prev[2] || guess[2]]);
     setBusy(true);
+    setStreamText("");
+    let acc = "";
     try {
       const res = await fetch("/api/ai/intake", {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers: { "content-type": "application/json", accept: "application/x-ndjson" },
         body: JSON.stringify({ history: history.slice(1), slots }),
       });
-      if (!res.ok) throw new Error("Server sibuk");
-      const data = (await res.json()) as { reply: string; slots: Slots; nextAction: string };
-      setSlots(data.slots);
-      setReady(data.nextAction === "ready");
-      setMessages((m) => [...m, { role: "assistant", content: data.reply }]);
-      setLastInput(null);
+      if (!res.ok || !res.body) throw new Error("Server sibuk");
+
+      const contentType = res.headers.get("content-type") ?? "";
+      if (!contentType.includes("x-ndjson")) {
+        // Fallback JSON (pola lama) — semantik sama dengan sebelum streaming ada.
+        const data = (await res.json()) as { reply: string; slots: Slots; nextAction: string };
+        setSlots(data.slots);
+        setReady(data.nextAction === "ready");
+        setMessages((m) => [...m, { role: "assistant", content: data.reply }]);
+        setLastInput(null);
+        return;
+      }
+
+      // Stream NDJSON: buffer baris parsial, update bubble per delta.
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buf = "";
+      let done = false;
+      for (;;) {
+        const { value, done: ended } = await reader.read();
+        if (ended) break;
+        buf += decoder.decode(value, { stream: true });
+        let nl: number;
+        while ((nl = buf.indexOf("\n")) >= 0) {
+          const line = buf.slice(0, nl).trim();
+          buf = buf.slice(nl + 1);
+          if (!line) continue;
+          let evt: StreamEvent;
+          try {
+            evt = JSON.parse(line) as StreamEvent;
+          } catch {
+            continue; // baris terpotong/korup — lewati
+          }
+          if (evt.t === "text" && typeof evt.v === "string") {
+            acc += evt.v;
+            setStreamText(acc);
+          } else if (evt.t === "done") {
+            done = true;
+            if (evt.slots) setSlots(evt.slots);
+            setReady(Boolean(evt.ready));
+            setMessages((m) => [...m, { role: "assistant", content: acc }]);
+            setLastInput(null);
+          }
+        }
+      }
+      if (!done) throw new Error("Stream terputus");
     } catch {
-      // Rollback bubble user: pesannya memang belum terkirim, jadi "Kirim ulang"
+      // Rollback bubble user: pesannya memang belum terkirim utuh, jadi "Kirim ulang"
       // mengirim TEPAT satu salinan — bukan menduplikasi bubble yang gagal.
-      setMessages((m) => m.slice(0, -1));
+      // Teks parsial yang sudah terbaca tidak dihapus: dititip sebagai bubble
+      // assistant `partial`, lalu diganti balasan utuh saat retry.
+      setStreamText(null);
+      setMessages((m) => {
+        const kept = m.slice(0, -1);
+        return acc ? [...kept, { role: "assistant", content: acc, partial: true }] : kept;
+      });
       setError("Koneksi bermasalah — coba kirim ulang ya, kakak.");
     } finally {
       setBusy(false);
+      setStreamText(null);
     }
   }
 
@@ -151,7 +225,14 @@ export default function StartPage() {
    */
   function handleSlotEdit(key: SlotKey, value: string): string | undefined {
     if (key === "products") {
-      setSlots((s) => ({ ...s, products: parseProducts(value) }));
+      const parsed = parseProducts(value);
+      // Sanity harga via mekanisme yang sama dengan edit WA: balasan string =
+      // nilai ditolak, baris tetap terbuka dengan pesan di bawah inputnya.
+      const invalidPrice = parsed.some(
+        (p) => p.price !== undefined && (p.price < PRICE_MIN || p.price > PRICE_MAX),
+      );
+      if (invalidPrice) return PRICE_ERROR;
+      setSlots((s) => ({ ...s, products: parsed }));
       return;
     }
     const trimmed = value.trim();
@@ -256,7 +337,13 @@ export default function StartPage() {
             <ChatMessage key={i} message={m} />
           ))}
 
-          {busy ? <TypingBubble /> : null}
+          {/* Streaming: bubble AI tumbuh per delta — aria-busy menahan pengumuman
+              screen reader sampai selesai; typing bubble hanya menunggu token pertama. */}
+          {busy && streamText ? (
+            <ChatMessage message={{ role: "assistant", content: streamText }} streaming />
+          ) : busy ? (
+            <TypingBubble />
+          ) : null}
 
           {error ? (
             <div role="alert" className="flex justify-center">
@@ -268,7 +355,7 @@ export default function StartPage() {
                 {lastInput && !ready ? (
                   <button
                     type="button"
-                    onClick={() => send(lastInput)}
+                    onClick={() => send(lastInput, { retry: true })}
                     className="flex min-h-[44px] items-center gap-2 rounded-full bg-signal px-5 py-2 text-sm font-semibold text-card transition-transform duration-150 hover:-translate-y-0.5 active:translate-y-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal"
                   >
                     <RotateCcw className="h-4 w-4" strokeWidth={2.4} aria-hidden />

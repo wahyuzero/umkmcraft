@@ -14,6 +14,7 @@ import { renderSections, themeStyle } from "@umkmcraft/renderer";
 import { parseUmkmConfig } from "@umkmcraft/schema";
 import { readFileSync } from "node:fs";
 import path from "node:path";
+import SiteProofRail from "./SiteProofRail";
 
 /**
  * Landing UMKM Craft (Persuade).
@@ -377,6 +378,12 @@ export default function LandingPage() {
           ))}
         </ul>
       </section>
+
+      {/* ===================== BUKTI SITUS NYATA ===================== */}
+      {/* Rel situs tenant yang benar-benar terbit — merender snapshot
+          published dengan engine ASLI (SiteProofRail). Nol situs terbit →
+          komponen merender null, halaman berubah tanpa keadaan kosong. */}
+      <SiteProofRail />
 
       {/* ============================= CTA =========================== */}
       <section className="relative overflow-hidden bg-ink">

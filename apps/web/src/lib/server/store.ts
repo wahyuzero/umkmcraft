@@ -92,6 +92,15 @@ const versionsFile = () => path.join(DATA_DIR, "site_versions.json");
 const eventsFile = (siteId: string) => path.join(DATA_DIR, "events", `${siteId}.jsonl`);
 const reportsFile = () => path.join(DATA_DIR, "abuse_reports.json");
 
+/**
+ * Batas riwayat draf per situs (ADR-2: immutable versions, pruned). Setiap
+ * autosave PATCH membuat satu snapshot DRAFT, dan tidak ada fitur yang membaca
+ * histori draf lama — tanpa batas, draf menumpuk tanpa guna. Yang disisakan:
+ * MAX_DRAFT_VERSIONS draf terbaru; versi PUBLISHED/ARCHIVED tidak pernah ikut
+ * dihapus oleh pemangkasan ini.
+ */
+const MAX_DRAFT_VERSIONS = 10;
+
 export const store = {
   /* ---- sites ---- */
   async listSites(ownerId: string): Promise<SiteRecord[]> {
@@ -178,6 +187,20 @@ export const store = {
     return versions.find((v) => v.id === id) ?? null;
   },
 
+  /**
+   * Versi TERBARU sebuah situs (draf maupun published) — dipakai halaman yang
+   * hanya butuh snapshot terkini (nama usaha, status draf) supaya tidak perlu
+   * memuat configJson seluruh histori versi.
+   */
+  async getLatestVersion(siteId: string): Promise<SiteVersionRecord | null> {
+    const versions = await readJson<SiteVersionRecord[]>(versionsFile(), []);
+    return versions.reduce<SiteVersionRecord | null>(
+      (latest, v) =>
+        v.siteId === siteId && (!latest || v.versionNumber > latest.versionNumber) ? v : latest,
+      null,
+    );
+  },
+
   /** Autosave draft: selalu buat versi DRAFT baru dari config terbaru. */
   async saveDraft(
     siteId: string,
@@ -199,7 +222,20 @@ export const store = {
       createdAt: new Date().toISOString(),
     };
     versions.push(version);
-    await writeJson(versionsFile(), versions);
+    // Cap draf (ADR-2, immutable versions + pruned drafts): autosave membuat
+    // satu snapshot per PATCH — sisakan MAX_DRAFT_VERSIONS draf terbaru per
+    // situs dan hapus sisanya. Versi PUBLISHED/ARCHIVED tidak pernah disentuh.
+    const drafts = versions
+      .filter((v) => v.siteId === siteId && v.status === "DRAFT")
+      .sort((a, b) => a.versionNumber - b.versionNumber);
+    let persisted = versions;
+    if (drafts.length > MAX_DRAFT_VERSIONS) {
+      const stale = new Set(
+        drafts.slice(0, drafts.length - MAX_DRAFT_VERSIONS).map((v) => v.id),
+      );
+      persisted = versions.filter((v) => !stale.has(v.id));
+    }
+    await writeJson(versionsFile(), persisted);
 
     const sites = await readJson<SiteRecord[]>(sitesFile(), []);
     const site = sites.find((s) => s.id === siteId);

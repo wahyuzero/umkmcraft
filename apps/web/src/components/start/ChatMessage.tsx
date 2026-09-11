@@ -3,12 +3,16 @@
 /**
  * Bubble chat /start — AI: kartu + avatar bot; user: signal amber, rata kanan.
  * Parsing **bold** mini deterministik (reply engine memakai konvensi itu).
+ * Saat streaming, teks bisa berhenti di tengah pasangan ** — parser menutup
+ * dangling ** secara anggun saat render (tanpa state tambahan).
  */
 import { Bot } from "lucide-react";
 
 export interface Msg {
   role: "user" | "assistant";
   content: string;
+  /** Sisa balasan yang terputus mid-stream — diganti utuh saat "Kirim ulang". */
+  partial?: boolean;
 }
 
 /** Avatar bot — lucide Bot dalam lingkaran wash signal (bukan emoji). */
@@ -26,29 +30,43 @@ function BotAvatar() {
 function RichText({ content }: { content: string }) {
   return (
     <>
-      {content.split("\n").map((line, i) => (
-        <p key={i} className={i > 0 ? "mt-2" : ""}>
-          {line.split("**").map((part, j) =>
-            j % 2 === 1 ? (
-              <strong key={j} className="font-bold">
-                {part}
-              </strong>
-            ) : (
-              <span key={j}>{part}</span>
-            ),
-          )}
-        </p>
-      ))}
+      {content.split("\n").map((line, i) => {
+        const parts = line.split("**");
+        // Jumlah ** ganjil = dibuka tapi belum ditutup (stream parsial):
+        // segmen terakhir dirender sebagai teks biasa, bukan bold-ngawur.
+        const dangling = parts.length % 2 === 0;
+        return (
+          <p key={i} className={i > 0 ? "mt-2" : ""}>
+            {parts.map((part, j) =>
+              j % 2 === 1 && !(dangling && j === parts.length - 1) ? (
+                <strong key={j} className="font-bold">
+                  {part}
+                </strong>
+              ) : (
+                <span key={j}>{part}</span>
+              ),
+            )}
+          </p>
+        );
+      })}
     </>
   );
 }
 
-export function ChatMessage({ message }: { message: Msg }) {
+export function ChatMessage({
+  message,
+  streaming = false,
+}: {
+  message: Msg;
+  /** true saat teks masih mengalir — aria-busy menahan pengumuman screen reader. */
+  streaming?: boolean;
+}) {
   const isUser = message.role === "user";
   return (
     <div className={`uc-stick-in flex items-end gap-2 ${isUser ? "justify-end" : "justify-start"}`}>
       {!isUser ? <BotAvatar /> : null}
       <div
+        aria-busy={streaming ? true : undefined}
         className={`max-w-[85%] rounded-2xl px-4 py-3 text-[0.95rem] leading-relaxed shadow-plate ${
           isUser
             ? "rounded-br-md bg-signal text-card" /* text-card di atas #9a3412 = kontras ±7:1, lolos AA */

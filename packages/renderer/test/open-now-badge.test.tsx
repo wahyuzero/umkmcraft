@@ -11,6 +11,7 @@ import { describe, expect, it } from "vitest";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { OpenNowBadge, computeOpenStatus, isTodayScheduleRow } from "../src/client/OpenNowBadge";
+import { hoursDefaults, OperatingHoursMap } from "../src/modules/OperatingHoursMap";
 
 const SENIN_10_00 = new Date(2026, 8, 7, 10, 0, 0); // Senin, 7 Sep 2026 10.00
 const SENIN_21_00 = new Date(2026, 8, 7, 21, 0, 0); // Senin, 7 Sep 2026 21.00
@@ -99,5 +100,40 @@ describe("isTodayScheduleRow — sorot baris jadwal sesuai indeks getDay()", () 
     expect(isTodayScheduleRow("Setiap Hari", 3)).toBe(true);
     expect(isTodayScheduleRow("Setiap Hari", 6)).toBe(true);
     expect(isTodayScheduleRow("By appointment", 1)).toBe(false);
+  });
+});
+
+/**
+ * Evidence ujung-ke-ujung seam open_hours (critique #3): config dengan
+ * open_hours terstruktur HARUS menyalakan slot badge di modul sungguhan;
+ * open_hours kosong (kondisi 32 versi tersimpan sebelumnya) tetap tanpa badge.
+ */
+describe("OperatingHoursMap — modul menyalakan slot badge dari open_hours", () => {
+  it("open_hours terisi → slot badge netral dirender (status dihitung pasca-mount di klien)", () => {
+    const html = renderToStaticMarkup(
+      createElement(OperatingHoursMap, {
+        id: "sec-hours-1",
+        props: {
+          ...hoursDefaults,
+          schedule: [{ day: "Setiap Hari", hours: "tiap hari 7 pagi sampai 3 sore" }],
+          open_hours: [{ day_of_week: 1, open: "07:00", close: "15:00" }],
+        },
+      }),
+    );
+    expect(html).toContain("Jam buka hari ini");
+    expect(html.includes("Buka Sekarang") || html.includes("Tutup")).toBe(false);
+  });
+
+  it("open_hours kosong → tanpa slot badge (tanpa status palsu)", () => {
+    const html = renderToStaticMarkup(
+      createElement(OperatingHoursMap, {
+        id: "sec-hours-1",
+        props: {
+          ...hoursDefaults,
+          schedule: [{ day: "Setiap Hari", hours: "09:00 - 17:00" }],
+        },
+      }),
+    );
+    expect(html).not.toContain("Jam buka hari ini");
   });
 });

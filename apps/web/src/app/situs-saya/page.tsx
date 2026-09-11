@@ -22,12 +22,12 @@ function formatTime(ts: string | number | Date): string {
 export default async function SitusSayaPage() {
   const sessionToken = (await cookies()).get("uc_session")?.value;
   const sites = sessionToken ? await store.listSites(sessionToken) : [];
-  // Nama usaha diambil dari konfigurasi versi terbaru (sumber kebenaran yang sama
-  // dengan dashboard API GET /api/sites).
+  // Nama usaha & status draf cukup dibaca dari versi TERBARU (sumber kebenaran
+  // yang sama dengan dashboard API GET /api/sites) — tidak perlu memuat
+  // configJson seluruh histori versi per situs.
   const rows = await Promise.all(
     sites.map(async (s) => {
-      const versions = await store.getVersions(s.id);
-      const latest = versions.at(-1);
+      const latest = await store.getLatestVersion(s.id);
       return {
         id: s.id,
         slug: s.slug,
@@ -113,15 +113,22 @@ export default async function SitusSayaPage() {
                       ) : null}
                     </div>
                     <p className="mt-1 truncate font-ui text-xs text-ink-soft">
-                      {/* URL tampil = persis target tombol Lihat (bentuk path,
-                          selalu jalan tanpa DNS vhost) — bukan slug.umkmcraft.id */}
+                      {/* Bentuk path (selalu jalan tanpa DNS vhost) — bukan
+                          slug.umkmcraft.id. Tombol Lihat menambah ?v=published:
+                          owner tetap melihat versi TERBIT meski ada draf lebih
+                          baru (draf lewat tombol Pratinjau). */}
                       /sites/{r.slug} · disunting {formatTime(r.updatedAt)}
                     </p>
                   </div>
                   <div className="flex shrink-0 flex-wrap items-center gap-2">
                     {live ? (
+                      // ?v=published: tanpa ini "Lihat" dan "Pratinjau" adalah
+                      // URL sama — saat ada draf lebih baru keduanya merender
+                      // draf, versi terbit jadi tak terjangkau (label palsu).
+                      // Server /sites/<slug> hanya menghormati param ini untuk
+                      // pemilik situs; orang luar mengabaikannya (dapat terbit).
                       <a
-                        href={`/sites/${r.slug}`}
+                        href={`/sites/${r.slug}?v=published`}
                         className="inline-flex min-h-[44px] items-center gap-1.5 rounded-xl border border-cutline bg-paper px-3.5 py-2.5 text-sm font-semibold text-ink transition-colors duration-200 hover:border-signal/40 hover:bg-signal-soft/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal"
                       >
                         <ExternalLink className="h-4 w-4" aria-hidden />
@@ -129,7 +136,9 @@ export default async function SitusSayaPage() {
                       </a>
                     ) : null}
                     {live ? (
-                      // Target salinan = href persis tombol Lihat di atas
+                      // Salinan untuk DIBAGIKAN: path bersih tanpa param —
+                      // orang luar selalu menerima versi terbit, ?v=published
+                      // hanya berarti sesuatu bagi pemilik situs.
                       <CopyLinkButton path={`/sites/${r.slug}`} />
                     ) : null}
                     {r.status === "DRAFT" || r.hasNewerDraft ? (

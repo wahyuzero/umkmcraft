@@ -4,17 +4,21 @@
  * PublishPreflight — gerbang kualitas sebelum publish.
  * scanUnfinished() memindai config DI MEMORI (bukan versi tersimpan) untuk
  * penanda "belum selesai":
- *  - foto kosong (hero / item produk / item galeri / spotlight) — renderer
- *    melukis placeholder generik saat image_url "" (lihat SafeImage), jadi
- *    publik akan melihat foto contoh, bukan foto usaha;
- *  - angka stats_counter_strip: DUA lapis. (1) Setiap strip yang berisi angka
+ *  - foto kosong (hero / item produk / item galeri / avatar tim / post
+ *    Instagram / spotlight) — renderer melukis placeholder generik saat
+ *    image_url "" (lihat SafeImage), jadi publik akan melihat foto contoh,
+ *    bukan foto usaha;
+ *  - angka stats_counter_strip: TIGA lapis. (1) Setiap strip yang berisi angka
  *    apa pun selalu ditag dengan nilainya dicantumkan — angka rekaan buatan
  *    AI ("12.000+ kepala terlayani") tidak boleh lolos tanpa konfirmasi;
  *    (2) replika isSampleStats() menandai nilai yang PERSIS default modul
  *    (packages/renderer/src/modules/StatsCounterStrip.tsx) dengan peringatan
- *    yang lebih tegas — dijalankan client-side di atas JSON config;
- *  - alamat + maps kosong padahal modul jam-operasional ada (deteksi andal:
- *    schema mem-default kedua field ke "").
+ *    yang lebih tegas; (3) label yang memakai nama platform pihak ketiga
+ *    ("Rating Google") ditag terpisah — angka itu milik platform, bukan hasil
+ *    hitung usaha sendiri — dijalankan client-side di atas JSON config;
+ *  - alamat + maps kosong ATAU alamat masih berisi sentinel bawaan generator
+ *    padahal modul jam-operasional ada (deteksi andal: schema mem-default
+ *    address ke "" dan template-engine menulis sentinel saat lokasi kosong).
  * PreflightCard: kartu peringatan inline di bawah tombol publish (BUKAN
  * modal) — kakak memilih "Perbaiki dulu" atau "Terbitkan saja".
  */
@@ -37,6 +41,29 @@ function isSampleStats(stats: ReadonlyArray<{ value: string; label: string }>): 
   );
 }
 
+/** Nama platform pihak ketiga yang kerap dipakai sebagai label angka stats
+ *  ("Rating Google", "Ulasan Google", "4.9 di GoFood") — angka itu milik
+ *  platform, bukan hasil hitung usaha sendiri, jadi ditag sebelum publish.
+ *  Dicocokkan case-insensitive pada label. */
+const THIRD_PARTY_TERMS: ReadonlyArray<string> = [
+  "google",
+  "gojek",
+  "gofood",
+  "grab",
+  "grabfood",
+  "shopee",
+  "tokopedia",
+];
+
+/** Sentinel bawaan template-engine (template-engine.ts) saat lokasi kosong —
+ *  alamat yang masih persis teks ini dihitung "belum diisi". */
+const ADDRESS_SENTINEL = "alamat akan diperbarui oleh pemilik usaha";
+
+function isMissingAddress(address: string): boolean {
+  const a = address.trim().toLowerCase();
+  return a === "" || a === ADDRESS_SENTINEL;
+}
+
 /** Kumpulkan kalimat peringatan dari config saat ini — hasil kosong = siap terbit. */
 export function scanUnfinished(config: UmkmWebsiteConfig): string[] {
   const issues: string[] = [];
@@ -49,6 +76,10 @@ export function scanUnfinished(config: UmkmWebsiteConfig): string[] {
       emptyPhotos += section.props.products.filter((p) => !p.image_url).length;
     } else if (section.type === "gallery_grid") {
       emptyPhotos += section.props.items.filter((i) => !i.image_url).length;
+    } else if (section.type === "team_members_grid") {
+      emptyPhotos += section.props.members.filter((m) => !m.avatar_url).length;
+    } else if (section.type === "instagram_showcase_grid") {
+      emptyPhotos += section.props.posts.filter((p) => !p.image_url).length;
     }
   }
   if (emptyPhotos > 0) {
@@ -74,11 +105,30 @@ export function scanUnfinished(config: UmkmWebsiteConfig): string[] {
     issues.push("Angka statistik masih contoh — bisa dianggap palsu oleh pembeli");
   }
 
+  // Label angka yang memakai nama platform lain ("Rating Google", "Ulasan
+  // Google") — angka itu bukan milik usaha dan tidak bisa dipertanggung-
+  // jawabkan. Satu bullet per strip yang memuat label demikian.
+  for (const section of config.sections) {
+    if (section.type !== "stats_counter_strip") continue;
+    const thirdParty = section.props.stats.filter((st) => {
+      const label = st.label.toLowerCase();
+      return THIRD_PARTY_TERMS.some((t) => label.includes(t));
+    });
+    if (thirdParty.length > 0) {
+      issues.push(
+        "Rating/ulasan atas nama platform lain nggak boleh dipakai kalau nggak nyata — ganti dengan angka milik usaha kakak.",
+      );
+    }
+  }
+
   const noAddress = config.sections.some(
-    (s) => s.type === "operating_hours_map" && !s.props.address && !s.props.gmaps_url,
+    (s) =>
+      s.type === "operating_hours_map" &&
+      isMissingAddress(s.props.address) &&
+      !s.props.gmaps_url,
   );
   if (noAddress) {
-    issues.push("Alamat lokasi masih kosong — pembeli bisa bingung mencari tempatnya");
+    issues.push("Alamat usaha belum diisi");
   }
 
   return issues;

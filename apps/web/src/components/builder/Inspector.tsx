@@ -10,6 +10,8 @@
  * repeater = kartu shadow-plate dengan urutan/hapus 44px + hapus dua
  * langkah; grup field ("Tampilan", "Konten", "CTA") sebagai caption
  * fungsional; field yang jarang dipakai disembunyikan di "Opsi lanjutan".
+ * Editor khusus: open_hours per hari (operating_hours_map) — sumber data
+ * badge Buka/Tutup di situs terbit (island OpenNowBadge).
  */
 import { useEditor } from "@/lib/editor-store";
 import type { SectionType } from "@umkmcraft/schema";
@@ -371,6 +373,10 @@ export function Inspector() {
             </div>
           </div>
         ))}
+
+        {section.type === "operating_hours_map" ? (
+          <OpenHoursEditor value={props.open_hours} onChange={(v) => update(section.id, "open_hours", v)} />
+        ) : null}
 
         {advanced.length > 0 ? (
           <details className="group rounded-xl uc-cutline bg-card/60">
@@ -744,6 +750,117 @@ function Repeater({
         <Plus aria-hidden className="h-4 w-4" />
         Tambah {def.itemLabel}
       </button>
+    </div>
+  );
+}
+
+/* ---------------- editor jam operasional (badge buka/tutup) ---------------- */
+
+/**
+ * OpenHoursEditor — satu-satunya jalan mengisi open_hours terstruktur di
+ * section operating_hours_map. Field inilah yang menghidupkan badge
+ * Buka/Tutup di situs terbit (island OpenNowBadge) — sebelumnya tidak ada
+ * editornya sama sekali, jadi badge tak pernah tampil di situs mana pun.
+ * Hari tanpa entri = "tanpa info" (bukan tutup) — renderer hanya menghitung
+ * hari yang ada di array. <input type="time"> menghasilkan "HH:MM" persis
+ * seperti pola skema, dan di HP memunculkan pemilih jam bawaan.
+ */
+const HARI_EDITOR: Array<{ dow: number; label: string }> = [
+  { dow: 1, label: "Senin" },
+  { dow: 2, label: "Selasa" },
+  { dow: 3, label: "Rabu" },
+  { dow: 4, label: "Kamis" },
+  { dow: 5, label: "Jumat" },
+  { dow: 6, label: "Sabtu" },
+  { dow: 0, label: "Minggu" },
+];
+
+/* Nilai fallback saat input time dikosongkan — skema mewajibkan "HH:MM". */
+const JAM_BUKA_DEFAULT = "09:00";
+const JAM_TUTUP_DEFAULT = "17:00";
+
+function sanitizeTimeInput(v: string, fallback: string): string {
+  return /^\d{2}:\d{2}$/.test(v) ? v : fallback;
+}
+
+function OpenHoursEditor({ value, onChange }: { value: unknown; onChange: (v: unknown) => void }) {
+  const rows = Array.isArray(value) ? (value as Array<Record<string, unknown>>) : [];
+  const byDow = new Map<number, Record<string, unknown>>();
+  for (const r of rows) {
+    const dow = Number(r?.day_of_week);
+    if (Number.isInteger(dow) && dow >= 0 && dow <= 6) byDow.set(dow, r);
+  }
+
+  function setDay(dow: number, entry: Record<string, unknown> | null) {
+    // Dibangun ulang dari HARI_EDITOR → urutan tersimpan selalu konsisten.
+    const next = HARI_EDITOR.map(({ dow: d }) => {
+      if (d === dow) return entry;
+      const cur = byDow.get(d);
+      return cur ? { ...cur } : null;
+    }).filter((e): e is Record<string, unknown> => e !== null);
+    onChange(next);
+  }
+
+  const timeInputCls = `${inputCls} min-h-[44px] w-[104px] px-2 py-2 text-center tabular-nums`;
+
+  return (
+    <div>
+      <div className="mb-2 flex items-baseline justify-between px-1">
+        <span className="text-xs font-bold uppercase tracking-wide text-ink-soft">Jam operasional (untuk badge buka/tutup)</span>
+        {rows.length > 0 ? <span className="text-[0.65rem] font-semibold tabular-nums text-ink-soft/70">{rows.length}</span> : null}
+      </div>
+      <ul className="flex flex-col gap-1.5">
+        {HARI_EDITOR.map(({ dow, label }) => {
+          const entry = byDow.get(dow);
+          const on = Boolean(entry);
+          return (
+            <li
+              key={dow}
+              className={`flex min-h-[44px] items-center gap-2.5 rounded-xl border px-2.5 py-1.5 transition-colors duration-200 ${
+                on ? "border-signal/40 bg-signal-soft/30" : "border-cutline/60 bg-card"
+              }`}
+            >
+              <button
+                type="button"
+                role="switch"
+                aria-checked={on}
+                aria-label={`Buka hari ${label}`}
+                onClick={() => setDay(dow, on ? null : { day_of_week: dow, open: JAM_BUKA_DEFAULT, close: JAM_TUTUP_DEFAULT })}
+                className="shrink-0"
+              >
+                <span aria-hidden className={`relative block h-6 w-10 rounded-full transition-colors duration-200 ${on ? "bg-signal" : "bg-cutline"}`}>
+                  <span className={`absolute left-1 top-1 h-4 w-4 rounded-full bg-card shadow-sm transition-transform duration-200 ${on ? "translate-x-4" : "translate-x-0"}`} />
+                </span>
+              </button>
+              <span className="w-14 shrink-0 text-sm font-semibold text-ink">{label}</span>
+              {on ? (
+                <span className="ml-auto flex items-center gap-1.5">
+                  <input
+                    type="time"
+                    value={sanitizeTimeInput(String(entry?.open ?? ""), JAM_BUKA_DEFAULT)}
+                    onChange={(e) => setDay(dow, { ...entry, day_of_week: dow, open: sanitizeTimeInput(e.target.value, JAM_BUKA_DEFAULT) })}
+                    aria-label={`Jam buka hari ${label}`}
+                    className={timeInputCls}
+                  />
+                  <span aria-hidden className="text-xs font-semibold text-ink-soft">–</span>
+                  <input
+                    type="time"
+                    value={sanitizeTimeInput(String(entry?.close ?? ""), JAM_TUTUP_DEFAULT)}
+                    onChange={(e) => setDay(dow, { ...entry, day_of_week: dow, close: sanitizeTimeInput(e.target.value, JAM_TUTUP_DEFAULT) })}
+                    aria-label={`Jam tutup hari ${label}`}
+                    className={timeInputCls}
+                  />
+                </span>
+              ) : (
+                <span className="ml-auto text-xs font-medium text-ink-soft/70">Tanpa info</span>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+      <p className="mt-2 px-1 text-xs leading-snug text-ink-soft">
+        Hari yang dinyalakan membuat badge Buka/Tutup dihitung otomatis. Buka lewat tengah malam (mis. 21:00–02:00) juga didukung.
+      </p>
     </div>
   );
 }

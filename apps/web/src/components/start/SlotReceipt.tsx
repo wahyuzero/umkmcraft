@@ -51,6 +51,9 @@ interface Row {
   value: string;
   editValue: string;
   multiline?: boolean;
+  /** Nilai multi-kata yang SEDANG DIVERIFIKASI (jam buka, lokasi) — boleh
+   *  wrap, jangan truncate: nilai terpotong ("…3 sore") tak bisa dicek. */
+  wrap?: boolean;
   hint?: string;
 }
 
@@ -97,7 +100,7 @@ export function SlotReceipt({
     });
   }
   if (location) {
-    rows.push({ key: "location", icon: MapPin, label: "Lokasi", value: location, editValue: location });
+    rows.push({ key: "location", icon: MapPin, label: "Lokasi", value: location, editValue: location, wrap: true });
   }
   if (hours) {
     rows.push({
@@ -106,6 +109,7 @@ export function SlotReceipt({
       label: "Jam",
       value: hours,
       editValue: hours,
+      wrap: true,
       hint: "Contoh: tiap hari 7 pagi sampai 3 sore",
     });
   }
@@ -223,7 +227,9 @@ export function SlotReceipt({
                     {row.label}
                   </span>
                   <span
-                    className={`min-w-0 flex-1 text-sm font-medium text-ink ${row.multiline ? "line-clamp-2" : "truncate"}`}
+                    className={`min-w-0 flex-1 text-sm font-medium text-ink ${
+                      row.multiline ? "line-clamp-2" : row.wrap ? "whitespace-normal break-words" : "truncate"
+                    }`}
                   >
                     {row.value}
                   </span>

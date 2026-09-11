@@ -68,7 +68,7 @@ export function BuilderShell({
       {/* ===== Header rak alat (kompak di mobile) ===== */}
       <header className="flex h-16 shrink-0 items-center justify-between gap-2 border-b border-cutline/80 bg-paper px-3 sm:gap-4 sm:px-6">
         <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
-          <Link href="/" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-ink font-display text-lg font-extrabold text-paper" aria-label="Beranda UMKM Craft">
+          <Link href="/" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-ink font-display text-lg font-extrabold text-paper sm:h-11 sm:w-11" aria-label="Beranda UMKM Craft">
             U
           </Link>
           <div className="min-w-0 flex-1">
@@ -86,11 +86,14 @@ export function BuilderShell({
         </div>
 
         <div className="flex shrink-0 items-center gap-1.5 sm:gap-3">
-          {/* Chip autosave hanya ≥sm — di ponsel ruangannya untuk nama usaha */}
+          {/* Chip autosave selalu terlihat (kritik ronde 3: semalam ia hilang
+              di ponsel) — ikon saja <md, ikon+teks ≥md (label ditahan di
+              komponennya), jadi ruang nama usaha tetap terjaga. */}
+          <SaveIndicator state={saveState} lastSavedAt={lastSavedAt} />
+          {/* Di ponsel tema pindah ke tab Atur — header 390px tak muat memuatnya */}
           <div className="hidden sm:block">
-            <SaveIndicator state={saveState} lastSavedAt={lastSavedAt} />
+            <ThemeSwitcher />
           </div>
-          <ThemeSwitcher />
           <PublishButton staleInitially={staleInitially} />
         </div>
       </header>
@@ -148,6 +151,11 @@ export function BuilderShell({
             mobileTab === "atur" ? "block uc-stick-in" : "hidden lg:block"
           }`}
         >
+          {/* Tema pindah ke tab Atur di ponsel (di header hanya ≥sm) */}
+          <div className="border-b border-cutline/80 bg-card px-4 py-4 lg:hidden">
+            <p className="mb-2.5 font-display text-sm font-bold text-ink">Tema warna</p>
+            <ThemeSwitcher />
+          </div>
           <Inspector />
         </aside>
       </div>
