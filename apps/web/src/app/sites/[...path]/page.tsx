@@ -99,13 +99,21 @@ async function resolve(
 
 export async function generateMetadata({ params, searchParams }: TenantPageProps): Promise<Metadata> {
   const { snap, slug, draftPreview } = await resolve(params, searchParams);
-  if (!snap || !snap.config) return { title: "Situs tidak ditemukan" };
+  // Snap kosong ATAU config kosong (terhapus/ditangguhkan/belum ada versi
+  // terbit) tetap dirender HTTP-200 "tidak ditemukan" → wajib noindex agar
+  // soft-404 ini tidak masuk indeks mesin pencari.
+  if (!snap || !snap.config)
+    return { title: "Situs tidak ditemukan", robots: { index: false, follow: false } };
   // Pratinjau draf milik owner: melarang indeks — isinya masih bisa berubah
   // dan URL yang sama kelak menampung konten versi terbit.
   if (draftPreview) {
     return { title: snap.config.meta.seo.title, robots: { index: false, follow: false } };
   }
   const { config } = snap;
+  // Config rusak → paritas dengan body (parseUmkmConfig di bawah): metadata
+  // tidak boleh 500, dan halamannya tetap noindex seperti situs tak ditemukan.
+  if (!parseUmkmConfig(config).ok)
+    return { title: "Situs tidak ditemukan", robots: { index: false, follow: false } };
   const base = process.env.NEXT_PUBLIC_TENANT_DOMAIN ?? "lvh.me:3000";
   return {
     title: config.meta.seo.title,

@@ -391,7 +391,7 @@ export default function LandingPage() {
           aria-hidden
           className="lc-dots lc-dots-dark absolute inset-0 [mask-image:radial-gradient(90%_130%_at_50%_0%,black_15%,transparent_78%)]"
         />
-        <div className="lc-reveal relative mx-auto flex max-w-6xl flex-col items-center gap-9 px-5 py-20 text-center sm:px-8 sm:py-28">
+        <div className="lc-reveal relative mx-auto flex max-w-6xl flex-col items-center gap-9 px-5 pb-16 pt-20 text-center sm:px-8 sm:pb-20 sm:pt-28">
           <h2 className="max-w-3xl text-balance font-display text-4xl font-extrabold leading-[1.05] tracking-[-0.025em] text-paper sm:text-5xl lg:text-6xl">
             64 juta UMKM di Indonesia.{" "}
             <span className="underline decoration-dashed decoration-signal-soft/70 underline-offset-8">

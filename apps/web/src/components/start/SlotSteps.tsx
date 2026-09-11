@@ -1,14 +1,16 @@
 "use client";
 
 /**
- * Slot progress /start — jangkar "sejauh mana aku": 3 langkah berlabel
+ * Slot progress /start — jangkar "sejauh mana aku": 4 langkah berlabel
  * dengan konektor putus-putus die-cut. Saat slot tertangkap, dot terisi
  * signal + centang (uc-stick-in) dan konektornya ikut menyala.
+ * "Lainnya" = slot sekunder (jam buka / lokasi / menu) — sukarela, tapi
+ * tetap dirayakan biar kakak tahu info tambahannya tidak menguap.
  */
 import { Fragment } from "react";
 import { Check } from "lucide-react";
 
-const STEPS = ["Nama usaha", "Jenis usaha", "Nomor WhatsApp"] as const;
+const STEPS = ["Nama usaha", "Jenis usaha", "Nomor WhatsApp", "Lainnya"] as const;
 
 export function SlotSteps({ progress }: { progress: boolean[] }) {
   return (

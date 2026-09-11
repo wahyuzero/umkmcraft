@@ -32,7 +32,14 @@ function PreviewDocument() {
   }
 
   // Sinkronisasi scroll: section yang dipilih di daftar kiri dicari di preview.
+  // Run pertama (mount) dilewati: selectedId awal dari hydrate memicu
+  // scrollIntoView yang menggeser panel pratinjau melewati strip first-win
+  // di atas kemasan HP — padahal hero memang sudah di paling atas.
+  const prevSelectedRef = useRef<string | null | undefined>(undefined);
   useEffect(() => {
+    const prev = prevSelectedRef.current;
+    prevSelectedRef.current = selectedId;
+    if (prev === undefined || prev === selectedId) return;
     if (!selectedId || !rootRef.current) return;
     const el = rootRef.current.querySelector(`[data-preview-section="${selectedId}"]`);
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;

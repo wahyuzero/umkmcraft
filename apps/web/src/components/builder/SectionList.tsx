@@ -384,8 +384,10 @@ export function SectionList({ onAdd }: { onAdd?: () => void }) {
                     <span className="sr-only">Selalu di atas — sambutan pelanggan</span>
                   </span>
                 ) : (
-                  /* Urutan eksplisit untuk layar sentuh (maks-lg), target 44px */
-                  <div className="hidden shrink-0 items-center max-lg:flex">
+                  /* Urutan eksplisit untuk layar sentuh (maks-lg), target 44px.
+                     gap-2 = napas 8px antar tombol — dulu nempel 0px sehingga
+                     dua chevron terbaca satu gumpalan di layar 390px. */
+                  <div className="hidden shrink-0 items-center gap-2 max-lg:flex">
                     <button
                       type="button"
                       onClick={(e) => {

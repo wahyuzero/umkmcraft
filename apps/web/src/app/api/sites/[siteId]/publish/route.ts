@@ -62,6 +62,10 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ siteId: st
   // Invalidasi cache snapshot (tag sama dengan yang dipasang getTenantSnapshot)
   revalidateTag(`snapshot-site:${site.slug}`, "max");
 
+  // Publish = momen file upload tergantikan jadi yatim sejati. Sapu fire-and-
+  // forget; kegagalan GC tidak boleh memengaruhi respons publish.
+  void store.sweepUploads().catch(() => {});
+
   const tenantDomain = process.env.NEXT_PUBLIC_TENANT_DOMAIN ?? "lvh.me:3000";
   return NextResponse.json({
     ok: true,

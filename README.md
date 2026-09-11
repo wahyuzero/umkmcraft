@@ -109,7 +109,7 @@ Dokumentasi teknis mendalam tersedia pada berkas berikut:
 pnpm install
 cp apps/web/.env.example apps/web/.env.local   # opsional: isi GOOGLE_GENERATIVE_AI_API_KEY
 pnpm dev                                       # → http://localhost:3000
-pnpm test                                      # 154 test (vitest + fast-check)
+pnpm test                                      # 177 test (vitest + fast-check)
 ```
 
 Alur E2E: `/start` (chat santai) → `/editor/{siteId}` (rak alat: lembar stiker + kemasan HP) → **Terbitkan Situs** → `http://{slug}.lvh.me:3000` (dev) atau `/sites/{slug}`. Situs yang pernah dibuat bisa ditemukan lagi di `/situs-saya`.

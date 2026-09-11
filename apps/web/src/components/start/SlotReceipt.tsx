@@ -44,6 +44,27 @@ function serializeProducts(products: ProductEntry[]): string {
   return products.map((p) => `${p.name}${p.price ? ` ${p.price}` : ""}`).join("; ");
 }
 
+/** Label Indonesia untuk kategori yang dikenal — nilai mentah dari ekstraksi
+ *  ("coffee", "bengkel/jasa") jangan ditampilkan apa adanya di Ringkasan.
+ *  Nilai asli tetap dipakai untuk edit; hanya tampilan yang diterjemahkan. */
+const CATEGORY_LABELS: Array<[pattern: string, label: string]> = [
+  ["kuliner", "Kuliner"],
+  ["coffee", "Kedai Minuman"],
+  ["barbershop", "Barbershop"],
+  ["laundry", "Laundry"],
+  ["fashion", "Fashion"],
+  ["bengkel", "Bengkel/Jasa"],
+  ["lainnya", "Lainnya"],
+];
+
+function categoryLabel(raw: string): string {
+  const key = raw.trim().toLowerCase();
+  for (const [pattern, label] of CATEGORY_LABELS) {
+    if (key.includes(pattern)) return label;
+  }
+  return raw.charAt(0).toUpperCase() + raw.slice(1);
+}
+
 interface Row {
   key: SlotKey;
   icon: LucideIcon;
@@ -87,7 +108,7 @@ export function SlotReceipt({
     });
   }
   if (category) {
-    rows.push({ key: "category", icon: Tag, label: "Jenis", value: category, editValue: category });
+    rows.push({ key: "category", icon: Tag, label: "Jenis", value: categoryLabel(category), editValue: category });
   }
   if (whatsappNumber) {
     rows.push({

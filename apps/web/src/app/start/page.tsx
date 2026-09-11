@@ -283,12 +283,24 @@ export default function StartPage() {
 
   // Progres = slot terkonfirmasi server ATAU jangkar optimistik lokal —
   // kegagalan request tidak boleh memundurkan langkah yang sudah terlihat.
+  // "Lainnya" menyala begitu slot sekunder (jam buka / lokasi / menu) tertangkap.
   const serverProgress = [
     Boolean(slots.businessName),
     Boolean(slots.category),
     Boolean(slots.whatsappNumber),
+    Boolean(slots.hours || slots.location || slots.products.length > 0),
   ];
   const progress = serverProgress.map((filled, i) => filled || Boolean(optimisticSteps[i]));
+
+  // Placeholder kontekstual: contoh di kotak ketik mengikuti yang masih kosong —
+  // minta WA saat nama+jenis sudah ada, contoh nama saat obrolan belum mulai.
+  const composerPlaceholder = ready
+    ? "Sudah lengkap — klik tombol besar di atas ya"
+    : !slots.businessName
+      ? "Contoh: Warung Bu Sari, jualan nasi kotak…"
+      : slots.category && !slots.whatsappNumber
+        ? "Tulis nomor WA kakak di sini — contoh 0812…"
+        : "Contoh: warung sambal, WA 0812…";
 
   return (
     <main className="start-paper flex h-dvh flex-col bg-paper">
@@ -456,7 +468,7 @@ export default function StartPage() {
                     send(input);
                   }
                 }}
-                placeholder={ready ? "Sudah lengkap — klik tombol besar di atas ya" : "Contoh: warung sambal, WA 0812…"}
+                placeholder={composerPlaceholder}
                 autoComplete="off"
                 className="max-h-[120px] w-full resize-none bg-transparent text-[0.95rem] leading-6 text-ink outline-none placeholder:text-ink-soft/70 disabled:cursor-not-allowed"
               />

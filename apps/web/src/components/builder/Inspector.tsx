@@ -16,12 +16,13 @@
 import { useEditor } from "@/lib/editor-store";
 import type { SectionType } from "@umkmcraft/schema";
 import {
+  ArrowDown,
+  ArrowUp,
   CalendarCheck,
   CalendarDays,
   Camera,
   Check,
   ChevronDown,
-  ChevronUp,
   Clock,
   Download,
   FileText,
@@ -661,7 +662,7 @@ function Repeater({
                   open ? "border-signal/40 bg-signal-soft/30" : "border-cutline/60 bg-card"
                 }`}
               >
-                <div className="flex items-center gap-0.5">
+                <div className="flex items-center gap-1">
                   <button
                     type="button"
                     onClick={() => setOpenIdx(open ? null : idx)}
@@ -702,11 +703,14 @@ function Repeater({
                     </>
                   ) : (
                     <>
+                      {/* Panah naik/turun — bukan chevron, supaya beda jelas
+                          dari chevron buka-tutup di kiri baris (dulu glyph
+                          identik berdampingan bikin salah tap). */}
                       <button type="button" aria-label="Naikkan" disabled={idx === 0} onClick={() => move(idx, -1)} className={orderBtn}>
-                        <ChevronUp aria-hidden className="h-4 w-4" />
+                        <ArrowUp aria-hidden className="h-4 w-4" />
                       </button>
                       <button type="button" aria-label="Turunkan" disabled={idx === list.length - 1} onClick={() => move(idx, 1)} className={orderBtn}>
-                        <ChevronDown aria-hidden className="h-4 w-4" />
+                        <ArrowDown aria-hidden className="h-4 w-4" />
                       </button>
                       <button
                         type="button"

@@ -9,10 +9,10 @@
  * yang menukar panel full-width dengan slide/fade. Desktop (lg+): 3 kolom
  * persis seperti semula. State panel = useState lokal, tanpa store.
  */
-import { useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import {
-  Check, CloudOff, CloudUpload, LayoutList, LoaderCircle, Plus, SlidersHorizontal, Smartphone,
+  Check, CloudOff, CloudUpload, LayoutList, LoaderCircle, Plus, SlidersHorizontal, Smartphone, X,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { UmkmWebsiteConfig } from "@umkmcraft/schema";
@@ -25,8 +25,35 @@ import { PhonePreview } from "./PhonePreview";
 import { ThemeSwitcher } from "./ThemeSwitcher";
 import { PublishButton } from "./PublishButton";
 import { AnalyticsCard } from "./AnalyticsCard";
+import { VersionHistory } from "./VersionHistory";
 
 type MobileTab = "susun" | "pratinjau" | "atur";
+
+/* ---- First-win strip: flag "sudah ditutup" di localStorage ----
+   Dibaca lewat useSyncExternalStore supaya aman hidrasi (snapshot server =
+   sudah ditutup → SSR merender null) tanpa setState di effect. Penutupan
+   menulis flag lalu memanggil listener manual — event `storage` cuma
+   menyapa tab LAIN. localStorage gagal (mode privat) = dianggap ditutup,
+   supaya strip yang tak bisa diingat tidak mengganggu tiap kunjungan. */
+const firstWinListeners = new Set<() => void>();
+
+function dismissFirstWin() {
+  try {
+    window.localStorage.setItem("uc-firstwin-dismissed", "1");
+  } catch {
+    // localStorage tertutup — tetap tutup untuk sesi ini.
+  }
+  firstWinListeners.forEach((cb) => cb());
+}
+
+function subscribeFirstWin(cb: () => void): () => void {
+  firstWinListeners.add(cb);
+  window.addEventListener("storage", cb);
+  return () => {
+    firstWinListeners.delete(cb);
+    window.removeEventListener("storage", cb);
+  };
+}
 
 const TABS: Array<{ id: MobileTab; label: string; icon: LucideIcon; panelId: string }> = [
   { id: "susun", label: "Susun", icon: LayoutList, panelId: "panel-susun" },
@@ -61,21 +88,67 @@ export function BuilderShell({
   const config = useEditor((s) => s.config);
   const saveState = useEditor((s) => s.saveState);
   const lastSavedAt = useEditor((s) => s.lastSavedAt);
+  // Status terbit LIVE dari store (prop `published` hanya kebenaran awal
+  // server) — strip first-win hilang seketika setelah kakak menerbitkan.
+  const isPublished = useEditor((s) => s.published);
   const businessName = config.meta.business_name;
+
+  // Nama usaha panjang ("Warung Sambal Ndeso Bu Sri") di layar 390px gak muat
+  // utuh — header cuma menyisakan ~51px untuk input karena chip autosave +
+  // tombol terbit memeras flex-1. Saat fokus, input naik jadi overlay
+  // selebar header (elemen lain tertutup sesaat, tanpa pindah posisi) supaya
+  // dapat lebar nyata; saat blur, kembali inline terpotong rapi dengan ellipsis.
+  const [nameFocused, setNameFocused] = useState(false);
+
+  // First-win strip: hilang permanen setelah ditutup (lihat helper di atas).
+  const firstWinDismissed = useSyncExternalStore(
+    subscribeFirstWin,
+    () => {
+      try {
+        return window.localStorage.getItem("uc-firstwin-dismissed") === "1";
+      } catch {
+        return true;
+      }
+    },
+    () => true,
+  );
+
+  // Pagar beforeunload: perubahan belum tersimpan (atau simpanan terakhir
+  // gagal — datanya mungkin masih belum masuk) → minta konfirmasi browser
+  // sebelum tab ditutup. Asuransi murah anti hilang editan.
+  useEffect(() => {
+    if (saveState !== "dirty" && saveState !== "error") return;
+    const onBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => window.removeEventListener("beforeunload", onBeforeUnload);
+  }, [saveState]);
 
   return (
     <div className="flex h-dvh flex-col overflow-hidden bg-paper">
       {/* ===== Header rak alat (kompak di mobile) ===== */}
-      <header className="flex h-16 shrink-0 items-center justify-between gap-2 border-b border-cutline/80 bg-paper px-3 sm:gap-4 sm:px-6">
+      <header className="relative flex h-16 shrink-0 items-center justify-between gap-2 border-b border-cutline/80 bg-paper px-3 sm:gap-4 sm:px-6">
         <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
           <Link href="/" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-ink font-display text-lg font-extrabold text-paper sm:h-11 sm:w-11" aria-label="Beranda UMKM Craft">
             U
           </Link>
           <div className="min-w-0 flex-1">
+            {/* Target sentuh ≥44px (dulu 30px — satu-satunya sub-44 di app).
+                Fokus = overlay inset-x-3 selebar header (≥330px di layar 390px,
+                nama panjang terlihat utuh sambil mengetik); blur = inline
+                truncate dengan ellipsis. */}
             <input
               value={businessName}
               onChange={(e) => useEditor.getState().setBusinessName(e.target.value)}
-              className="w-full min-w-0 truncate rounded-lg border border-transparent bg-transparent px-1.5 py-0.5 font-display text-base font-bold text-ink hover:border-cutline focus:border-signal focus:outline-none sm:max-w-[280px] sm:text-lg"
+              onFocus={() => setNameFocused(true)}
+              onBlur={() => setNameFocused(false)}
+              className={`min-h-[44px] rounded-lg px-1.5 font-display text-base font-bold text-ink focus:outline-none sm:text-lg ${
+                nameFocused
+                  ? "absolute inset-x-3 top-1/2 z-50 -translate-y-1/2 rounded-xl border-[1.5px] border-signal bg-paper px-3"
+                  : "w-full min-w-0 truncate border border-transparent hover:border-cutline sm:max-w-[280px]"
+              }`}
               aria-label="Nama usaha"
             />
             <p className="hidden px-1.5 text-[0.7rem] text-ink-soft sm:block">
@@ -128,6 +201,7 @@ export function BuilderShell({
             </button>
           </div>
           <AnalyticsCard />
+          <VersionHistory />
         </aside>
 
         {/* Kemasan HP — mobile: sheet tab "Pratinjau" (default) */}
@@ -139,6 +213,23 @@ export function BuilderShell({
             mobileTab === "pratinjau" ? "flex uc-stick-in" : "hidden lg:flex"
           }`}
         >
+          {/* First-win: sekali saja sebelum situs terbit — satu baris tipis,
+              bukan kartu besar. Hilang permanen setelah ditutup (localStorage). */}
+          {firstWinDismissed === false && !isPublished ? (
+            <div className="mb-4 flex w-full max-w-[410px] items-center gap-1 rounded-xl border border-cutline bg-card py-1 pl-3 pr-1">
+              <p className="min-w-0 flex-1 text-xs leading-snug text-ink-soft">
+                Situs kakak sudah jadi. Ketuk bagian mana pun di pratinjau untuk mengubahnya, atau langsung terbitkan.
+              </p>
+              <button
+                type="button"
+                aria-label="Tutup tips ini"
+                onClick={dismissFirstWin}
+                className="grid h-11 w-11 shrink-0 place-items-center rounded-xl text-ink-soft transition-colors duration-150 ease-out hover:bg-signal-soft/60 hover:text-signal"
+              >
+                <X className="h-4 w-4" strokeWidth={2.2} aria-hidden />
+              </button>
+            </div>
+          ) : null}
           <PhonePreview />
         </main>
 
@@ -195,7 +286,12 @@ export function BuilderShell({
 
 const TIME_FMT = new Intl.DateTimeFormat("id-ID", { hour: "2-digit", minute: "2-digit" });
 
-/** Chip status autosave — ikon + teks; di layar sempit ikon saja. */
+/**
+ * Chip status autosave — di layar sempit ikon saja secara VISUAL, tapi teks
+ * status selalu mengalir ke pembaca layar lewat sr-only (dulu display:none
+ * membuat ponsel buta status). Saat simpan gagal, chip berubah jadi tombol
+ * sungguhan "Coba simpan" (flushSave) — bukan cuma cerita tanpa aksi.
+ */
 function SaveIndicator({ state, lastSavedAt }: { state: SaveState; lastSavedAt: number | null }) {
   let Icon = CloudUpload;
   let label = "Tersimpan otomatis";
@@ -209,25 +305,36 @@ function SaveIndicator({ state, lastSavedAt }: { state: SaveState; lastSavedAt: 
   } else if (state === "saved") {
     Icon = Check;
     label = lastSavedAt ? `Tersimpan ${TIME_FMT.format(lastSavedAt)}` : "Tersimpan otomatis";
-  } else if (state === "error") {
-    Icon = CloudOff;
-    label = "Gagal — coba simpan lagi";
   }
-  const error = state === "error";
+
   return (
-    <span
-      aria-live="polite"
-      title={label}
-      className={`flex items-center gap-1.5 rounded-full border bg-card px-2 py-1 text-xs font-medium ${
-        error ? "border-signal/40 text-signal" : "border-cutline/80 text-ink-soft"
-      }`}
-    >
-      <Icon
-        className={`h-3.5 w-3.5 shrink-0 ${spinning ? "motion-safe:animate-spin" : ""}`}
-        strokeWidth={2.2}
-        aria-hidden
-      />
-      <span className="hidden max-w-[10rem] truncate md:inline">{label}</span>
+    <span aria-live="polite" className="flex shrink-0">
+      {state === "error" ? (
+        <button
+          type="button"
+          onClick={() => void useEditor.getState().flushSave()}
+          aria-label="Coba simpan"
+          title="Gagal menyimpan — coba simpan lagi"
+          className="flex min-h-11 min-w-11 items-center justify-center gap-1.5 rounded-full border border-signal/40 bg-card px-3 text-xs font-bold text-signal transition-colors duration-150 ease-out hover:bg-signal-soft/60"
+        >
+          <CloudOff className="h-3.5 w-3.5 shrink-0" strokeWidth={2.2} aria-hidden />
+          <span aria-hidden className="hidden truncate md:inline">Coba simpan</span>
+          <span className="sr-only">Gagal — coba simpan lagi</span>
+        </button>
+      ) : (
+        <span
+          title={label}
+          className="flex items-center gap-1.5 rounded-full border border-cutline/80 bg-card px-2 py-1 text-xs font-medium text-ink-soft"
+        >
+          <Icon
+            className={`h-3.5 w-3.5 shrink-0 ${spinning ? "motion-safe:animate-spin" : ""}`}
+            strokeWidth={2.2}
+            aria-hidden
+          />
+          <span aria-hidden className="hidden max-w-[10rem] truncate md:inline">{label}</span>
+          <span className="sr-only">{label}</span>
+        </span>
+      )}
     </span>
   );
 }

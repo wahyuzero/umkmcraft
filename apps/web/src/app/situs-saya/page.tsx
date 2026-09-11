@@ -8,6 +8,9 @@ import { CopyLinkButton } from "./CopyLinkButton";
 export const metadata: Metadata = {
   title: "Situs Saya — UMKM Craft",
   description: "Daftar situs usaha yang kakak rakit dengan UMKM Craft.",
+  // Halaman dasbor pribadi sesi (anonim hanya melihat empty state HTTP-200)
+  // → tanpa indeks, isinya bukan konten publik.
+  robots: { index: false },
 };
 
 function formatTime(ts: string | number | Date): string {

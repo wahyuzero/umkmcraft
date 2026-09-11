@@ -335,4 +335,69 @@ export const store = {
     const map = await readJson<Record<string, string[]>>(path.join(DATA_DIR, "sessions.json"), {});
     return (map[sessionToken] ?? []).includes(siteId);
   },
+
+  /* ---- uploads GC ---- */
+  /**
+   * Sapu file upload yatim di .data/uploads/<siteId>/<nama>. Sebuah file
+   * dianggap masih dirujuk selama path `/uploads/<siteId>/<nama>`-nya muncul
+   * di configJson versi manapun (DRAFT/PUBLISHED/ARCHIVED — regex di atas
+   * config ter-serialisasi, tahan terhadap tipe section baru). File tanpa
+   * rujukan dihapus hanya jika lebih tua dari graceMs (default 24 jam) supaya
+   * upload yang sedang diedit tapi belum dipublish tidak ikut terbuang.
+   * Fail-open per file: kegagalan unlink hanya di-log, sapuan berlanjut.
+   * Return: jumlah file yang terhapus.
+   */
+  async sweepUploads(graceMs = 24 * 60 * 60 * 1000): Promise<number> {
+    const versions = await readJson<SiteVersionRecord[]>(versionsFile(), []);
+    const referenced = new Set<string>();
+    const refPattern = /\/uploads\/[A-Za-z0-9-]+\/[A-Za-z0-9._-]+/g;
+    for (const v of versions) {
+      for (const m of JSON.stringify(v.configJson).matchAll(refPattern)) {
+        referenced.add(m[0]);
+      }
+    }
+
+    const uploadsRoot = path.join(DATA_DIR, "uploads");
+    const cutoff = Date.now() - graceMs;
+    let deleted = 0;
+
+    const walk = async (dir: string): Promise<void> => {
+      let entries;
+      try {
+        entries = await fs.readdir(dir, { withFileTypes: true });
+      } catch {
+        return; // uploads/ belum ada atau tak terbaca — tidak ada yang disapu
+      }
+      for (const entry of entries) {
+        const full = path.join(dir, entry.name);
+        if (entry.isDirectory()) {
+          await walk(full);
+          continue;
+        }
+        if (!entry.isFile()) continue;
+        // Kunci rujukan: /uploads/<siteId>/<nama> (format sama dengan config)
+        const rel = path.relative(uploadsRoot, full).split(path.sep).join("/");
+        if (referenced.has(`/uploads/${rel}`)) continue;
+        try {
+          const stat = await fs.stat(full);
+          if (stat.mtimeMs >= cutoff) continue; // masih segar — beri tenggang
+          await fs.unlink(full);
+          deleted += 1;
+        } catch (err) {
+          console.warn(`sweepUploads: gagal menghapus ${full}`, err);
+        }
+      }
+      // Best-effort: direktori per-situs yang sudah kosong ikut dibuang
+      if (dir !== uploadsRoot) {
+        try {
+          await fs.rmdir(dir);
+        } catch {
+          /* ENOTEMPTY dll — biarkan */
+        }
+      }
+    };
+
+    await walk(uploadsRoot);
+    return deleted;
+  },
 };

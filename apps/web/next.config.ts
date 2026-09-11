@@ -9,6 +9,9 @@ const nextConfig: NextConfig = {
   // dipercaya — tanpa ini, vhost tenant demo (*.lvh.me) dimuat tanpa hidrasi:
   // semua client island (lightbox, timer, sticky bar) mati di URL produksi.
   allowedDevOrigins: ["lvh.me", "*.lvh.me"],
+  // Badge dev Next memenuhi sudut layar saat screen-share demo — matikan
+  // (skema Next 16: `false | { position }`; `false` menghapus indikator penuh).
+  devIndicators: false,
   async headers() {
     return [
       {

@@ -163,6 +163,14 @@ export function OpenNowBadge({
       <ul className="divide-y divide-[color-mix(in_oklab,var(--uc-ink)_8%,transparent)]">
         {schedule.map((row) => {
           const isToday = todayDow !== null && isTodayScheduleRow(row.day, todayDow);
+          // Rombongan "Setiap Hari" yang nilainya mengulang label (teks intake
+          // mentah ditempel template-engine apa adanya, mis. "Setiap hari 10
+          // pagi …") → pangkas prefiksnya agar tidak dobel; hasil pangkas
+          // kosong → pakai teks asli.
+          const trimmed = row.day.toLowerCase().includes("setiap")
+            ? row.hours.replace(/^setiap\s+hari\s*[,.:]?\s*/i, "")
+            : row.hours;
+          const hoursText = trimmed.trim() ? trimmed : row.hours;
           return (
             <li
               key={row.day}
@@ -190,7 +198,7 @@ export function OpenNowBadge({
                     : "text-[color-mix(in_oklab,var(--uc-ink)_65%,transparent)]"
                 }`}
               >
-                {row.hours}
+                {hoursText}
               </span>
             </li>
           );

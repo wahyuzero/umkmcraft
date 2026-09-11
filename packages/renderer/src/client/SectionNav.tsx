@@ -115,7 +115,7 @@ export function SectionNav({ items }: { items: SectionNavItem[] }) {
               href={`#${it.id}`}
               aria-current={active ? "true" : undefined}
               onClick={(e) => go(e, it.id)}
-              className={`inline-flex min-h-[40px] shrink-0 snap-start items-center whitespace-nowrap rounded-full border px-4 text-sm font-semibold transition-colors duration-150 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--uc-primary)] ${
+              className={`inline-flex min-h-[44px] shrink-0 snap-start items-center whitespace-nowrap rounded-full border px-4 text-sm font-semibold transition-colors duration-150 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--uc-primary)] ${
                 active
                   ? "border-transparent bg-[var(--uc-primary)] text-[var(--uc-on-primary-text)]"
                   : "border-[color-mix(in_oklab,var(--uc-ink)_12%,transparent)] bg-[var(--uc-surface)] text-[var(--uc-ink)]"
