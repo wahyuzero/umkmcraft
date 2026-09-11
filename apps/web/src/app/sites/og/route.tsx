@@ -1,3 +1,5 @@
+import { readFile } from "node:fs/promises";
+import path from "node:path";
 import type { CSSProperties } from "react";
 import { ImageResponse } from "next/og";
 import { getPreset } from "@umkmcraft/schema";
@@ -12,11 +14,17 @@ export const contentType = "image/png";
  * WhatsApp Group, preview kartu menarik = saluran akuisisi organik gratis.
  * Warna dihitung dari preset schema (ImageResponse tidak bisa baca CSS var
  * theme.css) — logika fallback sama persis dengan themeVars() di renderer.
- * Font: default bawaan next/og (tanpa fetch eksternal agar tetap cepat).
+ * Font: Bricolage Grotesque di-vendor lokal (assets/fonts) — kartu share
+ * selaras brand tanpa fetch eksternal saat render.
  * Dua varian: bila hero tenant punya foto (hero_storefront.image_url), foto
  * jadi SETENGAH KIRI kartu (full-bleed, object-cover) dan blok teks pindah ke
  * kanan di atas surface; tanpa foto → layout teks penuh seperti semula.
  */
+
+/* Bricolage 700 lokal — dibaca sekali per proses, dipakai semua teks kartu. */
+const bricolageData = readFile(
+  path.join(process.cwd(), "src/assets/fonts/bricolage-grotesque-latin-700-normal.woff"),
+).catch(() => undefined);
 
 /* Pola titik halus — flex-wrap div mutlak (satori aman), warna primary tenant */
 function DotPattern({ color, style }: { color: string; style?: CSSProperties }) {
@@ -233,6 +241,9 @@ export async function GET(req: Request) {
   // dengan themeVars() renderer (bg + surface sebagai latar acuan).
   const chipColor = aaTextColor(secondary, ink, [bg, surface]);
 
+  // Font brand — bila file tak terbaca (build eksotis), next/og pakai default.
+  const fontData = await bricolageData;
+
   return new ImageResponse(
     heroSrc ? (
       /* Varian foto: separuh kiri full-bleed object-cover, teks di kanan surface */
@@ -243,6 +254,7 @@ export async function GET(req: Request) {
           display: "flex",
           background: bg,
           color: ink,
+          fontFamily: "Bricolage Grotesque",
         }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element -- satori butuh <img> mentah */}
@@ -291,6 +303,7 @@ export async function GET(req: Request) {
           background: bg,
           color: ink,
           position: "relative",
+          fontFamily: "Bricolage Grotesque",
         }}
       >
         <DotPattern color={primary} />
@@ -314,6 +327,11 @@ export async function GET(req: Request) {
         <FooterRow hostLabel={hostLabel} />
       </div>
     ),
-    size,
+    {
+      ...size,
+      fonts: fontData
+        ? [{ name: "Bricolage Grotesque", data: fontData, weight: 700, style: "normal" }]
+        : undefined,
+    },
   );
 }
