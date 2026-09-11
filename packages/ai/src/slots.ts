@@ -72,6 +72,9 @@ function cleanBusinessName(raw: string, cutAtLocation: boolean): string {
   let name = raw.replace(/\s+/g, " ").trim();
   name = name.replace(/^(?:ya|adalah|itu|namanya|namaname)\s+/i, "");
   name = name.replace(NAME_LEADIN, "");
+  // pronomina telanjang sebelum nama proper ("Selamat pagi! Saya Punakawan…")
+  // dibuang hanya jika diikuti huruf kapital — "saya punya warung" tetap aman
+  name = name.replace(/^(?:saya|aku|kami|gue|ini)\s+(?=[A-Z])/i, "");
   name = name.replace(NAME_CLAUSE_CUT, "");
   // "di <lokasi>" bukan bagian nama ("Warung Sedap di Bandung" → "Warung Sedap")
   if (cutAtLocation) name = name.split(/\s+di\s+/i)[0]!.trim();
@@ -86,6 +89,13 @@ function titleCaseName(s: string): string {
 }
 
 export function extractBusinessName(text: string): string | undefined {
+  // Sapaan pembuka + tanda seru/tanya ("Selamat pagi! Saya …") bukan bagian
+  // nama — kalau tidak dibuang, kandidat ikut memuat sapaan dan kepanjangan.
+  // Hanya sapaan yang dikenal; "Warung Barokah! Buka …" tidak tersentuh.
+  text = text.replace(
+    /^\s*(?:selamat\s+(?:pagi|siang|sore|malam)|halo|hai|hello|assalam(?:ualaikum)?|om\s+swastiastu)\b[^.!?\n]*[!?]\s*/i,
+    "",
+  );
   // Urutan = prioritas: pola eksplisit → "namanya X" → pola natural (divalidasi ketat).
   const patterns: Array<{ re: RegExp; cutAtLocation: boolean; maxWords?: number; recoverCase?: boolean }> = [
     // pola eksplisit: "nama usahaku X", "toko saya: X"
@@ -103,7 +113,7 @@ export function extractBusinessName(text: string): string | undefined {
     },
     // pola natural: "Warung X di Kota" — nama kapital sebelum "di <lokasi>"
     {
-      re: /(?:^|,\s*|\.\s+)([A-Z][^,\n]{2,60}?)\s+\bdi\b\s+([A-Z][^\n.,!?]{2,80})/,
+      re: /(?:^|,\s*|\.\s+|!\s+|\?\s+)([A-Z][^,\n]{2,60}?)\s+\bdi\b\s+([A-Z][^\n.,!?]{2,80})/,
       cutAtLocation: true,
       maxWords: 6,
     },
@@ -142,11 +152,17 @@ export function extractLocation(text: string): string | undefined {
     const out: string[] = [];
     let caps = 0;
     for (const tok of m[1]!.split(/\s+/)) {
-      // singkirkan tanda baca ekor, kecuali titik singkatan "Jl."
-      const abbrev = /^(?:jln|jl|gg)\.$/i.test(tok);
+      // singkirkan tanda baca ekor, kecuali titik singkatan "Jl." / "No."
+      const abbrev = /^(?:jln|jl|gg|no)\.$/i.test(tok);
       const clean = abbrev ? tok : tok.replace(/[.,;:!?]+$/, "");
       if (!clean) break;
       if (LOCATION_STOP.has(clean.toLowerCase())) break;
+      // "No" menghubungkan ke nomor alamat ("Jalan Melati No. 12") —
+      // jangan dihitung token nama tempat, jangan menghentikan.
+      if (/^no\.?$/i.test(clean)) {
+        out.push(abbrev ? clean : clean + ".");
+        continue;
+      }
       if (/^\d/.test(clean)) {
         out.push(clean); // nomor alamat: "Jalan Merdeka 10"
         continue;

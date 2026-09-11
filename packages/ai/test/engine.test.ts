@@ -98,6 +98,15 @@ describe("slot extraction — akurasi cerita asli (audit /start)", () => {
     expect(extractLocation("Saya punya warung soto ayam di Bandung namanya Soto Pak Slamet")).toBe("Bandung");
     expect(extractLocation("warung di Jalan Merdeka 10 Bandung")).toBe("Jalan Merdeka 10 Bandung");
     expect(extractLocation("ada di Bogor.")).toBe("Bogor");
+    // singkatan "No." bukan akhir klausa — nomor rumah ikut tertangkap
+    expect(extractLocation("warung di Jalan Melati No. 12")).toBe("Jalan Melati No. 12");
+  });
+
+  it("nama usaha: batas lead-in mencakup sapaan ber-tanda seru/tanya", () => {
+    // "Saya" telanjang sebelum nama proper ikut dibuang sebagai lead-in
+    expect(extractBusinessName("Selamat pagi! Saya Punakawan Soto Pak Karto di Yogyakarta")).toBe(
+      "Punakawan Soto Pak Karto",
+    );
     expect(extractLocation("toko di Bandung, buka tiap hari")).toBe("Bandung");
   });
 
