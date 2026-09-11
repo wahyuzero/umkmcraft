@@ -92,7 +92,7 @@ function ContactRow({
         {icon}
       </span>
       <span className="min-w-0">
-        <span className="block text-[0.68rem] font-extrabold uppercase tracking-[0.12em] text-[color-mix(in_oklab,var(--uc-ink)_65%,transparent)]">
+        <span className="block text-xs font-extrabold uppercase tracking-[0.12em] text-[color-mix(in_oklab,var(--uc-ink)_65%,transparent)]">
           {label}
         </span>
         <span className="mt-0.5 block break-words text-sm font-semibold leading-snug text-[var(--uc-ink)]">

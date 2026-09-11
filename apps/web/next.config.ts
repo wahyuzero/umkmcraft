@@ -5,6 +5,10 @@ const nextConfig: NextConfig = {
   cacheComponents: true,
   // Workspace packages diekspor sebagai source TS → wajib transpile
   transpilePackages: ["@umkmcraft/schema", "@umkmcraft/utils", "@umkmcraft/renderer", "@umkmcraft/ai"],
+  // Dev server Next 16 memblokir asset & websocket HMR dari host yang tidak
+  // dipercaya — tanpa ini, vhost tenant demo (*.lvh.me) dimuat tanpa hidrasi:
+  // semua client island (lightbox, timer, sticky bar) mati di URL produksi.
+  allowedDevOrigins: ["lvh.me", "*.lvh.me"],
   async headers() {
     return [
       {

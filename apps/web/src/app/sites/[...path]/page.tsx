@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import { parseUmkmConfig } from "@umkmcraft/schema";
-import { renderSections, themeStyle, TenantFooter } from "@umkmcraft/renderer";
+import { getPreset, parseUmkmConfig } from "@umkmcraft/schema";
+import { renderSections, themeStyle, StickyOrderBar, TenantFooter } from "@umkmcraft/renderer";
 import { currentTenantHost, getTenantSnapshot } from "@/lib/server/site-data";
 import { SuspendedView } from "@/components/SuspendedView";
 import { TenantNotFound } from "@/components/TenantNotFound";
@@ -43,18 +43,20 @@ export async function generateMetadata({ params }: TenantPageProps): Promise<Met
 }
 
 export default async function TenantSitePage({ params }: TenantPageProps) {
-  const { snap } = await resolve(params);
+  const { snap, slug } = await resolve(params);
   // 404 dirender INLINE, bukan notFound() — notFound() + route loading
   // skeleton tidak komposibel di Next 16 (kerangka loading bisa menutupi
   // payload 404 selamanya). Papan pengumuman = konten stream biasa.
-  if (!snap) return <TenantNotFound />;
+  // Beranda tenant: path-based → /sites/<slug>; host-based → "/" (proxy
+  // me-rewrite "/" ke /sites/index pada host tenant — root MEMANG beranda).
+  if (!snap) return <TenantNotFound homeHref={slug ? `/sites/${slug}` : "/"} />;
   // Situs ditangguhkan ATAU snapshot belum ada → render papan pengumuman inline
   // (redirect() di konteks PPR tidak reliable — Next 16).
   if (snap.site.status === "SUSPENDED" || !snap.config) return <SuspendedView />;
 
   // Validasi ganda di renderer (defense-in-depth — lapis 1 Zod sudah di API)
   const parsed = parseUmkmConfig(snap.config);
-  if (!parsed.ok) return <TenantNotFound />;
+  if (!parsed.ok) return <TenantNotFound homeHref={slug ? `/sites/${slug}` : "/"} />;
   const config = parsed.config;
 
   // JSON-LD LocalBusiness + Product (SYSTEM_DESIGN §11)
@@ -96,6 +98,11 @@ export default async function TenantSitePage({ params }: TenantPageProps) {
   }
   const graph = { "@context": "https://schema.org", "@graph": graphNodes };
 
+  // Latar html/body mengikuti tema tenant (fallback logika sama dengan
+  // themeVars() renderer) — tanpa ini body melukis kertas builder di tepi
+  // kanan/overscroll rute /sites (audit P1: bleed latar).
+  const tenantBg = config.meta.theme.background_color || getPreset(config.meta.theme.preset).background;
+
   return (
     <div style={themeStyle(config.meta)} className="uc-site min-h-dvh">
       {/* Escape `<` mencegah breakout dari konteks <script> (Oracle #1) */}
@@ -103,7 +110,11 @@ export default async function TenantSitePage({ params }: TenantPageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(graph).replace(/</g, "\\u003c") }}
       />
+      <style dangerouslySetInnerHTML={{ __html: `html{background:${tenantBg}}body{background:${tenantBg}}` }} />
       {renderSections(config.meta, config.sections)}
+      {/* Bar pesan sticky hanya untuk situs terpublikasi (config hanya ada
+          saat PUBLISHED — lihat getTenantSnapshot) dengan nomor WA terdaftar. */}
+      {config.meta.whatsapp_number ? <StickyOrderBar whatsapp={config.meta.whatsapp_number} /> : null}
       <TenantFooter siteId={snap.site.id} businessName={config.meta.business_name} />
     </div>
   );

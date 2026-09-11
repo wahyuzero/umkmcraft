@@ -16,7 +16,7 @@ export function AccessDenied() {
         </p>
         <Link
           href="/start"
-          className="mt-7 inline-flex min-h-11 items-center gap-2 rounded-xl bg-signal px-5 py-2.5 text-sm font-bold text-white transition-transform duration-150 ease-out hover:-translate-y-0.5"
+          className="mt-7 inline-flex min-h-11 items-center gap-2 rounded-xl bg-signal px-5 py-2.5 text-sm font-bold text-card transition-transform duration-150 ease-out hover:-translate-y-0.5"
         >
           <ArrowLeft className="h-4 w-4" strokeWidth={2.4} aria-hidden />
           Kembali ke Mulai

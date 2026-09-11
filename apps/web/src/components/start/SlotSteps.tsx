@@ -29,7 +29,7 @@ export function SlotSteps({ progress }: { progress: boolean[] }) {
               <span
                 aria-hidden
                 className={`grid h-5 w-5 place-items-center rounded-full transition-colors duration-200 ${
-                  done ? "bg-signal text-white shadow-plate" : "border-[1.5px] border-dashed border-cutline bg-card"
+                  done ? "bg-signal text-card shadow-plate" : "border-[1.5px] border-dashed border-cutline bg-card"
                 }`}
               >
                 {done ? (

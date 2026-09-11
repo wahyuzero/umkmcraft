@@ -79,7 +79,7 @@ function QuoteIcon({ className = "" }: { className?: string }) {
   );
 }
 
-const SOURCE_CHIP_BASE = "inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 text-[0.65rem] font-bold";
+const SOURCE_CHIP_BASE = "inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold";
 
 function SourceChip({ source }: { source: ReviewItem["source"] }) {
   if (source === "whatsapp") {
@@ -115,7 +115,7 @@ function SourceChip({ source }: { source: ReviewItem["source"] }) {
 /** Chip "Contoh" — label kejujuran untuk ulasan contoh (aturan produk, bukan review palsu). */
 function SampleChip() {
   return (
-    <span className="inline-flex shrink-0 items-center rounded-full border border-dashed border-[color-mix(in_oklab,var(--uc-secondary)_55%,transparent)] bg-[color-mix(in_oklab,var(--uc-secondary)_8%,transparent)] px-2.5 py-1 text-[0.65rem] font-bold text-[var(--uc-secondary)]">
+    <span className="inline-flex shrink-0 items-center rounded-full border border-dashed border-[color-mix(in_oklab,var(--uc-secondary)_55%,transparent)] bg-[color-mix(in_oklab,var(--uc-secondary)_8%,transparent)] px-2.5 py-1 text-xs font-bold text-[var(--uc-secondary-text)]">
       Contoh
     </span>
   );

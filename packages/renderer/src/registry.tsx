@@ -112,12 +112,16 @@ export const MODULE_REGISTRY: Record<SectionType, ModuleComponent> = {
 /**
  * renderSections — urutan section menentukan urutan render.
  * Section dengan type tak dikenal DILEWATI (fail-safe, tidak pernah throw).
+ * Hero SELALU dirender pertama (stable-partition): config bisa saja menaruh
+ * hero_storefront di tengah — pelanggan tetap harus disambut hero, bukan
+ * "Lokasi & Jam Buka". Urutan relatif section lain dipertahankan apa adanya.
  */
 export function renderSections(meta: UmkmMeta, sections: Section[]): ReactNode[] {
   const catalogId = sections.find((s) => s.type === "product_catalog_wa")?.id ?? "katalog";
-  return sections
-    .filter((s) => s.type in MODULE_REGISTRY)
-    .map((section) => {
+  const known = sections.filter((s) => s.type in MODULE_REGISTRY);
+  const heroes = known.filter((s) => s.type === "hero_storefront");
+  const rest = known.filter((s) => s.type !== "hero_storefront");
+  return [...heroes, ...rest].map((section) => {
       const Component = MODULE_REGISTRY[section.type]!;
       return (
         <Component

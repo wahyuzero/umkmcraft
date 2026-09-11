@@ -3,39 +3,110 @@
 /**
  * PhonePreview — kemasan HP dengan penguasa kalibrasi (raise: oscilloscope).
  * Merender config via registry ASLI — apa yang dilihat = yang di-publish.
+ * Konten diportal ke <iframe> selebar chassis: breakpoint responsif (md:/lg:)
+ * merespons lebar ponsel, bukan lebar jendela editor, sehingga pratinjau
+ * menampilkan layout mobile yang sama dengan pengunjung sungguhan.
+ * React root kedua dipasang di dalam iframe agar event (lightbox, timer)
+ * tetap hidup — event tidak menyeberang antar-dokumen.
  * Chassis: frame tinta, notch, hint tombol samping, bayangan berdiri di kertas.
  */
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { createRoot, type Root } from "react-dom/client";
 import { renderSections, themeStyle } from "@umkmcraft/renderer";
 import { useEditor } from "@/lib/editor-store";
 
-export function PhonePreview() {
+/** Isi dokumen pratinjau — hidup di dalam iframe, langganan store yang sama. */
+function PreviewDocument() {
   const config = useEditor((s) => s.config);
-  const selectedId = useEditor((s) => s.selectedId);
+  let nodes;
+  try {
+    nodes = renderSections(config.meta, config.sections);
+  } catch {
+    nodes = null;
+  }
+  if (!nodes) {
+    return (
+      <div style={{ padding: 32, textAlign: "center", fontSize: 14 }}>
+        Pratinjau tidak dapat dirender — periksa data section.
+      </div>
+    );
+  }
+  return (
+    <div style={themeStyle(config.meta)} className="uc-site">
+      {nodes}
+    </div>
+  );
+}
 
-  const nodes = useMemo(() => {
-    try {
-      return renderSections(config.meta, config.sections);
-    } catch {
-      return null;
-    }
-  }, [config]);
+export function PhonePreview() {
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const selectedId = useEditor((s) => s.selectedId);
 
   // Satu frame untuk skeleton "kemasan disusun" — pulse motion-safe.
   const [assembled, setAssembled] = useState(false);
+
   useEffect(() => {
-    const raf = requestAnimationFrame(() => setAssembled(true));
-    return () => cancelAnimationFrame(raf);
+    const iframe = iframeRef.current;
+    const doc = iframe?.contentDocument;
+    if (!iframe || !doc) return;
+
+    // about:blank same-origin → contentDocument tersedia sinkron. Salin CSS dan
+    // variabel font (kelas next/font ada di <body> induk) supaya pratinjau
+    // memakai stylesheet yang sama dengan situs asli.
+    const head = doc.head;
+    head.textContent = "";
+    for (const el of document.head.querySelectorAll<HTMLLinkElement | HTMLStyleElement>(
+      'link[rel="stylesheet"], style',
+    )) {
+      head.appendChild(el.cloneNode(true));
+    }
+    doc.documentElement.className = document.documentElement.className;
+
+    const reset = doc.createElement("style");
+    reset.textContent =
+      "html{scrollbar-width:none}::-webkit-scrollbar{display:none}body{margin:0;min-height:100vh}";
+    head.appendChild(reset);
+
+    const mount = doc.createElement("div");
+    mount.style.visibility = "hidden"; // sampai stylesheet iframe siap
+    doc.body.appendChild(mount);
+
+    const root: Root = createRoot(mount);
+    root.render(<PreviewDocument />);
+
+    const reveal = () => {
+      mount.style.visibility = "visible";
+      requestAnimationFrame(() => setAssembled(true));
+    };
+    // Unmount ditunda ke microtask: StrictMode memasang-ulang effect saat
+    // React masih merender root lama, dan unmount sinkron memicu race warning.
+    const teardown = () => {
+      mount.remove();
+      queueMicrotask(() => root.unmount());
+    };
+    if (doc.readyState === "complete") {
+      const raf = requestAnimationFrame(reveal);
+      return () => {
+        cancelAnimationFrame(raf);
+        teardown();
+      };
+    }
+    iframe.addEventListener("load", reveal, { once: true });
+    return () => {
+      iframe.removeEventListener("load", reveal);
+      teardown();
+    };
   }, []);
 
   return (
     // Permukaan render = 410px - 2×10px chassis = tepat 390px (janji penguasa kalibrasi)
     <div className="w-full max-w-[410px]">
-      {/* Penguasa kalibrasi */}
+      {/* Penguasa kalibrasi — 390px dijamin hanya saat chassis penuh (lg) */}
       <div className="mb-3 flex items-center gap-3 px-1">
         <div className="uc-ruler h-[5px] flex-1" aria-hidden />
         <span className="font-display text-[0.65rem] font-bold tabular-nums uppercase tracking-wider text-ink-soft">
-          Pratinjau 390px
+          <span className="hidden lg:inline">Pratinjau 390px</span>
+          <span className="lg:hidden">Pratinjau ponsel</span>
         </span>
         <div className="uc-ruler h-[5px] flex-1" aria-hidden />
       </div>
@@ -50,10 +121,19 @@ export function PhonePreview() {
           <div className="relative overflow-hidden rounded-[2.1rem] bg-card">
             {/* Notch */}
             <div className="absolute left-1/2 top-2 z-10 h-5 w-24 -translate-x-1/2 rounded-full bg-ink/90" aria-hidden />
-            <div className="h-[min(640px,72dvh)] overflow-y-auto [scrollbar-width:none] lg:h-[640px] [&::-webkit-scrollbar]:hidden">
-              {!assembled ? (
+            <div className="relative h-[min(640px,72dvh)] overflow-hidden bg-card lg:h-[640px]">
+              <iframe
+                ref={iframeRef}
+                title="Pratinjau situs"
+                src="about:blank"
+                className="h-full w-full border-0"
+              />
+              {!assembled && (
                 /* Skeleton kemasan — blok pulse motion-safe */
-                <div className="motion-safe:animate-pulse space-y-4 p-5 pt-12" aria-hidden>
+                <div
+                  className="motion-safe:animate-pulse absolute inset-0 space-y-4 overflow-y-auto p-5 pt-12 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                  aria-hidden
+                >
                   <div className="h-24 rounded-2xl bg-paper-deep" />
                   <div className="h-4 w-2/3 rounded-full bg-paper-deep" />
                   <div className="h-4 w-1/2 rounded-full bg-paper-deep" />
@@ -64,14 +144,6 @@ export function PhonePreview() {
                     <div className="h-28 rounded-2xl bg-paper-deep" />
                   </div>
                   <div className="h-11 rounded-full bg-paper-deep" />
-                </div>
-              ) : nodes ? (
-                <div style={themeStyle(config.meta)} className="uc-site">
-                  {nodes}
-                </div>
-              ) : (
-                <div className="flex h-full items-center justify-center p-8 text-center text-sm text-ink-soft">
-                  Pratinjau tidak dapat dirender — periksa data section.
                 </div>
               )}
             </div>

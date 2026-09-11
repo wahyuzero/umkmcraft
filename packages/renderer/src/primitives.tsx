@@ -139,7 +139,7 @@ export function PriceTag({ price, original }: { price: number; original?: number
           <span className="text-xs tabular-nums text-[color-mix(in_oklab,var(--uc-ink)_65%,transparent)] line-through">
             {formatRupiah(original!)}
           </span>
-          <span className="rounded-full bg-[color-mix(in_oklab,var(--uc-secondary)_12%,transparent)] px-1.5 py-0.5 text-[0.65rem] font-bold tabular-nums text-[var(--uc-secondary)]">
+          <span className="rounded-full bg-[color-mix(in_oklab,var(--uc-secondary)_12%,transparent)] px-1.5 py-0.5 text-xs font-bold tabular-nums text-[var(--uc-secondary-text)]">
             -{pct}%
           </span>
         </>
@@ -346,9 +346,11 @@ export function PlaceholderImage({
         <Motif motif={motif} />
       </svg>
       {/* Chip keterangan: ink 65% (bukan 55%) agar teks kecil tetap ≥4.5:1
-          di atas semua preset — kontras WCAG AA untuk teks tubuh. */}
-      <span className="absolute bottom-2 left-1/2 max-w-[92%] -translate-x-1/2 truncate rounded-full bg-[color-mix(in_oklab,var(--uc-ink)_65%,transparent)] px-2.5 py-1 text-[0.6rem] font-medium leading-4 text-[var(--uc-bg)]">
-        Foto {label} (contoh)
+          di atas semua preset — kontras WCAG AA untuk teks tubuh.
+          text-xs (12px): chip < 12px gagal keterbacaan (audit P2).
+          Status placeholder hanya di aria-label — caption tidak menulis "(contoh)". */}
+      <span className="absolute bottom-2 left-1/2 max-w-[92%] -translate-x-1/2 truncate rounded-full bg-[color-mix(in_oklab,var(--uc-ink)_65%,transparent)] px-2.5 py-1 text-xs font-medium leading-4 text-[var(--uc-bg)]">
+        Foto {label}
       </span>
     </div>
   );

@@ -9,9 +9,9 @@
 import { useEffect, useRef, useState } from "react";
 import { draggable, dropTargetForElements } from "@atlaskit/pragmatic-drag-and-drop/adapter/element-adapter";
 import {
-  BarChart3, CalendarCheck, CalendarDays, Clock, Download, FileText, GripVertical,
-  HelpCircle, History, Images, Instagram, Lightbulb, ListOrdered, MapPin, Megaphone,
-  MegaphoneOff, Newspaper, Phone, QrCode, Receipt, Share2, ShieldCheck, ShoppingBag,
+  BarChart3, CalendarCheck, CalendarDays, ChevronDown, ChevronUp, Clock, Download, FileText,
+  GripVertical, HelpCircle, History, Images, Instagram, Lightbulb, ListOrdered, MapPin,
+  Megaphone, MegaphoneOff, Newspaper, Phone, QrCode, Receipt, Share2, ShieldCheck, ShoppingBag,
   Sparkles, Star, Sticker, Store, Users, UtensilsCrossed,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -165,7 +165,7 @@ export function SectionList({ onAdd }: { onAdd?: () => void }) {
         {onAdd ? (
           <button
             onClick={onAdd}
-            className="mt-1 inline-flex min-h-11 items-center gap-1.5 rounded-xl bg-signal px-4 py-2.5 text-sm font-bold text-white transition-transform duration-150 ease-out hover:-translate-y-0.5"
+            className="mt-1 inline-flex min-h-11 items-center gap-1.5 rounded-xl bg-signal px-4 py-2.5 text-sm font-bold text-card transition-transform duration-150 ease-out hover:-translate-y-0.5"
           >
             Buka Lembar Modul
           </button>
@@ -216,14 +216,14 @@ export function SectionList({ onAdd }: { onAdd?: () => void }) {
                   select(section.id);
                 }
               }}
-              className={`group flex cursor-grab touch-manipulation items-center gap-2.5 rounded-xl px-2.5 py-2.5 text-left transition-all duration-150 ease-out active:cursor-grabbing ${
+              className={`group relative flex cursor-grab touch-manipulation items-center gap-2.5 rounded-xl px-2.5 py-2.5 text-left transition-all duration-150 ease-out active:cursor-grabbing ${
                 active
                   ? "translate-y-0 bg-signal-soft shadow-[0_6px_18px_-6px_rgb(154_52_18/0.35)]"
                   : "bg-card shadow-[0_1px_2px_rgb(35_28_16/0.05)] hover:bg-signal-soft/30"
               } ${overIndex === index && dragIndex !== null && dragIndex !== index ? "uc-cutline-active" : "uc-cutline"} ${freshIds.has(section.id) ? "uc-stick-in" : ""}`}
             >
-              {/* Pegangan drag */}
-              <GripVertical className="h-4 w-4 shrink-0 cursor-grab text-ink-soft/50 transition-colors group-hover:text-ink-soft group-active:cursor-grabbing" strokeWidth={2.2} aria-hidden />
+              {/* Pegangan drag — desktop saja; di sentuh urutan lewat chevron eksplisit */}
+              <GripVertical className="hidden h-4 w-4 shrink-0 cursor-grab text-ink-soft/50 transition-colors group-hover:text-ink-soft group-active:cursor-grabbing lg:block" strokeWidth={2.2} aria-hidden />
               {/* Ikon tipe */}
               <span
                 className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors ${active ? "bg-signal/15 text-signal" : "bg-paper-deep/70 text-ink-soft"}`}
@@ -232,27 +232,53 @@ export function SectionList({ onAdd }: { onAdd?: () => void }) {
                 <Icon className="h-4 w-4" strokeWidth={2} />
               </span>
               <span className="min-w-0 flex-1">
-                <span className="flex items-center gap-1.5">
-                  <span className={`truncate text-sm font-semibold ${active ? "text-signal" : "text-ink"}`}>
-                    {TYPE_LABEL[section.type]}
-                  </span>
-                  {EXTENDED.has(section.type) ? (
-                    <span className="shrink-0 rounded-md bg-paper-deep/80 px-1 py-px text-[0.55rem] font-bold uppercase tracking-wide text-ink-soft/70">
-                      opsional
-                    </span>
-                  ) : null}
+                <span className={`block truncate text-sm font-semibold ${active ? "text-signal" : "text-ink"}`}>
+                  {TYPE_LABEL[section.type]}
                 </span>
-                <span className="block truncate text-xs text-ink-soft">{summarize(section)}</span>
+                {/* Penanda opsional jadi teks meta — tidak memakan lebar judul */}
+                <span className="block truncate text-xs text-ink-soft">
+                  {summarize(section)}
+                  {EXTENDED.has(section.type) ? " · opsional" : ""}
+                </span>
               </span>
+              {/* Urutan eksplisit untuk layar sentuh (maks-lg), target 44px */}
+              <div className="hidden shrink-0 items-center max-lg:flex">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    moveSection(index, index - 1);
+                  }}
+                  disabled={index === 0}
+                  aria-label={`Naikkan ${TYPE_LABEL[section.type]}`}
+                  className="grid h-11 w-11 place-items-center rounded-xl text-ink-soft transition-colors duration-150 hover:bg-signal/10 hover:text-signal disabled:pointer-events-none disabled:opacity-30"
+                >
+                  <ChevronUp className="h-4 w-4" strokeWidth={2.2} aria-hidden />
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    moveSection(index, index + 1);
+                  }}
+                  disabled={index === sections.length - 1}
+                  aria-label={`Turunkan ${TYPE_LABEL[section.type]}`}
+                  className="grid h-11 w-11 place-items-center rounded-xl text-ink-soft transition-colors duration-150 hover:bg-signal/10 hover:text-signal disabled:pointer-events-none disabled:opacity-30"
+                >
+                  <ChevronDown className="h-4 w-4" strokeWidth={2.2} aria-hidden />
+                </button>
+              </div>
+              {/* Hapus: sentuh selalu terlihat 44px; desktop muncul saat hover/fokus tanpa menyimpan lebar */}
               <button
+                type="button"
                 onClick={(e) => {
                   e.stopPropagation();
                   removeSection(section.id);
                 }}
                 aria-label={`Hapus ${TYPE_LABEL[section.type]}`}
-                className="shrink-0 rounded-lg p-2 text-ink-soft/50 opacity-0 transition-opacity hover:bg-signal/10 hover:text-signal focus-visible:opacity-100 group-hover:opacity-100 max-lg:opacity-100"
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-ink-soft transition-opacity duration-150 hover:bg-signal/10 hover:text-signal focus-visible:opacity-100 max-lg:opacity-100 lg:absolute lg:right-1 lg:top-1/2 lg:z-10 lg:-translate-y-1/2 lg:opacity-0 lg:group-focus-within:opacity-100 lg:group-hover:opacity-100"
               >
-                <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
+                <svg viewBox="0 0 16 16" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
                   <path d="m3 3 10 10M13 3 3 13" strokeLinecap="round" />
                 </svg>
               </button>

@@ -132,8 +132,8 @@ const MODULES: { name: string; desc: string; core: boolean; motif: ReactElement 
 
 /* Label stiker: angka stamp dengan tepi die-cut */
 const STAMPS = [
-  { value: "13", label: "modul blok siap pakai", tilt: "-rotate-1" },
-  { value: "5", label: "langkah dari cerita ke live", tilt: "rotate-[0.5deg]" },
+  { value: "13", label: "modul siap pakai", tilt: "-rotate-1" },
+  { value: "5", label: "langkah sampai live", tilt: "rotate-[0.5deg]" },
   { value: "6", label: "tema warna kategori", tilt: "-rotate-[0.5deg]" },
 ];
 
@@ -161,12 +161,12 @@ export default function LandingPage() {
     <main className="min-h-dvh bg-paper">
       {/* ============================ NAV ============================ */}
       <header className="sticky top-0 z-40 border-b border-cutline/70 bg-paper">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5 sm:px-8">
-          <Link href="/" className="flex items-center gap-2.5">
+        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-8">
+          <Link href="/" className="flex items-center gap-2 sm:gap-2.5">
             <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-ink font-display text-lg font-extrabold text-paper">
               U
             </span>
-            <span className="font-display text-lg font-bold tracking-tight text-ink">
+            <span className="whitespace-nowrap font-display text-base font-bold tracking-tight text-ink sm:text-lg">
               UMKM Craft
             </span>
           </Link>
@@ -185,7 +185,7 @@ export default function LandingPage() {
             </Link>
             <Link
               href="/start"
-              className="ml-2 inline-flex items-center rounded-xl bg-signal px-4 py-3 text-sm font-bold text-card shadow-[0_2px_10px_rgb(154_52_18/0.35)] transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[0_8px_22px_rgb(154_52_18/0.4)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal"
+              className="ml-1.5 inline-flex items-center whitespace-nowrap rounded-xl bg-signal px-3 py-3 text-[0.8125rem] font-bold text-card shadow-[0_2px_10px_rgb(154_52_18/0.35)] transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[0_8px_22px_rgb(154_52_18/0.4)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal sm:ml-2 sm:px-4 sm:text-sm"
             >
               Buat Website Gratis
             </Link>
@@ -247,7 +247,7 @@ export default function LandingPage() {
                   <dd className="font-display text-3xl font-extrabold tabular-nums leading-none text-ink">
                     {s.value}
                   </dd>
-                  <dd className="mt-2 text-[0.68rem] font-medium leading-snug text-ink-soft">{s.label}</dd>
+                  <dd className="mt-2 text-xs font-medium leading-snug text-pretty text-ink-soft">{s.label}</dd>
                 </div>
               ))}
             </dl>
@@ -279,7 +279,7 @@ export default function LandingPage() {
                   {demo && demoSections.length > 0 ? (
                     <div
                       style={themeStyle(demo.meta)}
-                      className="uc-site max-h-[560px] overflow-hidden [mask-image:linear-gradient(to_bottom,black_88%,transparent_97%)]"
+                      className="uc-site max-h-[728px] overflow-hidden [mask-image:linear-gradient(to_bottom,black_87%,transparent_99%)]"
                       // Mock demo bersifat dekoratif: inert mengeluarkan seluruh isi
                       // (h1, tombol WA, filter katalog) dari pohon aksesibilitas dan
                       // urutan tab — halaman landing punya tepat satu h1 yang bisa
@@ -321,7 +321,7 @@ export default function LandingPage() {
                   <span className="relative z-10 flex h-14 w-14 items-center justify-center rounded-full border-[1.5px] border-dashed border-signal/45 bg-card font-display text-xl font-extrabold tabular-nums text-signal shadow-plate">
                     {s.n}
                   </span>
-                  <h3 className="mt-5 flex items-start gap-2.5 font-display text-xl font-bold leading-snug text-ink">
+                  <h3 className="mt-5 flex items-start gap-2.5 font-display text-xl font-bold leading-snug text-ink md:min-h-[3.5rem]">
                     <Icon className="mt-0.5 h-5 w-5 shrink-0 text-signal" aria-hidden />
                     {s.title}
                   </h3>
@@ -391,9 +391,9 @@ export default function LandingPage() {
           </h2>
           <Link
             href="/start"
-            className="group inline-flex items-center gap-2.5 rounded-2xl bg-card px-6 py-4 text-base font-bold text-ink shadow-plate transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-1 hover:shadow-[0_18px_40px_-12px_rgb(246_241_231/0.3)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal-soft sm:px-8"
+            className="group inline-flex items-center gap-2.5 whitespace-nowrap rounded-2xl bg-card px-6 py-4 text-base font-bold text-ink shadow-plate transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-1 hover:shadow-[0_18px_40px_-12px_rgb(246_241_231/0.3)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal-soft sm:px-8"
           >
-            Bikin Website Sekarang — Gratis
+            Bikin Website Gratis
             <ArrowRight className="h-4.5 w-4.5 transition-transform duration-200 group-hover:translate-x-0.5" />
           </Link>
           <p className="text-sm font-medium text-paper/60">

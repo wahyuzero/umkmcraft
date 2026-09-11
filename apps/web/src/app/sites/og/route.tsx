@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
 import { ImageResponse } from "next/og";
 import { getPreset } from "@umkmcraft/schema";
+import { aaTextColor } from "@umkmcraft/renderer";
 import { currentTenantHost, getTenantSnapshot } from "@/lib/server/site-data";
 
 export const size = { width: 1200, height: 630 };
@@ -85,6 +86,11 @@ export async function GET(req: Request) {
   // Nama panjang otomatis mengecil — satori tidak punya clamp
   const nameSize = name.length > 40 ? 58 : name.length > 24 ? 70 : 88;
 
+  // Chip kategori: teks di atas surface — secondary mentah bisa gagal kontras
+  // (mis. #0ea5e9 di putih = 2.65:1). Turunkan dengan helper AA yang sama
+  // dengan themeVars() renderer (bg + surface sebagai latar acuan).
+  const chipColor = aaTextColor(secondary, ink, [bg, surface]);
+
   return new ImageResponse(
     (
       <div
@@ -128,7 +134,7 @@ export async function GET(req: Request) {
               borderRadius: 999,
               background: surface,
               border: "1.5px solid rgba(0,0,0,0.12)",
-              color: secondary,
+              color: chipColor,
               fontSize: 22,
               fontWeight: 700,
               letterSpacing: 3,

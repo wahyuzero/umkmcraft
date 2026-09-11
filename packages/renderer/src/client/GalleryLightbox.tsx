@@ -20,11 +20,14 @@ export function GalleryLightbox({
   items,
   gridClassName = "grid-cols-2 sm:grid-cols-3",
   ariaLabel = "Galeri foto",
+  category = "",
 }: {
   items: GalleryLightboxItem[];
   /** Kelas kolom grid thumbnail (dikontrol modul GalleryGrid). */
   gridClassName?: string;
   ariaLabel?: string;
+  /** Kategori usaha — menentukan motif placeholder agar konsisten dengan modul lain. */
+  category?: string;
 }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const restoreFocusRef = useRef<HTMLElement | null>(null);
@@ -97,6 +100,7 @@ export function GalleryLightbox({
                 src={item.image_url}
                 alt={item.title || `Foto ${i + 1}`}
                 label={item.title || `Foto ${i + 1}`}
+                category={category}
                 aspect="aspect-square"
                 seed={i}
                 className="transition-transform duration-300 ease-out group-hover:scale-105"
@@ -143,6 +147,7 @@ export function GalleryLightbox({
                 ) : (
                   <PlaceholderImage
                     label={current.title || `Foto ${(active ?? 0) + 1}`}
+                    category={category}
                     aspect="aspect-[4/3] sm:aspect-[16/9]"
                     seed={active ?? 0}
                     className="max-h-[62vh]"

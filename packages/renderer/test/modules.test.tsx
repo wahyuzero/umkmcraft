@@ -118,3 +118,60 @@ describe("render gabungan fixture barbershop-lengkap", () => {
     }
   });
 });
+
+describe("renderSections — hero selalu pertama", () => {
+  const HERO_TITLE = "Hero Uji Marker";
+  const PROMO_MSG = "Promo Uji Marker";
+  const FAQ_TITLE = "Faq Uji Marker";
+
+  function customSection(type: SectionType, props: Record<string, unknown>): Section {
+    return { id: `sec-${type}-custom`, type, props } as unknown as Section;
+  }
+
+  const heroOf = (title: string) =>
+    customSection("hero_storefront", { ...defaults.heroDefaults, title });
+  const promoOf = (message: string) =>
+    customSection("promo_banner", { ...defaults.promoDefaults, message });
+  const faqOf = (section_title: string) =>
+    customSection("faq_accordion", { ...defaults.faqDefaults, section_title, items: [] });
+
+  function indexOfAll(html: string, needles: string[]): number[] {
+    return needles.map((n) => {
+      const at = html.indexOf(n);
+      expect(at, `marker "${n}" harus ada di markup`).toBeGreaterThan(-1);
+      return at;
+    });
+  }
+
+  it("hero di tengah config tetap dirender paling awal", () => {
+    const sections = [promoOf(PROMO_MSG), heroOf(HERO_TITLE), faqOf(FAQ_TITLE)];
+    const [heroAt, promoAt, faqAt] = indexOfAll(renderHtml(sections), [HERO_TITLE, PROMO_MSG, FAQ_TITLE]);
+    expect(heroAt).toBeLessThan(promoAt);
+    expect(promoAt).toBeLessThan(faqAt);
+  });
+
+  it("urutan relatif section non-hero dipertahankan", () => {
+    const sections = [faqOf(FAQ_TITLE), heroOf(HERO_TITLE), promoOf(PROMO_MSG)];
+    const [heroAt, faqAt, promoAt] = indexOfAll(renderHtml(sections), [HERO_TITLE, FAQ_TITLE, PROMO_MSG]);
+    expect(heroAt).toBeLessThan(faqAt);
+    expect(faqAt).toBeLessThan(promoAt);
+  });
+
+  it("dua hero (config aneh) pun tetap stabil: keduanya di depan, urutan asli", () => {
+    const sections = [
+      promoOf(PROMO_MSG),
+      heroOf(`${HERO_TITLE} A`),
+      faqOf(FAQ_TITLE),
+      heroOf(`${HERO_TITLE} B`),
+    ];
+    const [promoAt, heroA, faqAt, heroB] = indexOfAll(renderHtml(sections), [
+      PROMO_MSG,
+      `${HERO_TITLE} A`,
+      FAQ_TITLE,
+      `${HERO_TITLE} B`,
+    ]);
+    expect(heroA).toBeLessThan(heroB);
+    expect(heroB).toBeLessThan(promoAt);
+    expect(promoAt).toBeLessThan(faqAt);
+  });
+});

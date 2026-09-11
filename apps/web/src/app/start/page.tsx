@@ -26,7 +26,7 @@ interface Slots {
 }
 
 const GREETING =
-  "Halo kak! 👋 Aku asisten UMKM Craft. Cerita aja soal usahamu — nama usaha apa, jualan apa aja. Nanti aku buatkan website yang bisa langsung dipesan lewat WhatsApp.";
+  "Halo kakak! Aku asisten UMKM Craft. Cerita aja soal usahamu — nama usaha apa, jualan apa aja. Nanti aku buatkan website yang bisa langsung dipesan lewat WhatsApp.";
 
 const SUGGESTIONS = [
   "Warung Sambal Ndeso, jualan sambal kemasan di Bandung",
@@ -73,7 +73,7 @@ export default function StartPage() {
 
   async function send(text: string) {
     const trimmed = text.trim();
-    if (!trimmed || busy || generating) return;
+    if (!trimmed || busy || generating || ready) return;
     setError(null);
     setLastInput(trimmed);
     setInput("");
@@ -94,7 +94,7 @@ export default function StartPage() {
       setMessages((m) => [...m, { role: "assistant", content: data.reply }]);
       setLastInput(null);
     } catch {
-      setError("Koneksi bermasalah — coba kirim ulang ya, kak.");
+      setError("Koneksi bermasalah — coba kirim ulang ya, kakak.");
     } finally {
       setBusy(false);
     }
@@ -162,9 +162,10 @@ export default function StartPage() {
         </div>
       </header>
 
-      {/* Chat */}
+      {/* Chat — kolom menempel ke bawah biar obrolan pendek tidak menyisakan
+          ruang kosong panjang di atas composer; obrolan panjang tetap scroll. */}
       <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto">
-        <div className="mx-auto flex max-w-2xl flex-col gap-3 px-5 pb-6 pt-6">
+        <div className="mx-auto flex min-h-full max-w-2xl flex-col justify-end gap-3 px-5 pb-6 pt-6">
           {messages.map((m, i) => (
             <ChatMessage key={i} message={m} />
           ))}
@@ -205,7 +206,7 @@ export default function StartPage() {
               />
               <button
                 onClick={generate}
-                className="start-cta-glow mt-3 flex min-h-[52px] w-full items-center justify-center gap-2.5 rounded-2xl bg-signal px-6 py-3.5 font-display text-base font-bold text-white transition-transform duration-200 hover:-translate-y-0.5 active:translate-y-0 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-live"
+                className="start-cta-glow mt-3 flex min-h-[52px] w-full items-center justify-center gap-2.5 rounded-2xl bg-signal px-6 py-3.5 font-display text-base font-bold text-card transition-transform duration-200 hover:-translate-y-0.5 active:translate-y-0 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-live"
               >
                 <Sparkles className="h-5 w-5" aria-hidden />
                 Buat Website Saya
@@ -233,7 +234,7 @@ export default function StartPage() {
                   key={s}
                   onClick={() => send(s)}
                   disabled={busy || generating}
-                  className="min-h-[40px] rounded-full border-[1.5px] border-dashed border-cutline bg-card px-4 py-2 text-[13px] font-medium text-ink-soft transition-colors duration-200 hover:border-signal hover:bg-signal-soft hover:text-signal disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-cutline disabled:hover:bg-card disabled:hover:text-ink-soft"
+                  className="flex min-h-[44px] items-center rounded-full border border-ink/15 bg-card px-4 py-2 text-[13px] font-medium text-ink transition-[border-color,box-shadow,transform] duration-200 ease-out hover:-translate-y-0.5 hover:border-signal/60 hover:shadow-plate active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:border-ink/15 disabled:hover:shadow-none"
                 >
                   {s}
                 </button>
@@ -241,7 +242,8 @@ export default function StartPage() {
             </div>
           ) : null}
 
-          {/* Composer: kartu dengan focus ring signal, textarea tumbuh, Enter kirim */}
+          {/* Composer: kartu dengan focus ring signal, textarea tumbuh, Enter kirim.
+              Saat `ready`, composer dinonaktifkan — satu aksi jelas: tombol oranye. */}
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -249,7 +251,11 @@ export default function StartPage() {
             }}
             className="flex items-end gap-2.5"
           >
-            <div className="flex flex-1 items-end rounded-2xl border border-cutline bg-card px-4 py-3 transition-[border-color,box-shadow] duration-150 focus-within:border-signal focus-within:shadow-[0_0_0_3px_rgb(154_52_18/0.12)]">
+            <div
+              className={`flex flex-1 items-end rounded-2xl border border-cutline bg-card px-4 py-3 transition-[border-color,box-shadow] duration-150 focus-within:border-signal focus-within:shadow-[0_0_0_3px_rgb(154_52_18/0.12)] ${
+                ready ? "opacity-60" : ""
+              }`}
+            >
               <label htmlFor="chat-input" className="sr-only">
                 Tulis cerita usahamu
               </label>
@@ -258,6 +264,7 @@ export default function StartPage() {
                 ref={inputRef}
                 rows={1}
                 value={input}
+                disabled={ready}
                 onChange={(e) => {
                   setInput(e.target.value);
                   autosize();
@@ -268,22 +275,22 @@ export default function StartPage() {
                     send(input);
                   }
                 }}
-                placeholder="Contoh: warung sambal kemasan, nomor WA 0812…"
+                placeholder={ready ? "Sudah lengkap — klik tombol oranye di atas ya" : "Contoh: warung sambal, WA 0812…"}
                 autoComplete="off"
-                className="max-h-[120px] w-full resize-none bg-transparent text-[0.95rem] leading-6 text-ink outline-none placeholder:text-ink-soft/70"
+                className="max-h-[120px] w-full resize-none bg-transparent text-[0.95rem] leading-6 text-ink outline-none placeholder:text-ink-soft/70 disabled:cursor-not-allowed"
               />
             </div>
             <button
               type="submit"
-              disabled={busy || generating || !input.trim()}
+              disabled={busy || generating || ready || !input.trim()}
               aria-label="Kirim"
-              className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-signal text-white transition-transform duration-150 hover:-translate-y-0.5 active:translate-y-0 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-live disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0"
+              className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-signal text-card transition-transform duration-150 hover:-translate-y-0.5 active:translate-y-0 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-live disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0"
             >
               <Send className="h-5 w-5" strokeWidth={2.4} aria-hidden />
             </button>
           </form>
           <p className="mt-2.5 text-center text-[0.7rem] text-ink-soft">
-            Tanpa daftar. Data kamu hanya dipakai untuk membuat websitemu.
+            Tanpa daftar. Data kakak hanya dipakai untuk membuat websitenya.
           </p>
         </div>
       </div>

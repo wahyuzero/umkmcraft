@@ -22,7 +22,7 @@ export const catalogDefaults: CatalogSectionProps = {
 function BestSellerBadge() {
   /* Pita "Best Seller": menempel rata kiri, sedikit miring, bintang SVG — bukan emoji */
   return (
-    <span className="absolute left-0 top-3 inline-flex origin-left -rotate-1 items-center gap-1 rounded-r-full bg-[var(--uc-secondary)] py-1.5 pl-3 pr-3.5 text-[0.65rem] font-extrabold uppercase tracking-wide text-[var(--uc-bg)] shadow-[0_4px_14px_-4px_color-mix(in_oklab,var(--uc-secondary)_75%,transparent)]">
+    <span className="absolute left-0 top-3 inline-flex origin-left -rotate-1 items-center gap-1 rounded-r-full bg-[var(--uc-secondary)] py-1.5 pl-3 pr-3.5 text-xs font-extrabold uppercase tracking-wide text-[var(--uc-bg)] shadow-[0_4px_14px_-4px_color-mix(in_oklab,var(--uc-secondary)_75%,transparent)]">
       <svg viewBox="0 0 12 12" className="h-2.5 w-2.5" fill="currentColor" aria-hidden>
         <path d="M6 0l1.57 3.6L11.5 4 8.6 6.4 9.7 10 6 7.9 2.3 10l1.1-3.6L.5 4l3.93-.4L6 0z" />
       </svg>

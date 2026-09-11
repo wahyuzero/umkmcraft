@@ -51,7 +51,7 @@ export function ChatMessage({ message }: { message: Msg }) {
       <div
         className={`max-w-[85%] rounded-2xl px-4 py-3 text-[0.95rem] leading-relaxed shadow-plate ${
           isUser
-            ? "rounded-br-md bg-signal text-white" /* putih di atas #9a3412 = kontras ±7:1, lolos AA */
+            ? "rounded-br-md bg-signal text-card" /* text-card di atas #9a3412 = kontras ±7:1, lolos AA */
             : "rounded-bl-md border border-cutline/60 bg-card text-ink"
         }`}
       >

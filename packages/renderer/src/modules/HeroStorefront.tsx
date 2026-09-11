@@ -107,12 +107,16 @@ export function HeroStorefront({
             </ul>
           ) : null}
         </div>
-        {/* Bingkai "stiker": ring warna latar + SATU offset dekoratif putus-putus di belakang */}
+        {/* Bingkai "stiker": ring warna latar + SATU offset dekoratif putus-putus di belakang.
+            Frame offset hanya saat foto asli ada — di atas placeholder abu-abu ia terbaca
+            sebagai crop rusak (audit P2), bukan aksen. */}
         <div className="relative">
-          <div
-            aria-hidden
-            className="absolute inset-0 translate-x-2.5 translate-y-2.5 rounded-3xl border-2 border-dashed border-[color-mix(in_oklab,var(--uc-secondary)_40%,transparent)]"
-          />
+          {props.image_url ? (
+            <div
+              aria-hidden
+              className="absolute inset-0 translate-x-2.5 translate-y-2.5 rounded-3xl border-2 border-dashed border-[color-mix(in_oklab,var(--uc-secondary)_40%,transparent)]"
+            />
+          ) : null}
           <div className="relative overflow-hidden rounded-3xl bg-[color-mix(in_oklab,var(--uc-primary)_8%,var(--uc-surface))] shadow-[0_24px_60px_-24px_color-mix(in_oklab,var(--uc-primary)_55%,transparent)] ring-4 ring-[var(--uc-bg)]">
             <SafeImage
               src={props.image_url}

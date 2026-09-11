@@ -7,8 +7,11 @@ import Link from "next/link";
  * Dipakai dua arah: route not-found.tsx DAN render inline dari page.tsx
  * (notFound() + route loading skeleton tidak komposibel di Next 16 —
  * kerangka loading bisa tetap tampil selamanya di beberapa environment).
+ * homeHref: beranda tenant (bukan landing builder) — di-resolve penelepon:
+ * path-based → /sites/<slug>, host-based → "/". Fallback "/" hanya bila
+ * penelepon tidak punya konteks tenant (not-found.tsx).
  */
-export function TenantNotFound() {
+export function TenantNotFound({ homeHref = "/" }: { homeHref?: string }) {
   return (
     <main className="flex min-h-dvh items-center justify-center overflow-hidden bg-paper px-6">
       <div className="relative z-0 w-full max-w-md">
@@ -29,8 +32,8 @@ export function TenantNotFound() {
             Halaman yang kakak cari tidak ditemukan atau sudah dipindah.
           </p>
           <Link
-            href="/"
-            className="mt-7 inline-flex rounded-xl bg-signal px-5 py-2.5 text-sm font-bold text-card transition-transform duration-200 ease-out hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal"
+            href={homeHref}
+            className="mt-7 inline-flex min-h-[44px] items-center rounded-xl bg-signal px-5 py-2.5 text-sm font-bold text-card transition-transform duration-200 ease-out hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal"
           >
             Kembali ke Halaman Utama
           </Link>

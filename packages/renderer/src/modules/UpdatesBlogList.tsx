@@ -59,7 +59,7 @@ function UpdateRow({ post, seed, category }: { post: UpdatesProps["posts"][numbe
       ) : null}
       <div className="min-w-0 flex-1">
         {post.date_label ? (
-          <span className="inline-block rounded-full bg-[color-mix(in_oklab,var(--uc-primary)_9%,var(--uc-surface))] px-2.5 py-1 text-[0.68rem] font-extrabold uppercase tracking-[0.06em] tabular-nums text-[var(--uc-primary)]">
+          <span className="inline-block rounded-full bg-[color-mix(in_oklab,var(--uc-primary)_9%,var(--uc-surface))] px-2.5 py-1 text-xs font-extrabold uppercase tracking-[0.06em] tabular-nums text-[var(--uc-primary-text)]">
             {post.date_label}
           </span>
         ) : null}

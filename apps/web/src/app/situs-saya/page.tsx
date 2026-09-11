@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { cookies } from "next/headers";
 import type { Metadata } from "next";
-import { ArrowLeft, ExternalLink, PenLine, Sticker } from "lucide-react";
+import { ExternalLink, PenLine, Sticker } from "lucide-react";
 import { store } from "@/lib/server/store";
 
 export const metadata: Metadata = {
@@ -57,16 +57,7 @@ export default async function SitusSayaPage() {
       </header>
 
       <section className="mx-auto w-full max-w-3xl px-5 py-10 sm:px-8 sm:py-14">
-        <div className="flex items-center gap-2 text-sm text-ink-soft">
-          <Link
-            href="/"
-            className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg px-1 font-medium transition-colors hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal"
-          >
-            <ArrowLeft className="h-4 w-4" aria-hidden />
-            Beranda
-          </Link>
-        </div>
-        <h1 className="mt-3 font-display text-3xl font-extrabold tracking-[-0.03em] text-ink sm:text-4xl">
+        <h1 className="font-display text-3xl font-extrabold tracking-[-0.03em] text-ink sm:text-4xl">
           Situs kakak
         </h1>
         <p className="mt-2 text-sm leading-relaxed text-ink-soft">

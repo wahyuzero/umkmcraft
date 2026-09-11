@@ -22,7 +22,7 @@ const LAYOUT_GRID: Record<GalleryGridProps["layout"], string> = {
   grid_4_col: "grid-cols-2 sm:grid-cols-4",
 };
 
-export function GalleryGrid({ id, props }: { id: string; props: GalleryGridProps }) {
+export function GalleryGrid({ id, props, category = "" }: { id: string; props: GalleryGridProps; category?: string }) {
   return (
     <SectionShell id={id} tone="surface">
       <SectionHeader title={props.section_title} subtitle={props.section_subtitle} />
@@ -30,6 +30,7 @@ export function GalleryGrid({ id, props }: { id: string; props: GalleryGridProps
         items={props.items}
         gridClassName={LAYOUT_GRID[props.layout]}
         ariaLabel={props.section_title || "Galeri foto"}
+        category={category}
       />
     </SectionShell>
   );

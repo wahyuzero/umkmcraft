@@ -3,6 +3,8 @@
 /**
  * ModuleCatalog — "lembar stiker" tempat memilih modul baru.
  * Signature moment: kartu modul = stiker die-cut; klik = menempel ke halaman.
+ * Dialog tetap terbuka setelah menambah (kartu jadi state "Ditambahkan")
+ * supaya beberapa modul bisa ditambah beruntun; tutup via X/Esc/backdrop.
  * Ada pencarian, focus trap dasar, dan fokus kembali ke pembuka saat ditutup.
  */
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -76,6 +78,8 @@ export function ModuleCatalog({ onClose }: { onClose: () => void }) {
   const addSection = useEditor((s) => s.addSection);
   const sections = useEditor((s) => s.config.sections);
   const [query, setQuery] = useState("");
+  // Modul yang barusan ditambahkan — kartunya berubah state, dialog tetap terbuka.
+  const [addedTypes, setAddedTypes] = useState<Set<SectionType>>(() => new Set());
   const dialogRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
   // Fokus kembali ke tombol pembuka sheet (dipanggil sekali saat unmount).
@@ -124,7 +128,8 @@ export function ModuleCatalog({ onClose }: { onClose: () => void }) {
   function add(type: SectionType) {
     const defaultProps = (defaults as Record<string, unknown>)[DEFAULTS_KEY[type]!] as Record<string, unknown>;
     addSection(type, JSON.parse(JSON.stringify(defaultProps)));
-    onClose();
+    // Dialog sengaja tetap terbuka — pedagang biasa menambah beberapa modul sekaligus.
+    setAddedTypes((prev) => new Set(prev).add(type));
   }
 
   return (
@@ -147,7 +152,7 @@ export function ModuleCatalog({ onClose }: { onClose: () => void }) {
               Pilih blok, langsung menempel di bawah section yang sedang dipilih.
             </p>
           </div>
-          <button onClick={onClose} aria-label="Tutup" className="shrink-0 rounded-xl p-2.5 text-ink-soft transition-colors hover:bg-paper-deep hover:text-ink">
+          <button onClick={onClose} aria-label="Tutup" className="flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-xl text-ink-soft transition-colors hover:bg-paper-deep hover:text-ink">
             <X className="h-5 w-5" strokeWidth={2.2} aria-hidden />
           </button>
         </div>
@@ -167,7 +172,7 @@ export function ModuleCatalog({ onClose }: { onClose: () => void }) {
             <button
               onClick={() => setQuery("")}
               aria-label="Hapus pencarian"
-              className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-lg p-2 text-ink-soft transition-colors hover:bg-paper-deep hover:text-ink"
+              className="absolute right-1 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-xl text-ink-soft transition-colors hover:bg-paper-deep hover:text-ink"
             >
               <X className="h-4 w-4" strokeWidth={2.2} aria-hidden />
             </button>
@@ -199,14 +204,19 @@ export function ModuleCatalog({ onClose }: { onClose: () => void }) {
                         <Star className="h-2.5 w-2.5 text-signal" fill="currentColor" aria-hidden />
                       </span>
                     ) : null}
-                    <span className={`mb-2 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-colors group-hover:bg-signal group-hover:text-white ${count > 0 ? "bg-signal/15 text-signal" : "bg-signal-soft text-signal"}`} aria-hidden>
+                    <span className={`mb-2 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-colors group-hover:bg-signal group-hover:text-card ${count > 0 ? "bg-signal/15 text-signal" : "bg-signal-soft text-signal"}`} aria-hidden>
                       <Icon className="h-4 w-4" strokeWidth={2} />
                     </span>
                     <span className="font-display text-[0.85rem] font-bold leading-snug text-ink group-hover:text-signal">
                       {TYPE_LABEL[m.type]}
                     </span>
                     <span className="mt-1 text-xs leading-relaxed text-ink-soft">{m.desc}</span>
-                    {count > 0 ? (
+                    {addedTypes.has(m.type) ? (
+                      <span className="mt-auto inline-flex items-center gap-1.5 pt-2 text-[0.65rem] font-bold leading-snug text-signal">
+                        <Check className="h-3 w-3 shrink-0" strokeWidth={2.5} aria-hidden />
+                        Ditambahkan — ketuk lagi untuk menambah
+                      </span>
+                    ) : count > 0 ? (
                       <span className="mt-auto inline-flex items-center gap-1 pt-2 text-[0.65rem] font-semibold uppercase tracking-wide text-ink-soft">
                         <Check className="h-3 w-3" strokeWidth={2.5} aria-hidden />
                         {count}× di halaman

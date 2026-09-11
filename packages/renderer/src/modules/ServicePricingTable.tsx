@@ -81,7 +81,7 @@ export function ServicePricingTable({
             >
               {popular ? (
                 <span
-                  className="absolute -top-3.5 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded-full bg-[var(--uc-primary)] px-3.5 py-1 text-[0.68rem] font-extrabold uppercase tracking-[0.08em] text-[var(--uc-on-primary-text)] shadow-[0_2px_10px_color-mix(in_oklab,var(--uc-primary)_40%,transparent)]"
+                  className="absolute -top-3.5 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded-full bg-[var(--uc-primary)] px-3.5 py-1 text-xs font-extrabold uppercase tracking-[0.08em] text-[var(--uc-on-primary-text)] shadow-[0_2px_10px_color-mix(in_oklab,var(--uc-primary)_40%,transparent)]"
                 >
                   Terpopuler
                 </span>
@@ -126,7 +126,7 @@ export function ServicePricingTable({
                   <TrackedLink
                     href={waHref}
                     event="wa_click"
-                    className="group inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-2xl border-2 border-[color-mix(in_oklab,var(--uc-primary)_35%,transparent)] px-3.5 py-2.5 text-sm font-bold text-[var(--uc-primary)] transition-colors duration-200 ease-out hover:bg-[color-mix(in_oklab,var(--uc-primary)_8%,transparent)] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--uc-primary)]"
+                    className="group inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-2xl border-2 border-[var(--uc-primary-border)] px-3.5 py-2.5 text-sm font-bold text-[var(--uc-primary-text)] transition-colors duration-200 ease-out hover:bg-[color-mix(in_oklab,var(--uc-primary)_8%,transparent)] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--uc-primary)]"
                   >
                     <WaIcon className="h-[1.15em] w-[1.15em] shrink-0" />
                     {tier.cta_label}

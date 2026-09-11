@@ -17,19 +17,19 @@ function aiAvailable(): boolean {
 export function deterministicIntakeReply(slots: Slots): string {
   const { missing } = slotsProgress(slots);
   if (missing.length === 0) {
-    return "Mantap kak, data lengkap! 😊 Tombol **Buat Website Saya** di bawah sudah siap — klik aja, situsnya langsung kami rangkai.";
+    return "Mantap, kakak! Data lengkap! Tombol **Buat Website Saya** di bawah sudah siap — klik aja, situsnya langsung kami rangkai.";
   }
   if (!slots.businessName) {
-    return "Siap kak! 😄 Cerita dulu dong: **nama usahanya apa** dan jualan apa aja? Contoh: \"Warung Sambal Ndeso, jualan sambal kemasan.\"";
+    return "Siap, kakak! Cerita dulu dong: **nama usahanya apa** dan jualan apa aja? Contoh: \"Warung Sambal Ndeso, jualan sambal kemasan.\"";
   }
   if (!slots.category) {
-    return "Keren, " + slots.businessName + "! 😊 Itu masuk kategori apa kak? (kuliner, coffee shop, barbershop, fashion, bengkel/jasa, laundry, atau lainnya)";
+    return "Keren, " + slots.businessName + "! Itu masuk kategori apa, kakak? (kuliner, coffee shop, barbershop, fashion, bengkel/jasa, laundry, atau lainnya)";
   }
   if (!slots.whatsappNumber) {
-    return "Oke dicatat! 📝 Sekarang yang paling penting: **nomor WhatsApp** untuk menerima pesanan pembeli kak? (contoh: 0812-3456-7890)";
+    return "Oke dicatat! Sekarang yang paling penting: **nomor WhatsApp** untuk menerima pesanan pembeli, kakak? (contoh: 0812-3456-7890)";
   }
   // Semua slot wajib terisi — tanya opsional ringan lalu selesai.
-  return "Sip, semua data utama lengkap! 🙌 Kalau ada **produk unggulan + harga kira-kira** atau **promo yang lagi jalan**, tulis saja di sini — biar websitenya makin menjual. Kalau mau langsung jadi, klik tombol **Buat Website Saya** ya kak!";
+  return "Sip, semua data utama lengkap! Kalau ada **produk unggulan + harga kira-kira** atau **promo yang lagi jalan**, tulis saja di sini — biar websitenya makin menjual. Kalau mau langsung jadi, klik tombol **Buat Website Saya** ya, kakak!";
 }
 
 export interface IntakeTurnResult {

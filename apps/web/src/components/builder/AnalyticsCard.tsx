@@ -32,7 +32,20 @@ function Tile({ icon: Icon, value, label }: { icon: LucideIcon; value: number; l
 export function AnalyticsCard() {
   const published = useEditor((s) => s.published);
   const siteId = useEditor((s) => s.siteId);
+  const sections = useEditor((s) => s.config.sections);
   const [stats, setStats] = useState<Stats | null>(null);
+
+  /* productId → nama produk dari katalog di draft; fallback "Produk"
+     agar tidak pernah menampilkan id mentah ke pedagang. */
+  const productName = (productId: string): string => {
+    for (const section of sections) {
+      if (section.type !== "product_catalog_wa") continue;
+      const products = (section.props as { products?: Array<{ id?: string; name?: string }> }).products ?? [];
+      const match = products.find((p) => p.id === productId);
+      if (match?.name) return match.name;
+    }
+    return "Produk";
+  };
 
   useEffect(() => {
     if (!published || !siteId) return;
@@ -57,7 +70,7 @@ export function AnalyticsCard() {
 
   if (!published) {
     return (
-      <div className="mx-4 mb-4 rounded-2xl border border-cutline bg-card p-3.5 shadow-plate">
+      <div className="mx-4 mb-4 shrink-0 rounded-2xl border border-cutline bg-card p-3.5 shadow-plate">
         <h3 className="text-[0.7rem] font-bold uppercase tracking-[0.06em] text-ink-soft">Statistik</h3>
         <div className="mt-2.5 flex items-center gap-3">
           <span aria-hidden className="uc-cutline grid h-11 w-11 shrink-0 place-items-center rounded-full text-signal">
@@ -72,7 +85,7 @@ export function AnalyticsCard() {
   }
 
   return (
-    <div className="mx-4 mb-4 rounded-2xl border border-cutline bg-card p-3.5 shadow-plate">
+    <div className="mx-4 mb-4 shrink-0 rounded-2xl border border-cutline bg-card p-3.5 shadow-plate">
       <h3 className="text-[0.7rem] font-bold uppercase tracking-[0.06em] text-ink-soft">Statistik 30 Hari</h3>
       {stats ? (
         <>
@@ -95,7 +108,7 @@ export function AnalyticsCard() {
                     >
                       {i + 1}
                     </span>
-                    <span className="min-w-0 flex-1 truncate">{p.productId}</span>
+                    <span className="min-w-0 flex-1 truncate">{productName(p.productId)}</span>
                     <span className="font-bold tabular-nums text-ink">{p.clicks}×</span>
                   </li>
                 ))}

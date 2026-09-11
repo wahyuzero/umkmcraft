@@ -5,14 +5,15 @@
  * State paling terang disimpan untuk momen live (raise: cyclorama).
  *
  * State: draft (tombol sinyal) → publishing (spinner "Menyegel...") →
- * live (hijau + Globe + "Lihat situs"). Selama autosave jalan (dirty/
- * saving) tombol dikunci dengan bantuan singkat. Toast piringan di
- * bawah-tengah: CheckCircle2 (sukses) / AlertTriangle + "Coba lagi".
+ * live (pill hijau = status pasif; tombol "Perbarui situs" hanya muncul
+ * saat draft menyimpang dari versi terbit) + "Lihat situs". Selama
+ * autosave jalan (dirty/saving) tombol dikunci dengan bantuan singkat.
+ * Toast piringan di bawah-tengah: CheckCircle2 (sukses) / AlertTriangle + "Coba lagi".
  */
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useEditor } from "@/lib/editor-store";
-import { AlertTriangle, CheckCircle2, ExternalLink, Globe, Loader2 } from "lucide-react";
+import { AlertTriangle, CheckCircle2, ExternalLink, Globe, Loader2, RefreshCw } from "lucide-react";
 
 interface ToastData {
   kind: "ok" | "err";
@@ -32,6 +33,20 @@ export function PublishButton() {
 
   const saving = saveState === "dirty" || saveState === "saving";
   const siteUrl = slug ? `/sites/${slug}` : "/";
+
+  // Draft menyimpang dari versi terbit? Setiap mutasi store menandai
+  // saveState "dirty" — cukup satu jejak lokal yang reset saat terbit ulang.
+  // Dengarkan transisi ke dirty via subscribe (bukan effect body) agar
+  // jejaknya tetap hidup setelah autosave selesai (state kembali "saved").
+  const [changedSincePublish, setChangedSincePublish] = useState(false);
+  useEffect(() => {
+    return useEditor.subscribe((state, prev) => {
+      if (state.saveState === "dirty" && prev.saveState !== "dirty") {
+        setChangedSincePublish(true);
+      }
+    });
+  }, []);
+  const stale = published && changedSincePublish;
 
   function showToast(data: ToastData) {
     if (toastTimer.current) clearTimeout(toastTimer.current);
@@ -53,6 +68,7 @@ export function PublishButton() {
         return;
       }
       markPublished();
+      setChangedSincePublish(false);
       showToast({ kind: "ok", text: "Situs kakak sudah live", url: data.pathUrl ?? siteUrl });
       router.refresh();
     } catch {
@@ -66,31 +82,42 @@ export function PublishButton() {
   }
 
   const btnBase =
-    "flex items-center justify-center gap-2 rounded-2xl px-5 py-2.5 text-sm font-bold transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 disabled:pointer-events-none disabled:opacity-50 disabled:hover:translate-y-0";
+    "flex min-h-11 items-center justify-center gap-2 rounded-2xl px-5 py-2.5 text-sm font-bold transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 disabled:pointer-events-none disabled:opacity-50 disabled:hover:translate-y-0";
 
   return (
     <div className="relative flex items-center gap-1.5">
       {published ? (
         <>
-          <button
-            onClick={publish}
-            disabled={busy || saving}
-            title={saving ? "Simpan dulu — perubahan kakak masih disimpan otomatis" : undefined}
-            aria-label="Situs live — klik untuk memperbarui snapshot"
-            className={`${btnBase} bg-live text-white shadow-plate`}
+          {/* Pill hijau murni status (bukan tombol) — satu-satunya pemakaian hijau */}
+          <span
+            role="status"
+            title="Situs kakak sedang live"
+            className="flex items-center gap-1.5 rounded-full bg-live px-3 py-1.5 text-xs font-extrabold uppercase tracking-wide text-card"
           >
-            {busy ? (
-              <>
-                <Loader2 aria-hidden className="h-4 w-4 motion-safe:animate-spin" />
-                Menyegel…
-              </>
-            ) : (
-              <>
-                <Globe aria-hidden className="h-4 w-4" />
-                Live
-              </>
-            )}
-          </button>
+            <Globe aria-hidden className="h-3.5 w-3.5" />
+            Live
+          </span>
+          {stale ? (
+            <button
+              onClick={publish}
+              disabled={busy || saving}
+              title={saving ? "Simpan dulu — perubahan kakak masih disimpan otomatis" : "Ada perubahan yang belum tampil di situs live"}
+              aria-label="Perbarui situs"
+              className={`${btnBase} bg-signal px-3.5 text-card shadow-plate sm:px-5`}
+            >
+              {busy ? (
+                <>
+                  <Loader2 aria-hidden className="h-4 w-4 motion-safe:animate-spin" />
+                  Menyegel…
+                </>
+              ) : (
+                <>
+                  <RefreshCw aria-hidden className="h-4 w-4" />
+                  <span className="hidden sm:inline">Perbarui situs</span>
+                </>
+              )}
+            </button>
+          ) : null}
           <a
             href={siteUrl}
             target="_blank"
@@ -106,7 +133,7 @@ export function PublishButton() {
           onClick={publish}
           disabled={busy || saving}
           title={saving ? "Simpan dulu — perubahan kakak masih disimpan otomatis" : undefined}
-          className={`${btnBase} bg-signal text-white shadow-plate`}
+          className={`${btnBase} bg-signal text-card shadow-plate`}
         >
           {busy ? (
             <>

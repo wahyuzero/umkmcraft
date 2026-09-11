@@ -64,15 +64,15 @@ export function BuilderShell({
     <div className="flex h-dvh flex-col overflow-hidden bg-paper">
       {/* ===== Header rak alat (kompak di mobile) ===== */}
       <header className="flex h-16 shrink-0 items-center justify-between gap-2 border-b border-cutline/80 bg-paper px-3 sm:gap-4 sm:px-6">
-        <div className="flex min-w-0 items-center gap-2 sm:gap-3">
-          <Link href="/" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-ink font-display text-lg font-extrabold text-paper" aria-label="Beranda UMKM Craft">
+        <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
+          <Link href="/" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-ink font-display text-lg font-extrabold text-paper" aria-label="Beranda UMKM Craft">
             U
           </Link>
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <input
               value={businessName}
               onChange={(e) => useEditor.getState().setBusinessName(e.target.value)}
-              className="w-full max-w-[110px] truncate rounded-lg border border-transparent bg-transparent px-1.5 py-0.5 font-display text-base font-bold text-ink hover:border-cutline focus:border-signal focus:outline-none sm:max-w-[280px] sm:text-lg"
+              className="w-full min-w-0 truncate rounded-lg border border-transparent bg-transparent px-1.5 py-0.5 font-display text-base font-bold text-ink hover:border-cutline focus:border-signal focus:outline-none sm:max-w-[280px] sm:text-lg"
               aria-label="Nama usaha"
             />
             <p className="hidden px-1.5 text-[0.7rem] text-ink-soft sm:block">
@@ -96,11 +96,11 @@ export function BuilderShell({
           id="panel-susun"
           role="tabpanel"
           aria-labelledby="tab-susun"
-          className={`min-h-0 flex-1 flex-col border-b border-cutline/80 lg:w-[300px] lg:flex-none lg:shrink-0 lg:border-b-0 lg:border-r ${
+          className={`min-h-0 flex-1 flex-col overflow-y-auto border-b border-cutline/80 lg:w-[300px] lg:flex-none lg:shrink-0 lg:border-b-0 lg:border-r ${
             mobileTab === "susun" ? "flex uc-stick-in" : "hidden lg:flex"
           }`}
         >
-          <div className="flex items-center justify-between px-4 pb-2 pt-4">
+          <div className="flex shrink-0 items-center justify-between px-4 pb-2 pt-4">
             <h2 className="font-display text-sm font-bold uppercase tracking-[0.06em] text-ink-soft">
               Susunan Halaman
             </h2>
@@ -109,7 +109,7 @@ export function BuilderShell({
             </span>
           </div>
           <SectionList onAdd={() => setCatalogOpen(true)} />
-          <div className="p-4 pt-1">
+          <div className="shrink-0 p-4 pt-1">
             <button
               onClick={() => setCatalogOpen(true)}
               className="flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-cutline px-4 py-2.5 text-sm font-bold text-ink-soft transition-colors duration-150 ease-out hover:border-signal hover:bg-signal-soft/40 hover:text-signal"
@@ -213,7 +213,7 @@ function SaveIndicator({ state, lastSavedAt }: { state: SaveState; lastSavedAt: 
         strokeWidth={2.2}
         aria-hidden
       />
-      <span className="hidden max-w-[10rem] truncate sm:inline">{label}</span>
+      <span className="hidden max-w-[10rem] truncate md:inline">{label}</span>
     </span>
   );
 }

@@ -1,7 +1,8 @@
 export { MODULE_REGISTRY, renderSections, type ModuleCommonProps } from "./registry";
-export { themeStyle, FONT_VAR_MAP, uc } from "./theme/theme";
+export { themeStyle, FONT_VAR_MAP, uc, aaTextColor } from "./theme/theme";
 export * from "./primitives";
 export * from "./footer";
+export { StickyOrderBar } from "./client/StickyOrderBar";
 export { heroDefaults } from "./modules/HeroStorefront";
 export { catalogDefaults } from "./modules/ProductCatalogWA";
 export { promoDefaults } from "./modules/PromoBanner";

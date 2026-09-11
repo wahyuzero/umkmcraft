@@ -54,7 +54,8 @@ export function InstagramShowcaseGrid({ id, props, category = "" }: { id: string
           <IgMark className="h-4 w-4" /> {props.handle}
         </p>
       ) : null}
-      <ul className="grid grid-cols-3 gap-2 sm:grid-cols-4 sm:gap-2.5">
+      {/* 4 postingan umum → 2x2 rapi di ponsel (grid-cols-3 menyisakan 1 ubin yatim); 4 kolom di layar lebar */}
+      <ul className="grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-2.5">
         {props.posts.map((post, i) => (
           <li key={i} className="group relative overflow-hidden rounded-xl">
             {post.post_url ? (

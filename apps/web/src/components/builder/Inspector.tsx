@@ -424,9 +424,46 @@ function Field({ def, value, onChange }: { def: FieldDef; value: unknown; onChan
       >
         <span className="text-sm font-medium text-ink">{def.label}</span>
         <span aria-hidden className={`relative h-6 w-10 shrink-0 rounded-full transition-colors duration-200 ${on ? "bg-signal" : "bg-cutline"}`}>
-          <span className={`absolute left-1 top-1 h-4 w-4 rounded-full bg-white shadow-sm transition-transform duration-200 ${on ? "translate-x-4" : "translate-x-0"}`} />
+          <span className={`absolute left-1 top-1 h-4 w-4 rounded-full bg-card shadow-sm transition-transform duration-200 ${on ? "translate-x-4" : "translate-x-0"}`} />
         </span>
       </button>
+    );
+  }
+
+  /* Field foto: pratinjau kecil + tempel link + petunjuk satu baris —
+     pedagang awam langsung paham isinya link foto, bukan unggah file. */
+  if (def.type === "image") {
+    const src = String(value ?? "");
+    return (
+      <label className="block">
+        <span className="mb-1.5 flex items-baseline justify-between gap-2">
+          <span className="text-xs font-semibold text-ink">{def.label}</span>
+        </span>
+        <div className="flex items-start gap-2.5">
+          {src.trim() ? (
+            // URL foto bebas dari pengguna — next/image butuh allowlist domain,
+            // jadi <img> polos (pola sama dengan packages/renderer).
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={src.trim()}
+              alt="Pratinjau foto"
+              loading="lazy"
+              decoding="async"
+              className="h-14 w-14 shrink-0 rounded-xl object-cover ring-1 ring-cutline"
+            />
+          ) : null}
+          <input
+            type="text"
+            value={src}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder="https://…jpg/png"
+            className={`${inputCls} min-h-[44px]`}
+          />
+        </div>
+        <span className="mt-1 block text-xs leading-snug text-ink-soft">
+          {def.hint ?? "Salin link foto dari Google Drive/Instagram lalu tempel di sini"}
+        </span>
+      </label>
     );
   }
 
@@ -490,7 +527,7 @@ function Repeater({
   }
 
   const orderBtn =
-    "grid h-10 w-10 shrink-0 place-items-center rounded-xl text-ink-soft transition-colors duration-200 hover:bg-signal-soft hover:text-signal disabled:pointer-events-none disabled:opacity-30";
+    "grid h-11 w-11 shrink-0 place-items-center rounded-xl text-ink-soft transition-colors duration-200 hover:bg-signal-soft hover:text-signal disabled:pointer-events-none disabled:opacity-30";
 
   return (
     <div>
@@ -522,7 +559,7 @@ function Repeater({
                   open ? "border-signal/40 bg-signal-soft/30" : "border-cutline/60 bg-card"
                 }`}
               >
-                <div className="flex items-center">
+                <div className="flex items-center gap-0.5">
                   <button
                     type="button"
                     onClick={() => setOpenIdx(open ? null : idx)}
@@ -548,7 +585,7 @@ function Repeater({
                           if (openIdx !== null && openIdx > idx) setOpenIdx(openIdx - 1);
                           else if (openIdx === idx) setOpenIdx(null);
                         }}
-                        className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-signal text-white transition-colors duration-200 hover:bg-signal/90"
+                        className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-signal text-card transition-colors duration-200 hover:bg-signal/90"
                       >
                         <Check aria-hidden className="h-4 w-4" />
                       </button>

@@ -81,7 +81,7 @@ export function ThemeSwitcher() {
                   style={{ background: `linear-gradient(135deg, ${p.primary} 55%, ${p.secondary} 55%)` }}
                   aria-hidden
                 >
-                  <span className="pointer-events-none absolute inset-1 rounded-[5px] border border-dashed border-white/55" />
+                  <span className="pointer-events-none absolute inset-1 rounded-[5px] border border-dashed border-card/55" />
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-sm font-semibold text-ink">

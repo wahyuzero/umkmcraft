@@ -64,13 +64,14 @@ function mixRgb(fg: Rgb, adjust: Rgb, p: number): Rgb {
 }
 
 /**
- * Warna teks aman AA (≥4.5:1) atas semua latar yang diberikan.
- * Bila fg lolos, dikembalikan utuh (visual identik). Bila tidak,
- * digelapkan bertahap ke arah ink — hanya sejauh yang dibutuhkan.
- * Kegagalan: teks warna primary/secondary yang terlalu terang di latar
- * terang (mis. amber-600 3.19:1, sky-500 2.65:1) — kontrak §aksesibilitas.
+ * Warna aman kontras (default ≥4.5:1 WCAG AA teks; minRatio 3 untuk elemen
+ * non-teks §1.4.11) atas semua latar yang diberikan. Bila fg lolos,
+ * dikembalikan utuh (visual identik). Bila tidak, digelapkan bertahap ke arah
+ * ink — hanya sejauh yang dibutuhkan. Kegagalan: teks warna primary/secondary
+ * yang terlalu terang di latar terang (mis. amber-600 3.19:1, sky-500 2.65:1)
+ * — kontrak §aksesibilitas.
  */
-function aaTextColor(fg: string, ink: string, backgrounds: string[]): string {
+export function aaTextColor(fg: string, ink: string, backgrounds: string[], minRatio = 4.5): string {
   const f = hexToRgb(fg);
   const k = hexToRgb(ink);
   if (!f || !k) return fg;
@@ -78,7 +79,7 @@ function aaTextColor(fg: string, ink: string, backgrounds: string[]): string {
     .map(hexToRgb)
     .filter((b): b is Rgb => b !== null);
   if (bgs.length === 0) return fg;
-  const passes = (c: Rgb) => bgs.every((bg) => contrastRatio(c, bg) >= 4.5);
+  const passes = (c: Rgb) => bgs.every((bg) => contrastRatio(c, bg) >= minRatio);
   if (passes(f)) return fg;
   for (let step = 1; step <= 40; step++) {
     const candidate = mixRgb(f, k, 1 - step * 0.025);
@@ -100,11 +101,17 @@ function themeVars(theme: UmkmTheme): Record<string, string> {
   // Teks di ATAS latar primary (tombol WA, tab aktif, band CTA): putih default
   // preset tidak selalu lolos AA (amber 3.19:1) — dihitung ulang di sini.
   const onPrimaryText = aaTextColor(preset.on_primary, preset.ink, [primary]);
+  // Border elemen non-teks di atas surface (tombol outline §1.4.11 ≥3:1):
+  // primary murni sering gagal (amber 35% alpha ≈1.06:1 di putih) — border
+  // digelapkan ke arah ink hanya sejauh yang dibutuhkan; primary gelap lolos
+  // apa adanya (visual identik).
+  const primaryBorder = aaTextColor(primary, preset.ink, [background, preset.surface], 3);
   return {
     "--uc-primary": primary,
     "--uc-secondary": secondary,
     "--uc-primary-text": primaryText,
     "--uc-secondary-text": secondaryText,
+    "--uc-primary-border": primaryBorder,
     "--uc-bg": background,
     "--uc-ink": preset.ink,
     "--uc-on-primary": preset.on_primary,
