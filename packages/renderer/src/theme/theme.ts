@@ -3,7 +3,7 @@
  * Renderer PURE: tanpa window, tanpa state, tanpa import builder.
  */
 import type { CSSProperties } from "react";
-import type { UmkmMeta, UmkmTheme } from "@umkmcraft/schema";
+import type { ThemePreset, UmkmMeta, UmkmTheme } from "@umkmcraft/schema";
 import { getPreset } from "@umkmcraft/schema";
 
 /**
@@ -89,6 +89,35 @@ export function aaTextColor(fg: string, ink: string, backgrounds: string[], minR
 }
 
 /** Konversi hex → CSS var dengan fallback preset. */
+
+/**
+ * Tekstur identitas per-preset untuk section tone="bg" (lihat
+ * .uc-section-texture di theme.css). Sengaja JAUH lebih kalem daripada pola
+ * hero .uc-pattern-dots (16%) — ini kedai merchant, bukan poster: dots 8%,
+ * lines 4%. Nilai dibawa sebagai var background-image utuh (bukan url(#svg))
+ * supaya CSS murni tanpa fragment refs, dan .uc-site tunggal di app shell
+ * menentukan pola untuk semua section sekaligus.
+ */
+const PATTERN_TEXTURE: Record<ThemePreset["pattern"], { image: string; size: string }> = {
+  dots: {
+    image: "radial-gradient(color-mix(in oklab, var(--uc-primary) 8%, transparent) 1.1px, transparent 1.1px)",
+    size: "20px 20px",
+  },
+  lines: {
+    image: "repeating-linear-gradient(-45deg, color-mix(in oklab, var(--uc-primary) 4%, transparent) 0 1px, transparent 1px 18px)",
+    size: "auto",
+  },
+  none: { image: "none", size: "auto" },
+};
+
+/**
+ * Kelas pola identitas preset ("uc-pattern-dots" | "uc-pattern-lines"; "" saat
+ * none) untuk permukaan hero yang butuh pola lebih tegas. Tekstur section
+ * tone="bg" mengalir terpisah lewat --uc-pattern-image (PATTERN_TEXTURE).
+ */
+export function patternClass(pattern: ThemePreset["pattern"]): string {
+  return pattern === "none" ? "" : `uc-pattern-${pattern}`;
+}
 function themeVars(theme: UmkmTheme): Record<string, string> {
   const preset = getPreset(theme.preset);
   const primary = theme.primary_color || preset.primary;
@@ -119,6 +148,8 @@ function themeVars(theme: UmkmTheme): Record<string, string> {
     "--uc-surface": preset.surface,
     "--uc-font-heading": fontStack(theme.font_heading),
     "--uc-font-body": fontStack(theme.font_body),
+    "--uc-pattern-image": PATTERN_TEXTURE[preset.pattern].image,
+    "--uc-pattern-size": PATTERN_TEXTURE[preset.pattern].size,
   };
 }
 

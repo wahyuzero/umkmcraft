@@ -12,18 +12,33 @@
  */
 import { useEffect, useRef, useState } from "react";
 import { createRoot, type Root } from "react-dom/client";
-import { renderSections, themeStyle } from "@umkmcraft/renderer";
+import { orderedSections, renderSections, themeStyle } from "@umkmcraft/renderer";
 import { useEditor } from "@/lib/editor-store";
 
 /** Isi dokumen pratinjau — hidup di dalam iframe, langganan store yang sama. */
 function PreviewDocument() {
   const config = useEditor((s) => s.config);
-  let nodes;
+  const selectedId = useEditor((s) => s.selectedId);
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  // Urutan node renderSections 1:1 dengan orderedSections (sumber kebenaran
+  // yang sama) — zip keduanya supaya tiap section bisa diklik di pratinjau.
+  const ordered = orderedSections(config.sections);
+  let nodes: React.ReactNode[] | null;
   try {
     nodes = renderSections(config.meta, config.sections);
   } catch {
     nodes = null;
   }
+
+  // Sinkronisasi scroll: section yang dipilih di daftar kiri dicari di preview.
+  useEffect(() => {
+    if (!selectedId || !rootRef.current) return;
+    const el = rootRef.current.querySelector(`[data-preview-section="${selectedId}"]`);
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    el?.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+  }, [selectedId]);
+
   if (!nodes) {
     return (
       <div style={{ padding: 32, textAlign: "center", fontSize: 14 }}>
@@ -31,9 +46,34 @@ function PreviewDocument() {
       </div>
     );
   }
+
+  const handleHitClick = (e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+    // Jangan curi klik dari interaksi asli situs (tombol WA, FAQ, lightbox).
+    if (target.closest("a,button,input,textarea,select,summary,label,dialog")) return;
+    const hit = target.closest("[data-preview-section]");
+    if (!hit) return;
+    useEditor.getState().select(hit.getAttribute("data-preview-section"));
+  };
+
   return (
-    <div style={themeStyle(config.meta)} className="uc-site">
-      {nodes}
+    <div ref={rootRef} style={themeStyle(config.meta)} className="uc-site" onClick={handleHitClick}>
+      {nodes.map((node, i) => {
+        const section = ordered[i];
+        if (!section) return node;
+        const isSel = section.id === selectedId;
+        return (
+          <div
+            key={section.id}
+            data-preview-section={section.id}
+            className={`relative cursor-pointer outline-offset-[-2px] hover:outline hover:outline-2 hover:outline-dashed hover:outline-[var(--uc-primary)] motion-safe:transition-[outline-color] motion-safe:duration-150 ${
+              isSel ? "outline outline-2 outline-dashed outline-[var(--uc-primary)]" : ""
+            }`}
+          >
+            {node}
+          </div>
+        );
+      })}
     </div>
   );
 }

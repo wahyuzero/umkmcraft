@@ -16,6 +16,12 @@ export interface ThemePreset {
   on_primary: string;
   /** Surface kartu di atas background */
   surface: string;
+  /**
+   * Motif tekstur identitas kategori — mengikuti keluarga motif
+   * PlaceholderImage: dots (bubuh/crema/polka/gelembung), lines (pole barber,
+   * arsiran bengkel). Dirender sangat halus di section tone="bg" (bukan kartu).
+   */
+  pattern: "dots" | "lines" | "none";
   font_heading: string;
   font_body: string;
 }
@@ -31,6 +37,7 @@ export const THEME_PRESETS: ThemePreset[] = [
     ink: "#291a05",
     on_primary: "#ffffff",
     surface: "#ffffff",
+    pattern: "dots",
     font_heading: "Plus Jakarta Sans",
     font_body: "Plus Jakarta Sans",
   },
@@ -44,6 +51,7 @@ export const THEME_PRESETS: ThemePreset[] = [
     ink: "#23150a",
     on_primary: "#fffaf3",
     surface: "#ffffff",
+    pattern: "dots",
     font_heading: "Plus Jakarta Sans",
     font_body: "Plus Jakarta Sans",
   },
@@ -57,6 +65,7 @@ export const THEME_PRESETS: ThemePreset[] = [
     ink: "#0b1220",
     on_primary: "#f8fafc",
     surface: "#ffffff",
+    pattern: "lines",
     font_heading: "Plus Jakarta Sans",
     font_body: "Plus Jakarta Sans",
   },
@@ -70,6 +79,7 @@ export const THEME_PRESETS: ThemePreset[] = [
     ink: "#33060f",
     on_primary: "#ffffff",
     surface: "#ffffff",
+    pattern: "dots",
     font_heading: "Plus Jakarta Sans",
     font_body: "Plus Jakarta Sans",
   },
@@ -83,6 +93,7 @@ export const THEME_PRESETS: ThemePreset[] = [
     ink: "#0a1830",
     on_primary: "#ffffff",
     surface: "#ffffff",
+    pattern: "lines",
     font_heading: "Plus Jakarta Sans",
     font_body: "Plus Jakarta Sans",
   },
@@ -96,6 +107,7 @@ export const THEME_PRESETS: ThemePreset[] = [
     ink: "#031a10",
     on_primary: "#ffffff",
     surface: "#ffffff",
+    pattern: "dots",
     font_heading: "Plus Jakarta Sans",
     font_body: "Plus Jakarta Sans",
   },

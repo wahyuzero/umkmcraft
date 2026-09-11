@@ -8,11 +8,15 @@
  * live (pill hijau = status pasif; tombol "Perbarui situs" hanya muncul
  * saat draft menyimpang dari versi terbit) + "Lihat situs". Selama
  * autosave jalan (dirty/saving) tombol dikunci dengan bantuan singkat.
- * Toast piringan di bawah-tengah: CheckCircle2 (sukses) / AlertTriangle + "Coba lagi".
+ * Pra-publish: config discan penanda "belum selesai" (PublishPreflight) —
+ * ketemu → kartu peringatan inline dulu, kakak bisa memilih terbit saja
+ * (keputusan diingat selama penanda tak berubah). Toast piringan di
+ * bawah-tengah: CheckCircle2 (sukses) / AlertTriangle + "Coba lagi".
  */
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useEditor } from "@/lib/editor-store";
+import { PreflightCard, scanUnfinished } from "./PublishPreflight";
 import { AlertTriangle, CheckCircle2, ExternalLink, Globe, Loader2, RefreshCw } from "lucide-react";
 
 interface ToastData {
@@ -50,9 +54,36 @@ export function PublishButton({ staleInitially = false }: { staleInitially?: boo
   }, []);
   const stale = published && changedSincePublish;
 
+  // Gerbang pra-publish: penanda "belum selesai" yang sedang tampil sebagai
+  // kartu (null = tertutup). Kunci keputusan "terbitkan saja" = hasil scan —
+  // selama penandanya tak berubah, publish berikutnya tidak dinag ulang;
+  // memperbaiki salah satu penanda mengganti kunci sehingga kartu boleh
+  // muncul lagi (editan lain yang tak menyentuh penanda tetap tak menag).
+  const [preflightIssues, setPreflightIssues] = useState<string[] | null>(null);
+  const proceedKey = useRef<string | null>(null);
+
   function showToast(data: ToastData) {
     if (toastTimer.current) clearTimeout(toastTimer.current);
     setToast(data);
+  }
+
+  /** Klik publish dari tombol: scan dulu, tunjukkan kartu bila ada penanda
+   *  dan keputusan "terbitkan saja" untuk penanda itu belum pernah dipilih. */
+  function requestPublish() {
+    const issues = scanUnfinished(useEditor.getState().config);
+    const key = issues.join("\n");
+    if (issues.length > 0 && proceedKey.current !== key) {
+      setPreflightIssues(issues);
+      return;
+    }
+    void publish();
+  }
+
+  /** "Terbitkan saja" — ingat keputusan untuk penanda ini, lalu lanjut. */
+  function publishAnyway() {
+    proceedKey.current = preflightIssues ? preflightIssues.join("\n") : null;
+    setPreflightIssues(null);
+    void publish();
   }
 
   async function publish() {
@@ -107,7 +138,7 @@ export function PublishButton({ staleInitially = false }: { staleInitially?: boo
           </span>
           {stale ? (
             <button
-              onClick={publish}
+              onClick={requestPublish}
               disabled={busy || saving}
               title={saving ? "Simpan dulu — perubahan kakak masih disimpan otomatis" : "Ada perubahan yang belum tampil di situs live"}
               aria-label="Perbarui situs"
@@ -138,7 +169,7 @@ export function PublishButton({ staleInitially = false }: { staleInitially?: boo
         </>
       ) : (
         <button
-          onClick={publish}
+          onClick={requestPublish}
           disabled={busy || saving}
           title={saving ? "Simpan dulu — perubahan kakak masih disimpan otomatis" : undefined}
           className={`${btnBase} bg-signal text-card shadow-plate`}
@@ -154,8 +185,20 @@ export function PublishButton({ staleInitially = false }: { staleInitially?: boo
         </button>
       )}
 
-      {/* Bantuan saat autosave masih jalan — absolut agar header tak bergeser */}
-      {saving && !busy ? (
+      {/* Gerbang pra-publish: kartu peringatan inline di bawah tombol —
+          "Perbaiki dulu" menutup tanpa menerbitkan, "Terbitkan saja" lanjut. */}
+      {preflightIssues ? (
+        <PreflightCard
+          issues={preflightIssues}
+          onFixFirst={() => setPreflightIssues(null)}
+          onPublishAnyway={publishAnyway}
+          onDismiss={() => setPreflightIssues(null)}
+        />
+      ) : null}
+
+      {/* Bantuan saat autosave masih jalan — absolut agar header tak bergeser
+          (disembunyikan saat kartu preflight terbuka agar tak bertumpuk) */}
+      {saving && !busy && !preflightIssues ? (
         <p className="absolute right-0 top-full z-40 mt-1.5 max-w-56 rounded-lg border border-cutline/60 bg-card px-2.5 py-1 text-right text-[0.65rem] font-medium leading-snug text-ink-soft shadow-plate">
           Simpan dulu — perubahan kakak masih disimpan otomatis
         </p>

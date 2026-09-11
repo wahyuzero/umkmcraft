@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { cookies } from "next/headers";
 import type { Metadata } from "next";
-import { ExternalLink, PenLine, Sticker } from "lucide-react";
+import { ExternalLink, Eye, PenLine, Sticker } from "lucide-react";
 import { store } from "@/lib/server/store";
 import { CopyLinkButton } from "./CopyLinkButton";
 
@@ -120,6 +120,19 @@ export default async function SitusSayaPage() {
                     {live ? (
                       // Target salinan = href persis tombol Lihat di atas
                       <CopyLinkButton path={`/sites/${r.slug}`} />
+                    ) : null}
+                    {r.status === "DRAFT" ? (
+                      // Pratinjau draf — jalur khusus owner (uc_session
+                      // diverifikasi di server /sites/<slug>); orang luar
+                      // tetap melihat 404, makanya "Salin link" hanya untuk
+                      // situs live.
+                      <Link
+                        href={`/sites/${r.slug}`}
+                        className="inline-flex min-h-[44px] items-center gap-1.5 rounded-xl border border-cutline bg-paper px-3.5 py-2.5 text-sm font-semibold text-ink transition-colors duration-200 hover:border-signal/40 hover:bg-signal-soft/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal"
+                      >
+                        <Eye className="h-4 w-4" aria-hidden />
+                        Pratinjau
+                      </Link>
                     ) : null}
                     <Link
                       href={`/editor/${r.id}`}

@@ -116,12 +116,21 @@ export const MODULE_REGISTRY: Record<SectionType, ModuleComponent> = {
  * hero_storefront di tengah — pelanggan tetap harus disambut hero, bukan
  * "Lokasi & Jam Buka". Urutan relatif section lain dipertahankan apa adanya.
  */
-export function renderSections(meta: UmkmMeta, sections: Section[]): ReactNode[] {
-  const catalogId = sections.find((s) => s.type === "product_catalog_wa")?.id ?? "katalog";
+/**
+ * orderedSections — urutan render final: hero di depan (stable-partition),
+ * sisanya mengikuti urutan config. Satu sumber kebenaran untuk renderer,
+ * daftar section builder, dan pratinjau agar ketiganya selalu sepakat.
+ */
+export function orderedSections(sections: Section[]): Section[] {
   const known = sections.filter((s) => s.type in MODULE_REGISTRY);
   const heroes = known.filter((s) => s.type === "hero_storefront");
   const rest = known.filter((s) => s.type !== "hero_storefront");
-  return [...heroes, ...rest].map((section) => {
+  return [...heroes, ...rest];
+}
+
+export function renderSections(meta: UmkmMeta, sections: Section[]): ReactNode[] {
+  const catalogId = sections.find((s) => s.type === "product_catalog_wa")?.id ?? "katalog";
+  return orderedSections(sections).map((section) => {
       const Component = MODULE_REGISTRY[section.type]!;
       return (
         <Component

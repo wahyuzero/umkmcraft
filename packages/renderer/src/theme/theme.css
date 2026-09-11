@@ -40,6 +40,17 @@
   );
 }
 
+/* ---------- Tekstur section per-preset (identitas kategori) ----------
+   Nilai pola mengalir dari themeStyle(meta) lewat --uc-pattern-image/size —
+   satu root .uc-site menentukan motif untuk SEMUA section tone="bg" sekaligus
+   (lihat PATTERN_TEXTURE di theme.ts). Sengaja jauh lebih kalem daripada pola
+   hero di atas — kedai merchant, bukan poster. Hanya latar section; kartu
+   surface dan konten tetap bersih agar kontras AA tidak tersentuh. */
+.uc-section-texture {
+  background-image: var(--uc-pattern-image, none);
+  background-size: var(--uc-pattern-size, auto);
+}
+
 /* Kartu permukaan konsisten — bayangan dua lapis halus */
 .uc-card {
   background: var(--uc-surface);

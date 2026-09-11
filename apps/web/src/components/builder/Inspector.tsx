@@ -16,6 +16,7 @@ import type { SectionType } from "@umkmcraft/schema";
 import {
   CalendarCheck,
   CalendarDays,
+  Camera,
   Check,
   ChevronDown,
   ChevronUp,
@@ -27,6 +28,7 @@ import {
   Images,
   Instagram,
   ListOrdered,
+  Loader2,
   MapPin,
   Megaphone,
   MousePointerClick,
@@ -50,7 +52,7 @@ import {
   X,
   type LucideIcon,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type FieldType = "text" | "textarea" | "number" | "url" | "image" | "toggle";
 
@@ -403,9 +405,11 @@ export function Inspector() {
 
 /* ---------------- field primitives ---------------- */
 
+/* Input dasar: bg-card + border cutline, fokus ring signal-soft (DESIGN.md) */
+const inputCls =
+  "w-full rounded-xl border border-cutline bg-card px-3 py-2.5 text-sm text-ink transition-colors duration-200 placeholder:text-ink-soft/50 focus:border-signal focus:outline-none focus:ring-3 focus:ring-signal/15";
+
 function Field({ def, value, onChange }: { def: FieldDef; value: unknown; onChange: (v: unknown) => void }) {
-  const inputCls =
-    "w-full rounded-xl border border-cutline bg-card px-3 py-2.5 text-sm text-ink transition-colors duration-200 placeholder:text-ink-soft/50 focus:border-signal focus:outline-none focus:ring-3 focus:ring-signal/15";
   const limit = LIMITS[def.key];
   const len = String(value ?? "").length;
 
@@ -430,41 +434,10 @@ function Field({ def, value, onChange }: { def: FieldDef; value: unknown; onChan
     );
   }
 
-  /* Field foto: pratinjau kecil + tempel link + petunjuk satu baris —
-     pedagang awam langsung paham isinya link foto, bukan unggah file. */
+  /* Field foto: unggah dari galeri HP (via /uploads) + alternatif tempel
+     link. Butuh state lokal → logikanya di ImageField di bawah. */
   if (def.type === "image") {
-    const src = String(value ?? "");
-    return (
-      <label className="block">
-        <span className="mb-1.5 flex items-baseline justify-between gap-2">
-          <span className="text-xs font-semibold text-ink">{def.label}</span>
-        </span>
-        <div className="flex items-start gap-2.5">
-          {src.trim() ? (
-            // URL foto bebas dari pengguna — next/image butuh allowlist domain,
-            // jadi <img> polos (pola sama dengan packages/renderer).
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={src.trim()}
-              alt="Pratinjau foto"
-              loading="lazy"
-              decoding="async"
-              className="h-14 w-14 shrink-0 rounded-xl object-cover ring-1 ring-cutline"
-            />
-          ) : null}
-          <input
-            type="text"
-            value={src}
-            onChange={(e) => onChange(e.target.value)}
-            placeholder="https://…jpg/png"
-            className={`${inputCls} min-h-[44px]`}
-          />
-        </div>
-        <span className="mt-1 block text-xs leading-snug text-ink-soft">
-          {def.hint ?? "Salin link foto dari Google Drive/Instagram lalu tempel di sini"}
-        </span>
-      </label>
-    );
+    return <ImageField def={def} value={value} onChange={onChange} />;
   }
 
   return (
@@ -489,6 +462,129 @@ function Field({ def, value, onChange }: { def: FieldDef; value: unknown; onChan
       )}
       {def.hint ? <span className="mt-1 block text-xs leading-snug text-ink-soft">{def.hint}</span> : null}
     </label>
+  );
+}
+
+/* ---------------- field foto (unggah + tempel link) ---------------- */
+
+/**
+ * Foto pedagang ada di galeri HP, bukan di internet — jadi tombol unggah
+ * adalah jalan utama, tempel link hanya alternatif. Satu <input type=file>
+ * saja: dari accept, browser HP menawarkan kamera maupun galeri. Hasil
+ * unggahan berupa URL /uploads/... dan diset lewat onChange yang sama
+ * dengan mengetik. Link Drive/IG diperingatkan saat blur — halaman itu
+ * bukan file gambar, <img>-nya pasti rusak (tidak menyekat mengetik).
+ */
+function ImageField({ def, value, onChange }: { def: FieldDef; value: unknown; onChange: (v: unknown) => void }) {
+  const siteId = useEditor((s) => s.siteId);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [linkWarn, setLinkWarn] = useState(false);
+  const src = String(value ?? "");
+
+  async function uploadFile(file: File) {
+    if (busy) return;
+    setError(null);
+    setBusy(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await fetch(`/api/sites/${siteId}/upload`, { method: "POST", body: fd });
+      const data = (await res.json().catch(() => null)) as { url?: string; error?: string } | null;
+      if (!res.ok || !data?.url) throw new Error(data?.error ?? "Gagal mengunggah foto — coba lagi, Kak.");
+      onChange(data.url);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Gagal mengunggah foto — coba lagi, Kak.");
+    } finally {
+      setBusy(false);
+      if (inputRef.current) inputRef.current.value = "";
+    }
+  }
+
+  const actionBtn =
+    "flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl uc-cutline bg-card text-sm font-bold transition-colors duration-200 hover:bg-signal-soft disabled:pointer-events-none disabled:opacity-40";
+
+  return (
+    <div>
+      <span className="mb-1.5 flex items-baseline justify-between gap-2">
+        <span className="text-xs font-semibold text-ink">{def.label}</span>
+      </span>
+      <div className="flex items-start gap-2.5">
+        {src.trim() ? (
+          // URL foto bebas dari pengguna — next/image butuh allowlist domain,
+          // jadi <img> polos (pola sama dengan packages/renderer).
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={src.trim()}
+            alt="Pratinjau foto"
+            loading="lazy"
+            decoding="async"
+            className="h-14 w-14 shrink-0 rounded-xl object-cover ring-1 ring-cutline"
+          />
+        ) : null}
+        <div className="flex min-w-0 flex-1 gap-2">
+          <button
+            type="button"
+            onClick={() => inputRef.current?.click()}
+            disabled={busy}
+            className={`${actionBtn} min-w-0 flex-1 text-signal`}
+          >
+            {busy ? (
+              <Loader2 aria-hidden className="h-4 w-4 shrink-0 animate-spin" />
+            ) : (
+              <Camera aria-hidden className="h-4 w-4 shrink-0" />
+            )}
+            {busy ? "Mengunggah…" : "Ambil Foto"}
+          </button>
+          <button
+            type="button"
+            aria-label="Hapus foto"
+            disabled={busy || !src.trim()}
+            onClick={() => {
+              setError(null);
+              setLinkWarn(false);
+              onChange("");
+            }}
+            className={`${actionBtn} shrink-0 px-3 text-ink-soft`}
+          >
+            <Trash2 aria-hidden className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) void uploadFile(file);
+        }}
+      />
+      <span className="mt-2 block text-xs font-semibold text-ink-soft">…atau tempel link foto</span>
+      <input
+        type="text"
+        value={src}
+        onChange={(e) => {
+          onChange(e.target.value);
+          setLinkWarn(false);
+        }}
+        onBlur={() => setLinkWarn(/drive\.google\.com|instagram\.com/i.test(src))}
+        placeholder="https://…jpg/png"
+        disabled={busy}
+        className={`${inputCls} mt-1.5 min-h-[44px]`}
+      />
+      {linkWarn ? (
+        <p className="mt-1 text-xs leading-snug text-signal">
+          Link itu bukan file gambar — buka linknya, klik kanan fotonya, salin alamat gambar.
+        </p>
+      ) : null}
+      {error ? <p className="mt-1 text-xs font-semibold leading-snug text-signal">{error}</p> : null}
+      <span className="mt-1 block text-xs leading-snug text-ink-soft">
+        {def.hint ?? "Ambil foto dari galeri kakak, atau tempel link langsung ke file .jpg/.png"}
+      </span>
+    </div>
   );
 }
 

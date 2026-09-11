@@ -1,4 +1,4 @@
-export { MODULE_REGISTRY, renderSections, type ModuleCommonProps } from "./registry";
+export { MODULE_REGISTRY, renderSections, orderedSections, type ModuleCommonProps } from "./registry";
 export { themeStyle, FONT_VAR_MAP, uc, aaTextColor } from "./theme/theme";
 export * from "./primitives";
 export * from "./footer";

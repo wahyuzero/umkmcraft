@@ -80,7 +80,7 @@ export function ProductCatalogWA({
       );
     }
     return (
-      <ul className="grid grid-cols-2 gap-3.5 sm:gap-5 lg:grid-cols-3">
+      <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
         {list.map((p, i) => (
           <li
             key={p.id}
@@ -113,7 +113,7 @@ export function ProductCatalogWA({
   };
 
   return (
-    <SectionShell id={id}>
+    <SectionShell id={id} wide>
       <SectionHeader title={props.section_title} subtitle={props.section_subtitle} />
       {distinctCategories.length >= 2 ? (
         <CatalogTabs categories={categories}>{renderGrid}</CatalogTabs>

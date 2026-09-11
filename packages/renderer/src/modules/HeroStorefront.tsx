@@ -5,8 +5,10 @@
  * hover), 3 pill badges keunggulan. RSC — 0 JS client kecuali CTA terlacak.
  */
 import type { SectionProps } from "@umkmcraft/schema";
+import { guessPresetForCategory } from "@umkmcraft/schema";
 import { createWhatsAppChatLink } from "@umkmcraft/utils";
 import { PillBadge, SafeImage, WaButton } from "../primitives";
+import { patternClass } from "../theme/theme";
 
 export type HeroStorefrontProps = SectionProps<"hero_storefront">;
 
@@ -39,20 +41,23 @@ export function HeroStorefront({
   onCatalogHref?: string;
 }) {
   const waHref = createWhatsAppChatLink(whatsappNumber, props.cta_primary.prefill_message || `Halo ${businessName}! 👋 Saya lihat websitenya, mau tanya-tanya produk kak.`);
+  // Pola identitas kategori mengikuti preset (mekanisme sama dengan template
+  // engine) — barber dapat garis diagonal pole, kuliner tetap titik craft.
+  const pattern = patternClass(guessPresetForCategory(category).pattern);
 
   return (
     <header className="relative overflow-hidden bg-[var(--uc-bg)]">
-      {/* Field dekoratif: pola titik craft (memudar ke bawah) + satu blob radial lembut */}
+      {/* Field dekoratif: pola per-preset (memudar ke bawah) + satu blob radial lembut */}
       <div
         aria-hidden
-        className="uc-pattern-dots pointer-events-none absolute inset-x-0 top-0 h-64 opacity-70 [mask-image:linear-gradient(to_bottom,black,transparent)] sm:h-80"
+        className={`${pattern} pointer-events-none absolute inset-x-0 top-0 h-64 opacity-70 [mask-image:linear-gradient(to_bottom,black,transparent)] sm:h-80`}
       />
       <div
         aria-hidden
         className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full opacity-[0.13]"
         style={{ background: "radial-gradient(circle, var(--uc-primary), transparent 70%)" }}
       />
-      <div className="relative mx-auto grid w-full max-w-3xl gap-8 px-5 pb-14 pt-10 sm:px-8 sm:pb-16 sm:pt-14 md:grid-cols-[1.1fr_0.9fr] md:items-center">
+      <div className="relative mx-auto grid w-full max-w-3xl gap-8 px-5 pb-14 pt-10 sm:px-8 sm:pb-16 sm:pt-14 md:grid-cols-[1.1fr_0.9fr] md:items-center lg:max-w-5xl lg:gap-14">
         <div className="flex flex-col items-start gap-5">
           {/* Teks chip di-campur 12% ke arah ink: bg chip sendiri adalah sapuan
               secondary 10% di atas surface — token secondary-text saja belum

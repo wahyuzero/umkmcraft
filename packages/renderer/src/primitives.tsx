@@ -18,11 +18,16 @@ export function SectionShell({
   id,
   children,
   tone = "bg",
+  wide = false,
   className = "",
 }: {
   id: string;
   children: ReactNode;
   tone?: "bg" | "surface" | "wash";
+  /** Container mengembang di lg+ (max-w-5xl) untuk modul padat: katalog,
+      galeri. Modul narasi tetap max-w-3xl — ritme campuran sengaja editorial.
+      Tidak ada yang melebihi max-w-5xl. */
+  wide?: boolean;
   className?: string;
 }) {
   const bg =
@@ -31,9 +36,12 @@ export function SectionShell({
       : tone === "wash"
         ? "bg-[color-mix(in_oklab,var(--uc-primary)_5%,var(--uc-bg))]"
         : "bg-[var(--uc-bg)]";
+  // Tekstur identitas kategori HANYA di latar section dasar — kartu surface
+  // dan band wash tetap polos (kontras AA konten tidak tersentuh).
+  const texture = tone === "bg" ? "uc-section-texture" : "";
   return (
-    <section id={id} className={`uc-reveal relative scroll-mt-4 ${bg} px-5 py-14 sm:px-8 sm:py-16 ${className}`}>
-      <div className="mx-auto w-full max-w-3xl">{children}</div>
+    <section id={id} className={`uc-reveal relative scroll-mt-4 ${bg} ${texture} px-5 py-14 sm:px-8 sm:py-16 ${className}`}>
+      <div className={`mx-auto w-full ${wide ? "max-w-3xl lg:max-w-5xl" : "max-w-3xl"}`}>{children}</div>
     </section>
   );
 }
@@ -56,7 +64,7 @@ export function SectionHeader({
   return (
     <div className={`${centered ? "text-center" : "text-left"} mb-8 sm:mb-10`}>
       {title ? (
-        <h2 className="font-[family-name:var(--uc-font-heading)] text-[1.75rem] font-extrabold leading-[1.15] tracking-[-0.025em] text-[var(--uc-ink)] sm:text-[2.1rem]">
+        <h2 className="text-balance font-[family-name:var(--uc-font-heading)] text-[1.75rem] font-extrabold leading-[1.15] tracking-[-0.025em] text-[var(--uc-ink)] sm:text-[2.1rem]">
           {title}
         </h2>
       ) : null}

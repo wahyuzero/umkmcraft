@@ -18,13 +18,14 @@ export const galleryDefaults: GalleryGridProps = {
 
 const LAYOUT_GRID: Record<GalleryGridProps["layout"], string> = {
   grid_2_col: "grid-cols-2",
-  grid_3_col: "grid-cols-2 sm:grid-cols-3",
+  /* lg tier hanya aktif saat section wide (desktop) — kepadatan editorial */
+  grid_3_col: "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4",
   grid_4_col: "grid-cols-2 sm:grid-cols-4",
 };
 
 export function GalleryGrid({ id, props, category = "" }: { id: string; props: GalleryGridProps; category?: string }) {
   return (
-    <SectionShell id={id} tone="surface">
+    <SectionShell id={id} tone="surface" wide>
       <SectionHeader title={props.section_title} subtitle={props.section_subtitle} />
       <GalleryLightbox
         items={props.items}
