@@ -47,6 +47,12 @@ export function ProductCatalogWA({
   const categories = props.categories.length > 0
     ? props.categories
     : [...new Set(props.products.map((p) => p.category))];
+  // Tab filter hanya berarti bila ada ≥2 kategori produk berbeda — satu tab
+  // "Semua" tunggal tidak menyaring apa pun; render grid langsung tanpa island
+  // (nol JS client) dan tanpa risiko filter kategori kosong.
+  const distinctCategories = [
+    ...new Set(props.products.map((p) => p.category).filter((c) => c && c !== "Semua")),
+  ];
 
   const renderGrid = (filter: string) => {
     const list = filter === "Semua" ? props.products : props.products.filter((p) => p.category === filter);
@@ -89,7 +95,7 @@ export function ProductCatalogWA({
                 {p.name}
               </h3>
               {p.description ? (
-                <p className="line-clamp-2 text-xs leading-relaxed text-[color-mix(in_oklab,var(--uc-ink)_60%,transparent)]">
+                <p className="line-clamp-2 text-pretty text-xs leading-relaxed text-[color-mix(in_oklab,var(--uc-ink)_60%,transparent)]">
                   {p.description}
                 </p>
               ) : null}
@@ -109,7 +115,11 @@ export function ProductCatalogWA({
   return (
     <SectionShell id={id}>
       <SectionHeader title={props.section_title} subtitle={props.section_subtitle} />
-      <CatalogTabs categories={categories}>{renderGrid}</CatalogTabs>
+      {distinctCategories.length >= 2 ? (
+        <CatalogTabs categories={categories}>{renderGrid}</CatalogTabs>
+      ) : (
+        renderGrid("Semua")
+      )}
     </SectionShell>
   );
 }

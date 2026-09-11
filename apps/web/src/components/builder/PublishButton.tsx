@@ -21,7 +21,7 @@ interface ToastData {
   url?: string;
 }
 
-export function PublishButton() {
+export function PublishButton({ staleInitially = false }: { staleInitially?: boolean }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [toast, setToast] = useState<ToastData | null>(null);
@@ -34,11 +34,13 @@ export function PublishButton() {
   const saving = saveState === "dirty" || saveState === "saving";
   const siteUrl = slug ? `/sites/${slug}` : "/";
 
-  // Draft menyimpang dari versi terbit? Setiap mutasi store menandai
-  // saveState "dirty" — cukup satu jejak lokal yang reset saat terbit ulang.
-  // Dengarkan transisi ke dirty via subscribe (bukan effect body) agar
-  // jejaknya tetap hidup setelah autosave selesai (state kembali "saved").
-  const [changedSincePublish, setChangedSincePublish] = useState(false);
+  // Draft menyimpang dari versi terbit? Nilai awal datang dari SERVER
+  // (staleInitially — perbandingan versi draft vs publishedVersionId di
+  // editor page), bukan dari memori yang selalu mulai bersih tiap sesi.
+  // Setelah itu setiap mutasi menandai saveState "dirty" — dengarkan
+  // transisi ke dirty via subscribe (bukan effect body) agar jejaknya
+  // tetap hidup setelah autosave selesai (state kembali "saved").
+  const [changedSincePublish, setChangedSincePublish] = useState(staleInitially);
   useEffect(() => {
     return useEditor.subscribe((state, prev) => {
       if (state.saveState === "dirty" && prev.saveState !== "dirty") {
@@ -56,11 +58,15 @@ export function PublishButton() {
   async function publish() {
     // kunci tombol sejak awal agar tak bisa dobel-klik saat flush autosave
     setBusy(true);
-    // simpan dulu perubahan yang belum ter-debounce
-    useEditor.getState().scheduleSave();
-    await new Promise((r) => setTimeout(r, 900));
     setToast(null);
     try {
+      // Tunggu autosave benar-benar selesai (debounce dipeles, PATCH in-flight
+      // ditunggu) — snapshot publish tidak boleh duluan dari simpanan.
+      await useEditor.getState().flushSave();
+      if (useEditor.getState().saveState === "error") {
+        showToast({ kind: "err", text: "Simpanan gagal — coba lagi, kak" });
+        return;
+      }
       const res = await fetch(`/api/sites/${useEditor.getState().siteId}/publish`, { method: "POST" });
       const data = (await res.json()) as { ok?: boolean; error?: string; pathUrl?: string };
       if (!res.ok || !data.ok) {
@@ -88,14 +94,16 @@ export function PublishButton() {
     <div className="relative flex items-center gap-1.5">
       {published ? (
         <>
-          {/* Pill hijau murni status (bukan tombol) — satu-satunya pemakaian hijau */}
+          {/* Pill hijau murni status (bukan tombol) — satu-satunya pemakaian hijau.
+              Di layar sempit ikon saja (title tetap membacakan "Live"). */}
           <span
             role="status"
+            aria-label="Live"
             title="Situs kakak sedang live"
-            className="flex items-center gap-1.5 rounded-full bg-live px-3 py-1.5 text-xs font-extrabold uppercase tracking-wide text-card"
+            className="flex items-center gap-1.5 rounded-full bg-live px-3 py-1.5 text-xs font-extrabold text-card"
           >
             <Globe aria-hidden className="h-3.5 w-3.5" />
-            Live
+            <span className="hidden sm:inline">Live</span>
           </span>
           {stale ? (
             <button

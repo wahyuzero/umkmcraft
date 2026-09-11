@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import type { Metadata } from "next";
 import { ExternalLink, PenLine, Sticker } from "lucide-react";
 import { store } from "@/lib/server/store";
+import { CopyLinkButton } from "./CopyLinkButton";
 
 export const metadata: Metadata = {
   title: "Situs Saya — UMKM Craft",
@@ -100,8 +101,10 @@ export default async function SitusSayaPage() {
                         {live ? "Live" : "Draf"}
                       </span>
                     </div>
-                    <p className="mt-1 truncate text-xs text-ink-soft">
-                      {r.slug}.umkmcraft.id · disunting {formatTime(r.updatedAt)}
+                    <p className="mt-1 truncate font-ui text-xs text-ink-soft">
+                      {/* URL tampil = persis target tombol Lihat (bentuk path,
+                          selalu jalan tanpa DNS vhost) — bukan slug.umkmcraft.id */}
+                      /sites/{r.slug} · disunting {formatTime(r.updatedAt)}
                     </p>
                   </div>
                   <div className="flex shrink-0 items-center gap-2">
@@ -113,6 +116,10 @@ export default async function SitusSayaPage() {
                         <ExternalLink className="h-4 w-4" aria-hidden />
                         Lihat
                       </a>
+                    ) : null}
+                    {live ? (
+                      // Target salinan = href persis tombol Lihat di atas
+                      <CopyLinkButton path={`/sites/${r.slug}`} />
                     ) : null}
                     <Link
                       href={`/editor/${r.id}`}

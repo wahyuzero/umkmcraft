@@ -177,3 +177,16 @@ body {
     }
   }
 }
+
+/* Transisi antar halaman (cross-document view transitions) — pure CSS,
+   aman no-op di browser yang belum mendukung. */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 250ms;
+    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+}

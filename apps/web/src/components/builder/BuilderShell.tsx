@@ -39,11 +39,14 @@ export function BuilderShell({
   slug,
   initialConfig,
   published,
+  staleInitially,
 }: {
   siteId: string;
   slug: string;
   initialConfig: UmkmWebsiteConfig;
   published: boolean;
+  /** Kebenaran server saat load: draft sudah lebih baru dari versi terbit? */
+  staleInitially: boolean;
 }) {
   const [catalogOpen, setCatalogOpen] = useState(false);
   const [mobileTab, setMobileTab] = useState<MobileTab>("pratinjau");
@@ -85,7 +88,7 @@ export function BuilderShell({
         <div className="flex shrink-0 items-center gap-1.5 sm:gap-3">
           <SaveIndicator state={saveState} lastSavedAt={lastSavedAt} />
           <ThemeSwitcher />
-          <PublishButton />
+          <PublishButton staleInitially={staleInitially} />
         </div>
       </header>
 
@@ -101,7 +104,7 @@ export function BuilderShell({
           }`}
         >
           <div className="flex shrink-0 items-center justify-between px-4 pb-2 pt-4">
-            <h2 className="font-display text-sm font-bold uppercase tracking-[0.06em] text-ink-soft">
+            <h2 className="font-display text-sm font-bold text-ink">
               Susunan Halaman
             </h2>
             <span className="text-[0.7rem] tabular-nums text-ink-soft/70">

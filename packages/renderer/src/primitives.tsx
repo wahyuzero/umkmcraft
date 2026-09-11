@@ -76,7 +76,8 @@ export function SectionHeader({
 }
 
 /* ---------------------------------------------------------------- */
-/* WaButton — CTA WhatsApp. Hover lift + glow, tekan menyusut halus, */
+/* WaButton — CTA WhatsApp. Depth-as-state: hover bayangan mengetat, */
+/* tekan tenggelam 1px + bayangan rapat (press-in, bukan lift),      */
 /* tinggi sentuh ≥44px (ramah jempol, kontrak aksesibilitas)         */
 /* ---------------------------------------------------------------- */
 
@@ -102,7 +103,7 @@ export function WaButton({
       href={href}
       event={productId ? "wa_product_click" : "wa_click"}
       productId={productId}
-      className={`group inline-flex items-center justify-center gap-2 rounded-2xl ${pad} font-semibold whitespace-nowrap shadow-[0_2px_10px_color-mix(in_oklab,var(--uc-primary)_38%,transparent)] transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[0_10px_28px_color-mix(in_oklab,var(--uc-primary)_45%,transparent)] active:translate-y-0 active:scale-[0.98] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--uc-primary)] ${full ? "w-full" : ""} bg-[var(--uc-primary)] text-[var(--uc-on-primary-text)]`}
+      className={`group inline-flex items-center justify-center gap-2 rounded-2xl ${pad} font-semibold whitespace-nowrap shadow-[0_2px_10px_color-mix(in_oklab,var(--uc-primary)_38%,transparent)] transition-[transform,box-shadow] duration-150 ease-out hover:shadow-[0_1px_6px_color-mix(in_oklab,var(--uc-primary)_42%,transparent)] active:translate-y-[1px] active:shadow-[0_0_2px_color-mix(in_oklab,var(--uc-primary)_45%,transparent)] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--uc-primary)] ${full ? "w-full" : ""} bg-[var(--uc-primary)] text-[var(--uc-on-primary-text)]`}
     >
       <WaIcon className="h-[1.15em] w-[1.15em] shrink-0 transition-transform duration-200 ease-out group-hover:scale-110" />
       <span>{children}</span>

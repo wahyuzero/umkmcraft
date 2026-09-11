@@ -10,10 +10,11 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { LoaderCircle, Send, Sparkles, WifiOff } from "lucide-react";
+import { LoaderCircle, RotateCcw, Send, Sparkles, WifiOff } from "lucide-react";
+import { isValidWaNumber, normalizeWaNumber } from "@umkmcraft/utils";
 import { ChatMessage, TypingBubble, type Msg } from "@/components/start/ChatMessage";
 import { SlotSteps } from "@/components/start/SlotSteps";
-import { SlotReceipt } from "@/components/start/SlotReceipt";
+import { SlotReceipt, type SlotKey, type ProductEntry } from "@/components/start/SlotReceipt";
 import "./start.css";
 
 interface Slots {
@@ -34,6 +35,40 @@ const SUGGESTIONS = [
   "Barber Senja, barbershop di Bogor",
 ];
 
+/**
+ * Deteksi kasar di klien untuk JANGKAR PROGRES saja (tampilan) — meniru pola
+ * deterministik engine (packages/ai/src/slots.ts) versi longgar. Nilai slot
+ * tetap milik server; langkah yang sudah menyala tidak pernah mati lagi, jadi
+ * request yang gagal tidak memundurkan progres di mata kakak.
+ */
+function guessSteps(text: string): [boolean, boolean, boolean] {
+  const t = text.toLowerCase();
+  const name =
+    /nama\s*(?:usaha|toko|warung|kedai|bengkel|laundry|cafe|brand|bisnis)/i.test(text) ||
+    /^[^,\n]{3,60},\s*(?:yang\s*)?(?:jualan|jual\b|menjual|produk|jasa|layan|servis|service|spesialis|barbershop|barber|coffee\s*shop|kafe|cafe|salon|studio|catering|buka)/i.test(text);
+  const category = [
+    "kuliner", "makanan", "minuman", "warung", "kedai", "kopi", "coffee", "kafe", "cafe",
+    "boba", "barbershop", "barber", "salon", "fashion", "butik", "hijab", "baju",
+    "skincare", "bengkel", "servis", "service", "laundry", "cuci", "jasa", "toko",
+  ].some((k) => t.includes(k));
+  const wa = /(?:\+?62|0)8\d{7,13}/.test(text.replace(/[-.\s()]/g, ""));
+  return [name, category, wa];
+}
+
+/** Parse teks bebas "nama harga; nama harga" jadi daftar produk. */
+function parseProducts(raw: string): ProductEntry[] {
+  return raw
+    .split(";")
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .map((part) => {
+      const m = part.match(/^(.*?)[\s-]+(\d[\d.,]*)$/);
+      const name = m?.[1]?.trim();
+      if (!m || !name) return { name: part };
+      return { name, price: Number(m[2]!.replace(/[.,]/g, "")) };
+    });
+}
+
 export default function StartPage() {
   const router = useRouter();
   const [messages, setMessages] = useState<Msg[]>([{ role: "assistant", content: GREETING }]);
@@ -44,6 +79,8 @@ export default function StartPage() {
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastInput, setLastInput] = useState<string | null>(null);
+  // Jangkar progres optimistik (lihat guessSteps): menyala sekali, tak pernah mati.
+  const [optimisticSteps, setOptimisticSteps] = useState<[boolean, boolean, boolean]>([false, false, false]);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -80,6 +117,8 @@ export default function StartPage() {
     if (inputRef.current) inputRef.current.style.height = "auto";
     const history = [...messages, { role: "user" as const, content: trimmed }];
     setMessages(history);
+    const guess = guessSteps(trimmed);
+    setOptimisticSteps((prev) => [prev[0] || guess[0], prev[1] || guess[1], prev[2] || guess[2]]);
     setBusy(true);
     try {
       const res = await fetch("/api/ai/intake", {
@@ -94,10 +133,34 @@ export default function StartPage() {
       setMessages((m) => [...m, { role: "assistant", content: data.reply }]);
       setLastInput(null);
     } catch {
+      // Rollback bubble user: pesannya memang belum terkirim, jadi "Kirim ulang"
+      // mengirim TEPAT satu salinan — bukan menduplikasi bubble yang gagal.
+      setMessages((m) => m.slice(0, -1));
       setError("Koneksi bermasalah — coba kirim ulang ya, kakak.");
     } finally {
       setBusy(false);
     }
+  }
+
+  /**
+   * Edit slot dari receipt (P0: pintu keluar kalau ekstraksi salah).
+   * Setelah edit tetap `ready` — cukup perbaiki lalu lanjut membuat situs.
+   */
+  function handleSlotEdit(key: SlotKey, value: string) {
+    if (key === "products") {
+      setSlots((s) => ({ ...s, products: parseProducts(value) }));
+      return;
+    }
+    const trimmed = value.trim();
+    if (!trimmed) return;
+    if (key === "whatsappNumber") {
+      // Konsisten dengan downstream: state menyimpan digit "62…" (normalizeWaNumber).
+      const normalized = normalizeWaNumber(trimmed);
+      if (!isValidWaNumber(normalized)) return; // tidak valid → biarkan nilai lama
+      setSlots((s) => ({ ...s, whatsappNumber: normalized }));
+      return;
+    }
+    setSlots((s) => ({ ...s, [key]: trimmed }));
   }
 
   async function generate() {
@@ -121,7 +184,14 @@ export default function StartPage() {
     }
   }
 
-  const progress = [Boolean(slots.businessName), Boolean(slots.category), Boolean(slots.whatsappNumber)];
+  // Progres = slot terkonfirmasi server ATAU jangkar optimistik lokal —
+  // kegagalan request tidak boleh memundurkan langkah yang sudah terlihat.
+  const serverProgress = [
+    Boolean(slots.businessName),
+    Boolean(slots.category),
+    Boolean(slots.whatsappNumber),
+  ];
+  const progress = serverProgress.map((filled, i) => filled || Boolean(optimisticSteps[i]));
 
   return (
     <main className="start-paper flex h-dvh flex-col bg-paper">
@@ -164,7 +234,7 @@ export default function StartPage() {
 
       {/* Chat — kolom menempel ke bawah biar obrolan pendek tidak menyisakan
           ruang kosong panjang di atas composer; obrolan panjang tetap scroll. */}
-      <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto">
+      <div ref={scrollRef} role="log" aria-live="polite" aria-label="Obrolan" className="min-h-0 flex-1 overflow-y-auto">
         <div className="mx-auto flex min-h-full max-w-2xl flex-col justify-end gap-3 px-5 pb-6 pt-6">
           {messages.map((m, i) => (
             <ChatMessage key={i} message={m} />
@@ -174,15 +244,19 @@ export default function StartPage() {
 
           {error ? (
             <div role="alert" className="flex justify-center">
-              <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 rounded-full border border-dashed border-signal/50 bg-signal-soft px-4 py-2 text-[13px] font-medium text-signal">
-                <WifiOff className="h-4 w-4 shrink-0" aria-hidden />
-                <span>{error}</span>
-                {lastInput ? (
+              <div className="flex flex-col items-center gap-2.5 rounded-2xl border border-dashed border-signal/50 bg-signal-soft px-5 py-3">
+                <span className="flex items-center gap-2 text-center text-[13px] font-medium text-signal">
+                  <WifiOff className="h-4 w-4 shrink-0" aria-hidden />
+                  {error}
+                </span>
+                {lastInput && !ready ? (
                   <button
+                    type="button"
                     onClick={() => send(lastInput)}
-                    className="underline underline-offset-2 transition-colors hover:text-ink"
+                    className="flex min-h-[44px] items-center gap-2 rounded-full bg-signal px-5 py-2 text-sm font-semibold text-card transition-transform duration-150 hover:-translate-y-0.5 active:translate-y-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal"
                   >
-                    Coba lagi
+                    <RotateCcw className="h-4 w-4" strokeWidth={2.4} aria-hidden />
+                    Kirim ulang
                   </button>
                 ) : null}
               </div>
@@ -202,11 +276,12 @@ export default function StartPage() {
                 category={slots.category}
                 whatsappNumber={slots.whatsappNumber}
                 location={slots.location}
-                productCount={slots.products.length}
+                products={slots.products}
+                onEdit={handleSlotEdit}
               />
               <button
                 onClick={generate}
-                className="start-cta-glow mt-3 flex min-h-[52px] w-full items-center justify-center gap-2.5 rounded-2xl bg-signal px-6 py-3.5 font-display text-base font-bold text-card transition-transform duration-200 hover:-translate-y-0.5 active:translate-y-0 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-live"
+                className="start-cta-in mt-3 flex min-h-[52px] w-full items-center justify-center gap-2.5 rounded-2xl bg-signal px-6 py-3.5 font-display text-base font-bold text-card transition-transform duration-200 hover:-translate-y-0.5 active:translate-y-0 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-live"
               >
                 <Sparkles className="h-5 w-5" aria-hidden />
                 Buat Website Saya
@@ -243,8 +318,9 @@ export default function StartPage() {
           ) : null}
 
           {/* Composer: kartu dengan focus ring signal, textarea tumbuh, Enter kirim.
-              Saat `ready`, composer dinonaktifkan — satu aksi jelas: tombol oranye. */}
+              Saat `ready`, composer dinonaktifkan — satu aksi jelas: tombol besar. */}
           <form
+            autoComplete="off"
             onSubmit={(e) => {
               e.preventDefault();
               send(input);
@@ -265,6 +341,7 @@ export default function StartPage() {
                 rows={1}
                 value={input}
                 disabled={ready}
+                enterKeyHint="send"
                 onChange={(e) => {
                   setInput(e.target.value);
                   autosize();
@@ -275,7 +352,7 @@ export default function StartPage() {
                     send(input);
                   }
                 }}
-                placeholder={ready ? "Sudah lengkap — klik tombol oranye di atas ya" : "Contoh: warung sambal, WA 0812…"}
+                placeholder={ready ? "Sudah lengkap — klik tombol besar di atas ya" : "Contoh: warung sambal, WA 0812…"}
                 autoComplete="off"
                 className="max-h-[120px] w-full resize-none bg-transparent text-[0.95rem] leading-6 text-ink outline-none placeholder:text-ink-soft/70 disabled:cursor-not-allowed"
               />

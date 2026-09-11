@@ -6,8 +6,9 @@ import {
   Eye,
   Mail,
   MessageCircle,
+  MousePointerClick,
   ShoppingBag,
-  Sparkles,
+  Zap,
 } from "lucide-react";
 import { renderSections, themeStyle } from "@umkmcraft/renderer";
 import { parseUmkmConfig } from "@umkmcraft/schema";
@@ -40,7 +41,7 @@ const STEPS: { n: string; icon: LucideIcon; title: string; body: string }[] = [
   },
   {
     n: "2",
-    icon: Sparkles,
+    icon: Zap,
     title: "Situs jadi sebelum air kopimu dingin",
     body: "AI menyusun katalog, jam buka, dan tombol pesan otomatis. Semua blok bisa kamu geser dan ganti tanpa coding.",
   },
@@ -130,17 +131,17 @@ const MODULES: { name: string; desc: string; core: boolean; motif: ReactElement 
   },
 ];
 
-/* Label stiker: angka stamp dengan tepi die-cut */
+/* Label stiker: hasil nyata untuk pemilik usaha (bukan istilah internal) */
 const STAMPS = [
-  { value: "13", label: "modul siap pakai", tilt: "-rotate-1" },
-  { value: "5", label: "langkah sampai live", tilt: "rotate-[0.5deg]" },
-  { value: "6", label: "tema warna kategori", tilt: "-rotate-[0.5deg]" },
+  { label: "±30 detik situs jadi", tilt: "-rotate-1" },
+  { label: "Gratis, tanpa kartu kredit", tilt: "rotate-[0.5deg]" },
+  { label: "Pesan masuk ke WhatsApp kakak", tilt: "-rotate-[0.5deg]" },
 ];
 
 const MICROPROOFS: { icon: LucideIcon; label: string }[] = [
   { icon: CreditCard, label: "Tanpa kartu kredit" },
   { icon: Eye, label: "Langsung pratinjau" },
-  { icon: Sparkles, label: "Tanpa coding" },
+  { icon: MousePointerClick, label: "Tanpa coding" },
 ];
 
 function ArrowRight({ className }: { className?: string }) {
@@ -185,7 +186,7 @@ export default function LandingPage() {
             </Link>
             <Link
               href="/start"
-              className="ml-1.5 inline-flex items-center whitespace-nowrap rounded-xl bg-signal px-3 py-3 text-[0.8125rem] font-bold text-card shadow-[0_2px_10px_rgb(154_52_18/0.35)] transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[0_8px_22px_rgb(154_52_18/0.4)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal sm:ml-2 sm:px-4 sm:text-sm"
+              className="ml-1.5 inline-flex items-center whitespace-nowrap rounded-xl bg-signal px-3 py-3 text-[0.8125rem] font-bold text-card shadow-[0_2px_10px_rgb(154_52_18/0.35)] transition-[transform,box-shadow] duration-150 ease-out hover:shadow-[0_1px_6px_rgb(154_52_18/0.4)] active:translate-y-[1px] active:shadow-[0_0_2px_rgb(154_52_18/0.45)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal sm:ml-2 sm:px-4 sm:text-sm"
             >
               Buat Website Gratis
             </Link>
@@ -200,11 +201,6 @@ export default function LandingPage() {
           aria-hidden
           className="lc-dots pointer-events-none absolute inset-0 [mask-image:radial-gradient(55%_65%_at_78%_28%,black,transparent_72%)]"
         />
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -right-40 -top-40 h-[540px] w-[540px] rounded-full"
-          style={{ background: "radial-gradient(circle, rgb(154 52 18 / 0.09), transparent 65%)" }}
-        />
         <div className="relative mx-auto grid max-w-6xl items-center gap-14 px-5 pb-20 pt-16 sm:px-8 sm:pt-20 lg:grid-cols-[1.05fr_0.95fr] lg:pb-28">
           <div>
             <p className="uc-ruler uc-stick-in mb-6 inline-block h-[5px] w-24" aria-hidden />
@@ -212,7 +208,7 @@ export default function LandingPage() {
               Website usaha siap menerima pesanan,{" "}
               <span className="text-signal">secepat cerita kamu</span>.
             </h1>
-            <p className="uc-stick-in mt-6 max-w-xl text-lg leading-relaxed text-ink-soft [animation-delay:140ms]">
+            <p className="uc-stick-in mt-6 max-w-xl text-lg leading-relaxed text-pretty text-ink-soft [animation-delay:140ms]">
               Ceritakan usahamu lewat obrolan santai. UMKM Craft merangkai katalog produk,
               jam buka, dan tombol pesan WhatsApp otomatis — rapi di HP pembeli, tanpa coding,
               gratis.
@@ -220,7 +216,7 @@ export default function LandingPage() {
             <div className="uc-stick-in mt-8 [animation-delay:210ms]">
               <Link
                 href="/start"
-                className="group inline-flex items-center gap-2.5 rounded-2xl bg-signal px-7 py-4 text-base font-bold text-card shadow-[0_4px_16px_rgb(154_52_18/0.4)] transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[0_12px_30px_rgb(154_52_18/0.45)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal"
+                className="group inline-flex items-center gap-2.5 rounded-2xl bg-signal px-7 py-4 text-base font-bold text-card shadow-[0_4px_16px_rgb(154_52_18/0.4)] transition-[transform,box-shadow] duration-150 ease-out hover:shadow-[0_2px_10px_rgb(154_52_18/0.45)] active:translate-y-[1px] active:shadow-[0_0_2px_rgb(154_52_18/0.5)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal"
               >
                 Mulai dari Chat
                 <ArrowRight className="h-4.5 w-4.5 transition-transform duration-200 group-hover:translate-x-0.5" />
@@ -242,12 +238,9 @@ export default function LandingPage() {
             {/* Strip stamp: angka konkret dengan tepi die-cut */}
             <dl className="uc-stick-in mt-10 grid max-w-md grid-cols-3 gap-3 [animation-delay:280ms] sm:gap-4">
               {STAMPS.map((s) => (
-                <div key={s.label} className={`uc-cutline rounded-xl bg-card px-2 py-4 text-center shadow-plate ${s.tilt}`}>
+                <div key={s.label} className={`uc-cutline flex items-center justify-center rounded-xl bg-card px-2 py-4 text-center shadow-plate ${s.tilt}`}>
                   <dt className="sr-only">{s.label}</dt>
-                  <dd className="font-display text-3xl font-extrabold tabular-nums leading-none text-ink">
-                    {s.value}
-                  </dd>
-                  <dd className="mt-2 text-xs font-medium leading-snug text-pretty text-ink-soft">{s.label}</dd>
+                  <dd className="text-xs font-semibold leading-snug text-pretty text-ink">{s.label}</dd>
                 </div>
               ))}
             </dl>
@@ -293,9 +286,18 @@ export default function LandingPage() {
                 </div>
               </div>
             </div>
-            <p className="mt-4 text-center text-xs text-ink-soft">
-              Dirender oleh engine yang sama dengan yang akan kamu pakai — bukan gambar.
+            <p className="mt-4 text-center text-xs text-pretty text-ink-soft">
+              Ini contoh situs asli — coba tombolnya, pesan langsung masuk ke WhatsApp.
             </p>
+            <div className="mt-3 flex justify-center">
+              <Link
+                href="/sites/warung-sambal-ndeso"
+                className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl border-[1.5px] border-dashed border-cutline bg-card px-5 text-sm font-semibold text-ink transition-colors duration-200 hover:border-signal/50 hover:text-signal focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal"
+              >
+                Lihat contoh situs
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
           </div>
         </div>
       </section>
@@ -325,7 +327,7 @@ export default function LandingPage() {
                     <Icon className="mt-0.5 h-5 w-5 shrink-0 text-signal" aria-hidden />
                     {s.title}
                   </h3>
-                  <p className="mt-2.5 leading-relaxed text-ink-soft">{s.body}</p>
+                  <p className="mt-2.5 leading-relaxed text-pretty text-ink-soft">{s.body}</p>
                 </li>
               );
             })}
@@ -340,7 +342,7 @@ export default function LandingPage() {
             <h2 className="text-balance font-display text-3xl font-extrabold tracking-[-0.025em] text-ink sm:text-4xl">
               Blok-blok siap tempel, kayak stiker.
             </h2>
-            <p className="mt-3 max-w-2xl leading-relaxed text-ink-soft">
+            <p className="mt-3 max-w-2xl leading-relaxed text-pretty text-ink-soft">
               Setiap modul adalah komponen teruji — mustahil rusak karena salah ketik.
               Tambah, geser, ganti warna, semua lewat sentuhan.
             </p>
@@ -362,15 +364,15 @@ export default function LandingPage() {
                   {m.motif}
                 </span>
                 <span
-                  className={`inline-block rounded-full px-2.5 py-1 text-[0.6rem] font-extrabold uppercase tracking-wide ${
+                  className={`inline-block rounded-full px-2.5 py-1 text-[0.6rem] font-extrabold ${
                     m.core ? "bg-ink text-paper" : "bg-signal-soft text-signal"
                   }`}
                 >
-                  {m.core ? "Modul Inti" : "Modul Opsional"}
+                  {m.core ? "Modul inti" : "Modul opsional"}
                 </span>
               </div>
               <h3 className="mt-4 font-display text-lg font-bold text-ink">{m.name}</h3>
-              <p className="mt-1.5 text-sm leading-relaxed text-ink-soft">{m.desc}</p>
+              <p className="mt-1.5 text-sm leading-relaxed text-pretty text-ink-soft">{m.desc}</p>
             </li>
           ))}
         </ul>
@@ -391,13 +393,13 @@ export default function LandingPage() {
           </h2>
           <Link
             href="/start"
-            className="group inline-flex items-center gap-2.5 whitespace-nowrap rounded-2xl bg-card px-6 py-4 text-base font-bold text-ink shadow-plate transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-1 hover:shadow-[0_18px_40px_-12px_rgb(246_241_231/0.3)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal-soft sm:px-8"
+            className="group inline-flex items-center gap-2.5 whitespace-nowrap rounded-2xl bg-card px-6 py-4 text-base font-bold text-ink shadow-plate transition-[transform,box-shadow] duration-150 ease-out hover:shadow-[0_1px_2px_rgb(35_28_16/0.08),0_4px_12px_-8px_rgb(35_28_16/0.22)] active:translate-y-[1px] active:shadow-[0_1px_2px_rgb(35_28_16/0.1),0_2px_6px_-6px_rgb(35_28_16/0.25)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal-soft sm:px-8"
           >
             Bikin Website Gratis
             <ArrowRight className="h-4.5 w-4.5 transition-transform duration-200 group-hover:translate-x-0.5" />
           </Link>
           <p className="text-sm font-medium text-paper/60">
-            Gratis • Tanpa iklan • Data kakak aman
+            Gratis karena kami masih membangun — tanpa kartu kredit, tanpa iklan.
           </p>
         </div>
       </section>
@@ -413,7 +415,7 @@ export default function LandingPage() {
               </span>
               <span className="font-display text-lg font-bold tracking-tight text-ink">UMKM Craft</span>
             </Link>
-            <p className="mt-4 max-w-xs text-sm leading-relaxed text-ink-soft">
+            <p className="mt-4 max-w-xs text-sm leading-relaxed text-pretty text-ink-soft">
               Website usaha untuk UMKM Indonesia — dari chat santai jadi situs yang siap jualan.
             </p>
           </div>
@@ -452,12 +454,6 @@ export default function LandingPage() {
                 className="flex h-11 w-11 items-center justify-center rounded-xl border-[1.5px] border-dashed border-cutline text-ink-soft transition-[color,border-color,transform] duration-200 ease-out hover:-translate-y-0.5 hover:border-signal/50 hover:text-signal focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal"
               >
                 <Mail className="h-4.5 w-4.5" aria-hidden />
-              </a>
-              <a
-                href="/api/health"
-                className="flex min-h-11 items-center text-sm text-ink-soft underline decoration-dotted underline-offset-4 transition-colors hover:text-signal focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal"
-              >
-                status sistem
               </a>
             </div>
           </div>

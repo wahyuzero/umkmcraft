@@ -20,12 +20,19 @@ export default async function EditorPage({ params }: { params: Promise<{ siteId:
   const latest = versions.at(-1);
   if (!latest) return <AccessDenied />;
 
+  // Kebenaran server: draft terbaru sudah menyimpang dari versi terbit?
+  // Tanpa ini, tombol "Perbarui situs" hilang tiap sesi baru (state in-memory
+  // selalu mulai false) walau situs live-nya ketinggalan. Belum pernah terbit
+  // (publishedVersionId null) → false; alur "Terbitkan Situs" yang menangani.
+  const staleInitially = Boolean(site.publishedVersionId && latest.id !== site.publishedVersionId);
+
   return (
     <BuilderShell
       siteId={siteId}
       slug={site.slug}
       initialConfig={latest.configJson}
       published={site.status === "PUBLISHED"}
+      staleInitially={staleInitially}
     />
   );
 }

@@ -21,6 +21,14 @@ export function AccessDenied() {
           <ArrowLeft className="h-4 w-4" strokeWidth={2.4} aria-hidden />
           Kembali ke Mulai
         </Link>
+        <p className="mt-3">
+          <Link
+            href="/situs-saya"
+            className="inline-flex min-h-11 items-center rounded-xl px-4 py-2.5 text-sm font-semibold text-ink-soft underline underline-offset-4 transition-colors duration-150 hover:text-ink"
+          >
+            Buka daftar situs kakak
+          </Link>
+        </p>
       </div>
     </main>
   );

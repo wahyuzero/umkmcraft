@@ -20,21 +20,58 @@ interface EditorState {
   lastSavedAt: number | null;
   saveVersion: number | null;
   published: boolean;
+  /** Section terakhir yang dihapus + posisinya — untuk toast "Urungkan". */
+  lastRemoved: { section: Section; index: number } | null;
   select: (id: string | null) => void;
   updateSectionProps: (sectionId: string, key: string, value: unknown) => void;
   updateProduct: (sectionId: string, productId: string, key: string, value: unknown) => void;
   addSection: (type: SectionType, defaultProps: Record<string, unknown>) => void;
   removeSection: (id: string) => void;
+  undoRemoveSection: () => void;
+  dismissLastRemoved: () => void;
   moveSection: (from: number, to: number) => void;
   applyPreset: (presetId: string) => void;
   setBusinessName: (name: string) => void;
   markPublished: () => void;
   scheduleSave: () => void;
+  /** Paksa simpanan tertunda/in-flight selesai SEKARANG (dipakai publish). */
+  flushSave: () => Promise<void>;
   markSaved: (version: number) => void;
   setSaveState: (s: SaveState) => void;
 }
 
 let saveTimer: ReturnType<typeof setTimeout> | null = null;
+/** Rantai eksekusi PATCH — simpanan berikutnya menunggu yang sebelumnya. */
+let saveQueue: Promise<void> = Promise.resolve();
+
+type EditorGet = () => EditorState;
+type EditorSet = (partial: Partial<EditorState>) => void;
+
+/** Badan PATCH autosave — dipecat lewat queue agar tidak saling tabrak. */
+function runSave(get: EditorGet, set: EditorSet): Promise<void> {
+  const { siteId, config } = get();
+  set({ saveState: "saving" });
+  return (async () => {
+    try {
+      const res = await fetch(`/api/sites/${siteId}`, {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ config }),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      const data = (await res.json()) as { versionNumber: number };
+      set({ saveState: "saved", lastSavedAt: Date.now(), saveVersion: data.versionNumber });
+    } catch {
+      set({ saveState: "error" });
+    }
+  })();
+}
+
+function enqueueSave(get: EditorGet, set: EditorSet): Promise<void> {
+  const p = saveQueue.then(() => runSave(get, set));
+  saveQueue = p;
+  return p;
+}
 
 /** Config kosong TAPI VALID — selector tidak pernah crash sebelum hydrate. */
 const INITIAL_CONFIG: UmkmWebsiteConfig = {
@@ -82,6 +119,7 @@ export const useEditor = create<EditorState>((set, get) => ({
   lastSavedAt: null,
   saveVersion: null,
   published: false,
+  lastRemoved: null,
 
   select: (id) => set({ selectedId: id }),
 
@@ -135,13 +173,29 @@ export const useEditor = create<EditorState>((set, get) => ({
   removeSection: (id) => {
     const { config } = get();
     if (config.sections.length <= 1) return;
+    const index = config.sections.findIndex((s) => s.id === id);
+    if (index < 0) return;
     set({
       config: withSections(config, config.sections.filter((s) => s.id !== id)),
       selectedId: null,
+      lastRemoved: { section: config.sections[index]!, index },
       saveState: "dirty",
     });
     get().scheduleSave();
   },
+
+  /** Urungkan hapus terakhir: sisipkan kembali di indeks semula. */
+  undoRemoveSection: () => {
+    const { config, lastRemoved } = get();
+    if (!lastRemoved) return;
+    const sections = [...config.sections];
+    const idx = Math.min(lastRemoved.index, sections.length);
+    sections.splice(idx, 0, lastRemoved.section);
+    set({ config: withSections(config, sections), lastRemoved: null, saveState: "dirty" });
+    get().scheduleSave();
+  },
+
+  dismissLastRemoved: () => set({ lastRemoved: null }),
 
   moveSection: (from, to) => {
     const { config } = get();
@@ -185,22 +239,28 @@ export const useEditor = create<EditorState>((set, get) => ({
 
   scheduleSave: () => {
     if (saveTimer) clearTimeout(saveTimer);
-    saveTimer = setTimeout(async () => {
-      const { siteId, config } = get();
-      set({ saveState: "saving" });
-      try {
-        const res = await fetch(`/api/sites/${siteId}`, {
-          method: "PATCH",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify({ config }),
-        });
-        if (!res.ok) throw new Error(await res.text());
-        const data = (await res.json()) as { versionNumber: number };
-        set({ saveState: "saved", lastSavedAt: Date.now(), saveVersion: data.versionNumber });
-      } catch {
-        set({ saveState: "error" });
-      }
+    saveTimer = setTimeout(() => {
+      saveTimer = null;
+      void enqueueSave(get, set);
     }, 800);
+  },
+
+  /**
+   * Selesaikan simpanan yang tertunda (debounce menggantung) atau sedang
+   * jalan, lalu tunggu sampai benar-benar selesai. Publish memakai ini —
+   * bukan sleep tebak-tebakan — supaya snapshot tidak duluan dari PATCH.
+   */
+  flushSave: async () => {
+    const state = get().saveState;
+    if (saveTimer) {
+      clearTimeout(saveTimer);
+      saveTimer = null;
+      void enqueueSave(get, set);
+    } else if (state === "dirty" || state === "error") {
+      // dirty tanpa timer (harusnya tak terjadi) / gagal sebelumnya → coba lagi.
+      void enqueueSave(get, set);
+    }
+    await saveQueue;
   },
 
   markSaved: (version) => set({ saveState: "saved", saveVersion: version, lastSavedAt: Date.now() }),
