@@ -19,9 +19,10 @@ const CATEGORY_KEYWORDS: Array<[string, string[]]> = [
   ["kuliner", ["makanan", "kuliner", "warung", "resto", "rumah makan", "sambal", "katering", "catering", "bakso", "soto", "nasi", "ayam", "kue", "roti", "snack", "martabak", "pizza", "burger", "seblak", "seblak", "mie", "bakmi", "pecel"]],
   ["coffee", ["kopi", "coffee", "kafe", "cafe", "kedai", "boba", "matcha", "es kopi"]],
   ["barbershop", ["barbershop", "barber", "potong rambut", "kapster", "salon pria", "cukur"]],
+  // laundry SEBELUM fashion: "cuci baju/tas/sepatu" adalah laundry, bukan butik
+  ["laundry", ["laundry", "cuci", "setrika", "dry clean", "cuci sepatu", "cuci mobil"]],
   ["fashion", ["fashion", "butik", "hijab", "gamis", "kaos", "baju", "skincare", "kosmetik", "mukena", "sepatu", "tas", "daster"]],
   ["bengkel", ["bengkel", "servis", "service", "motor", "mobil", "ac", "elektronik", "teknisi", "service hp", "service laptop", "tambal ban"]],
-  ["laundry", ["laundry", "cuci", "setrika", "dry clean", "cuci sepatu", "cuci mobil"]],
 ];
 
 export function extractCategory(text: string): string | undefined {
@@ -107,7 +108,7 @@ export function extractBusinessName(text: string): string | undefined {
     { re: /\bnamanya\s+([^,.\n]{2,60})/i, cutAtLocation: true, recoverCase: true },
     // pola natural: "Warung X, jualan Y ..." — ambil teks sebelum koma
     {
-      re: /^\s*([^,\n]{3,60}?)\s*,\s*(?:yang\s*)?(?:jualan|jual\b|menjual|produk(?:nya)?|jasa|layan(?:an)?|servis|service|paket|spesialis|barbershop|barber(?:shop)?|coffee\s*shop|kafe|cafe|salon|studio|catering|buka|alamat|nomor|open)/i,
+      re: /^\s*([^,\n]{3,60}?)\s*,\s*(?:yang\s*)?(?:jualan|jual\b|menjual|produk(?:nya)?|jasa|layan(?:an)?|servis|service|paket|spesialis|barbershop|barber(?:shop)?|coffee\s*shop|kafe|cafe|salon|studio|catering|warung|kedai|toko|bengkel|masakan|laundry|jenis|buka|alamat|nomor|open)/i,
       cutAtLocation: true,
       maxWords: 6,
     },

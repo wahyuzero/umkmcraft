@@ -41,6 +41,9 @@ export default async function SitusSayaPage() {
       };
     }),
   );
+  // Baru disunting paling atas — informasi utama daftar ini adalah "yang
+  // kemarin kakak kerjakan".
+  rows.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
 
   return (
     <main className="min-h-dvh bg-paper">
@@ -116,8 +119,9 @@ export default async function SitusSayaPage() {
                       {/* Bentuk path (selalu jalan tanpa DNS vhost) — bukan
                           slug.umkmcraft.id. Tombol Lihat menambah ?v=published:
                           owner tetap melihat versi TERBIT meski ada draf lebih
-                          baru (draf lewat tombol Pratinjau). */}
-                      /sites/{r.slug} · disunting {formatTime(r.updatedAt)}
+                          baru (draf lewat tombol Pratinjau). Tanpa prefix
+                          /sites/ supaya timestamp tak terpotong di ponsel. */}
+                      {r.slug} · disunting {formatTime(r.updatedAt)}
                     </p>
                   </div>
                   <div className="flex shrink-0 flex-wrap items-center gap-2">

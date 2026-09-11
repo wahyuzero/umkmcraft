@@ -51,7 +51,7 @@ function guessSteps(text: string): [boolean, boolean, boolean] {
   const t = text.toLowerCase();
   const name =
     /nama\s*(?:usaha|toko|warung|kedai|bengkel|laundry|cafe|brand|bisnis)/i.test(text) ||
-    /^[^,\n]{3,60},\s*(?:yang\s*)?(?:jualan|jual\b|menjual|produk|jasa|layan|servis|service|spesialis|barbershop|barber|coffee\s*shop|kafe|cafe|salon|studio|catering|buka)/i.test(text);
+    /^[^,\n]{3,60},\s*(?:yang\s*)?(?:jualan|jual\b|menjual|produk|jasa|layan|servis|service|spesialis|barbershop|barber|coffee\s*shop|kafe|cafe|salon|studio|catering|warung|kedai|toko|bengkel|masakan|laundry|jenis|buka)/i.test(text);
   const category = [
     "kuliner", "makanan", "minuman", "warung", "kedai", "kopi", "coffee", "kafe", "cafe",
     "boba", "barbershop", "barber", "salon", "fashion", "butik", "hijab", "baju",

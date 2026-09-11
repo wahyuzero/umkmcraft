@@ -88,6 +88,20 @@ describe("slot extraction — akurasi cerita asli (audit /start)", () => {
     expect(extractBusinessName("jual nasi goreng enak sekali di Solo")).toBeUndefined();
   });
 
+  it("nama usaha: pola 'X, warung/kedai/toko/bengkel/laundry Y' (funnel paling natural)", () => {
+    expect(extractBusinessName("Soto Pak Karto, warung soto ayam di Solo")).toBe("Soto Pak Karto");
+    expect(extractBusinessName("Warung Bu Sri, masakan rumahan khas Sunda")).toBe("Warung Bu Sri");
+    expect(extractBusinessName("Toko Kue Manis Lezat, toko kue basah dan kering")).toBe(
+      "Toko Kue Manis Lezat",
+    );
+  });
+
+  it("kategori: laundry mendahului fashion (cuci baju/tas/sepatu itu laundry)", () => {
+    expect(extractCategory("Laundry Kilat Cepat, jasa cuci kilat harian. Cuci baju, tas, dan sepatu")).toBe(
+      "laundry",
+    );
+  });
+
   it("nama usaha: pola generik 'X di Y' dibatasi ≤6 kata; pola eksplisit tetap jalan", () => {
     expect(extractBusinessName("Warung Makan Barokah di Klaten")).toBe("Warung Makan Barokah");
     expect(extractBusinessName("Toko roti brownies kukus lumer cokelat lembut di Malang")).toBeUndefined();
