@@ -70,3 +70,61 @@ Satu momen orkestrasi: stiker menempel (`uc-stick-in`, ease-out-expo). Lainnya m
 
 ## Anti-patterns yang dilarang (terverifikasi detector = 0 findings)
 Eyebrow/kicker, gradient text, glass, side-tab border >1px, hard offset shadow, icon emoji di chrome UI, bounce easing, cards-in-cards, testimonial palsu (aturan produk).
+
+## Sistem Malam Polishing (12 Sep 2026) — loop riset-2026 → kritik keras → perbaiki
+
+Semua sistem di bawah lahir dari 4 ronde kritik agent + riset tren 2025-2026.
+Prinsip satu kalimat: **kebenaran dulu, keindahan menyusul** — produk ini
+berjualan kepercayaan pedagang awam, jadi setiap state yang berbohong
+(badge LIVE saat ada draf, angka karangan, jam buka basi) adalah bug P0.
+
+### Kebenaran konten (honesty system)
+- Placeholder foto memakai ilustrasi motif per kategori (bukan fotonyata);
+  caption ≥12px, tanpa "(contoh)" — aria-label yang mengungkap status.
+- Chip "Contoh angka" di stats saat nilai = default modul; pre-flight terbit
+  menyorot SEMUA angka statistik terisi + foto kosong (hero/produk/galeri/
+  tim/IG) + alamat sentinel "Alamat akan diperbarui…" dianggap kosong.
+- lintCopy (packages/ai) membuang brosur-speak ("solusi", "kebutuhan" ganda,
+  "terbaik untuk kebutuhan Anda") dari SEMUA jalur generate; voice per
+  kategori di copy-voice.ts + aturan keras di prompt LLM.
+- Data demo diperbarui lewat pipeline asli: warung v9, barber v13 (stats
+  karangan dihapus), bengkel-6 v4.
+
+### Rantai jam buka (intake → generate → render)
+- extractHours menangkap "buka tiap hari 7 pagi sampai 3 sore" →
+  hoursToOpenHours() mengubah ke open_hours terstruktur (pagi/siang/sore/
+  malam/HH.MM, rentang hari, "kecuali") → OpenNowBadge (island) menghitung
+  Buka/Tutup dari jam perangkat pembeli, re-check per menit, SSR netral
+  tanpa CLS. Jangan pernah memanggil `new Date()` saat render RSC.
+
+### Upload foto (HP-first)
+- POST /api/sites/[id]/upload: cek kepemilikan sesi, jpg/png/webp ≤5MB,
+  nama acak, EXIF/GPS JPEG dibuang (jpeg-exif.ts, fail-open).
+- GET /uploads/[...path]: anti path-traversal, cache immutable.
+- Inspector: "Ambil Foto" + "tempel link .jpg/.png" + peringatan Drive/IG.
+
+### Kebenaran state editor & pemilik
+- PublishButton: staleInitially dari server (draft ≠ published terlihat
+  sejak load), publish await flushSave(), pre-flight card
+  ("Perbaiki dulu" primer / "Terbitkan saja" outline).
+- /situs-saya: badge "Ada draf baru" + Pratinjau (draf, banner + noindex +
+  Sunting/Keluar) vs Lihat (?v=published). Orang luar selalu lihat versi
+  terbit; draf tak pernah bocor.
+- SectionList: urutan tampil = orderedSections() registry (hero pinned,
+  pin icon, bukan chevron bohong); hapus = konfirmasi 6s + undo toast;
+  dnd-kit ref callbacks WAJIB return cleanup.
+- Versi draf dipangkas ke 10 terakhir per situs (ADR-2, published aman).
+
+### Pola 2026 yang dipakai
+- Streaming intake NDJSON ({t:"text"} → {t:"done",slots}); typing bubble
+  hanya menunggu token pertama; rollback saat offline tetap bersih.
+- View transitions antar-halaman (globals.css, motion-safe, 250ms
+  ease-out-expo); tekan-ke-kertas (press-in) untuk tombol primer, bukan
+  hover-lift; container `wide` lg:max-w-5xl untuk modul galeri/katalog/hero.
+- PhonePreview = iframe 390px + React root kedua: breakpoint responsif ke
+  lebar ponsel, section bisa diklik untuk memilih (jangan membajak klik
+  a/button/summary), scroll-sync dua arah.
+- StickyOrderBar (setelah hero keluar viewport, spacer diukur, auto-hide di
+  dasar halaman) + SectionNav chip (>6 section, aria-current).
+- OG: font Bricolage di-vendor (assets/fonts .woff — satori TIDAK dukung
+  woff2); options lewat SATU objek ImageResponse (jangan argumen ke-3!).
