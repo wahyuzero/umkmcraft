@@ -8,6 +8,7 @@
 import { create } from "zustand";
 import type { Section, SectionType, UmkmWebsiteConfig } from "@umkmcraft/schema";
 import { getPreset } from "@umkmcraft/schema";
+import { isValidWaNumber, normalizeWaNumber } from "@umkmcraft/utils";
 
 export type SaveState = "idle" | "dirty" | "saving" | "saved" | "error";
 
@@ -22,6 +23,11 @@ interface EditorState {
   published: boolean;
   /** Section terakhir yang dihapus + posisinya — untuk toast "Urungkan". */
   lastRemoved: { section: Section; index: number } | null;
+  /** Naik tiap kartu Checklist Aktivasi minta terbit — PublishButton yang
+   *  mendengarkan menjalankan jalur publish yang sudah teruji (scan
+   *  preflight → flushSave → POST publish). Satu pintu, tanpa duplikasi. */
+  publishRequestTick: number;
+  requestPublish: () => void;
   select: (id: string | null) => void;
   updateSectionProps: (sectionId: string, key: string, value: unknown) => void;
   updateProduct: (sectionId: string, productId: string, key: string, value: unknown) => void;
@@ -120,20 +126,40 @@ export const useEditor = create<EditorState>((set, get) => ({
   saveVersion: null,
   published: false,
   lastRemoved: null,
+  publishRequestTick: 0,
 
   select: (id) => set({ selectedId: id }),
 
+  requestPublish: () => set({ publishRequestTick: get().publishRequestTick + 1 }),
+
   updateSectionProps: (sectionId, key, value) => {
     const { config } = get();
-    set({
-      saveState: "dirty",
-      config: withSections(
-        config,
-        config.sections.map((s) =>
-          s.id === sectionId ? ({ ...s, props: { ...s.props, [key]: value } } as Section) : s,
-        ),
-      ),
-    });
+    const sections = config.sections.map((s) =>
+      s.id === sectionId ? ({ ...s, props: { ...s.props, [key]: value } } as Section) : s,
+    );
+    let nextConfig = withSections(config, sections);
+    // Sinkron WA (bug aktivasi): renderer (registry.tsx) memakai
+    // meta.whatsapp_number untuk SEMUA tombol pesan — hero, katalog,
+    // spotlight, CTA, StickyOrderBar — BUKAN nomor contact_direct. Tanpa
+    // sinkron ini, mengganti WA di contact_direct tetap meninggalkan nomor
+    // demo di tombol lain dan gerbang publish terus menagih. Mirror HANYA
+    // bila nilainya sah setelah normalisasi — meta WA strict /^62\d{8,13}$/
+    // (WaNumberSchema), nilai invalid tidak boleh masuk meta agar PATCH
+    // autosave tidak gagal Zod. Normalisasi dulu (0/8-prefiks → 62) supaya
+    // meta selalu menerima bentuk kanonik yang sah.
+    if (key === "whatsapp_number" && typeof value === "string") {
+      const target = sections.find((s) => s.id === sectionId);
+      if (target?.type === "contact_direct") {
+        const normalized = normalizeWaNumber(value);
+        if (isValidWaNumber(normalized)) {
+          nextConfig = {
+            ...nextConfig,
+            meta: { ...nextConfig.meta, whatsapp_number: normalized },
+          };
+        }
+      }
+    }
+    set({ saveState: "dirty", config: nextConfig });
     get().scheduleSave();
   },
 

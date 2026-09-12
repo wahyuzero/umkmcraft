@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { UmkmWebsiteConfig } from "@umkmcraft/schema";
+import { computeActivationItems } from "@/lib/activation";
 import { useEditor } from "@/lib/editor-store";
 import type { SaveState } from "@/lib/editor-store";
 import { SectionList } from "./SectionList";
@@ -24,6 +25,7 @@ import { Inspector } from "./Inspector";
 import { PhonePreview } from "./PhonePreview";
 import { ThemeSwitcher } from "./ThemeSwitcher";
 import { PublishButton } from "./PublishButton";
+import { ActivationChecklist, readChecklistDismissed, subscribeChecklistDismissed } from "./ActivationChecklist";
 import { AnalyticsCard } from "./AnalyticsCard";
 import { VersionHistory } from "./VersionHistory";
 
@@ -113,6 +115,22 @@ export function BuilderShell({
     () => true,
   );
 
+  // Kartu checklist aktivasi: aktif hanya bila situs masih berisi data demo
+  // template (ada item pending — deteksi murni lib/activation.ts) dan belum
+  // di-dismiss untuk situs ini. Saat aktif, first-win strip DITEKAN — dua
+  // kartu bimbingan bertumpuk cuma menambah kebisingan. Dismiss per-site
+  // lewat localStorage (pola first-win di atas; server snapshot = dismissed,
+  // aman hidrasi).
+  const checklistDismissed = useSyncExternalStore(
+    subscribeChecklistDismissed,
+    () => readChecklistDismissed(siteId),
+    () => true,
+  );
+  const checklistActive =
+    siteId !== "" &&
+    !checklistDismissed &&
+    !computeActivationItems(config, isPublished).every((i) => i.done);
+
   // Pagar beforeunload: perubahan belum tersimpan (atau simpanan terakhir
   // gagal — datanya mungkin masih belum masuk) → minta konfirmasi browser
   // sebelum tab ditutup. Asuransi murah anti hilang editan.
@@ -139,7 +157,10 @@ export function BuilderShell({
                 Fokus = overlay inset-x-3 selebar header (≥330px di layar 390px,
                 nama panjang terlihat utuh sambil mengetik); blur = inline
                 truncate dengan ellipsis. */}
+            {/* id "uc-business-name" = target fokus+select baris "nama usaha"
+                di Checklist Aktivasi (header terlihat di semua tab). */}
             <input
+              id="uc-business-name"
               value={businessName}
               onChange={(e) => useEditor.getState().setBusinessName(e.target.value)}
               onFocus={() => setNameFocused(true)}
@@ -213,9 +234,12 @@ export function BuilderShell({
             mobileTab === "pratinjau" ? "flex uc-stick-in" : "hidden lg:flex"
           }`}
         >
-          {/* First-win: sekali saja sebelum situs terbit — satu baris tipis,
-              bukan kartu besar. Hilang permanen setelah ditutup (localStorage). */}
-          {firstWinDismissed === false && !isPublished ? (
+          {/* Slot bimbingan (satu saja): kartu checklist aktivasi selagi
+              situs masih berisi data demo template; kalau tidak, first-win
+              strip lama. Keduanya hilang setelah situs terbit / ditutup. */}
+          {checklistActive ? (
+            <ActivationChecklist onNavigateTab={setMobileTab} onOpenCatalog={() => setCatalogOpen(true)} />
+          ) : firstWinDismissed === false && !isPublished ? (
             <div className="mb-4 flex w-full max-w-[410px] items-center gap-1 rounded-xl border border-cutline bg-card py-1 pl-3 pr-1">
               <p className="min-w-0 flex-1 text-xs leading-snug text-ink-soft">
                 Situs kakak sudah jadi. Ketuk bagian mana pun di pratinjau untuk mengubahnya, atau langsung terbitkan.

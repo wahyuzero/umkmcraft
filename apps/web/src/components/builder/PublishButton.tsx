@@ -38,6 +38,18 @@ export function PublishButton({ staleInitially = false }: { staleInitially?: boo
   const saving = saveState === "dirty" || saveState === "saving";
   const siteUrl = slug ? `/sites/${slug}` : "/";
 
+  // Jembatan CTA kartu Checklist Aktivasi: kartu "menekan tombol" ini lewat
+  // requestPublish() (tick di store, naik tiap permintaan) — jalur publish
+  // TETAP satu di sini: scan preflight, kartu "Perbaiki dulu / Terbitkan
+  // saja", flushSave, toast. initialTick menahan nilai pasca-hidrasi supaya
+  // permintaan HANYA dipicu tick yang muncul setelah komponen terpasang.
+  const publishTick = useEditor((s) => s.publishRequestTick);
+  const initialTick = useRef(publishTick);
+  useEffect(() => {
+    if (publishTick !== initialTick.current) requestPublish();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- jalankan requestPublish TERBARU saat tick berubah; hanya tick yang jadi pemicu
+  }, [publishTick]);
+
   // Draft menyimpang dari versi terbit? Nilai awal datang dari SERVER
   // (staleInitially — perbandingan versi draft vs publishedVersionId di
   // editor page), bukan dari memori yang selalu mulai bersih tiap sesi.
