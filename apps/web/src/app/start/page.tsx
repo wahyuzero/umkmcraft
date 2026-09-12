@@ -308,7 +308,7 @@ export default function StartPage() {
       <header className="shrink-0 border-b border-cutline/70 bg-paper">
         <div className="mx-auto max-w-2xl px-5 pb-4 pt-4">
           <div className="flex items-center justify-between">
-            <Link href="/" className="flex items-center gap-2.5">
+            <Link href="/" className="flex min-h-[44px] items-center gap-2.5">
               <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-ink font-display text-lg font-extrabold text-paper">
                 U
               </span>
@@ -335,6 +335,14 @@ export default function StartPage() {
               <span className="shrink-0 text-signal">Lihat daftarnya →</span>
             </Link>
           ) : null}
+          {/* Jalan pintas ke galeri template — kakak yang mau lihat contoh
+              dulu tidak dipaksa mulai dari kanvas kosong. */}
+          <Link
+            href="/template"
+            className="mt-2 flex min-h-[44px] items-center gap-1 text-[13px] font-semibold text-signal transition-colors duration-200 hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal"
+          >
+            Mau lihat contoh dulu? Pilih dari template siap pakai →
+          </Link>
           <div className="mt-4">
             <SlotSteps progress={progress} />
           </div>

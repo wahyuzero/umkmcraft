@@ -16,6 +16,10 @@
  *    yang lebih tegas; (3) label yang memakai nama platform pihak ketiga
  *    ("Rating Google") ditag terpisah — angka itu milik platform, bukan hasil
  *    hitung usaha sendiri — dijalankan client-side di atas JSON config;
+ *  - nomor WhatsApp masih contoh bawaan template ("6280000000000", lihat
+ *    DEMO_WA di packages/templates/src/instantiate.ts) — di meta ATAU di
+ *    section contact_direct: situs buatan template lahir dengan nomor demo,
+ *    dan terbit begitu saja berarti pembeli menghubungi nomor yang salah;
  *  - alamat + maps kosong ATAU alamat masih berisi sentinel bawaan generator
  *    padahal modul jam-operasional ada (deteksi andal: schema mem-default
  *    address ke "" dan template-engine menulis sentinel saat lokasi kosong).
@@ -33,6 +37,11 @@ const SAMPLE_STATS: ReadonlyArray<{ value: string; label: string }> = [
   { value: "3 Thn", label: "Melayani" },
   { value: "4.9★", label: "Rating Pelanggan" },
 ];
+
+/** Nomor WhatsApp contoh bawaan template (DEMO_WA di
+ *  packages/templates/src/instantiate.ts — sumber kebenaran yang sama dengan
+ *  resolveWa). Kalau demo di sana berubah, ubah di sini juga. */
+const SAMPLE_WA = "6280000000000";
 
 function isSampleStats(stats: ReadonlyArray<{ value: string; label: string }>): boolean {
   return (
@@ -84,6 +93,19 @@ export function scanUnfinished(config: UmkmWebsiteConfig): string[] {
   }
   if (emptyPhotos > 0) {
     issues.push(`${emptyPhotos} foto masih kosong (tampil sebagai contoh)`);
+  }
+
+  // Nomor WhatsApp masih contoh bawaan template — cukup salah satu: meta
+  // (fallback global) ATAU contact_direct (yang dipakai renderer saat ada).
+  const sampleWa =
+    config.meta.whatsapp_number === SAMPLE_WA ||
+    config.sections.some(
+      (s) => s.type === "contact_direct" && s.props.whatsapp_number === SAMPLE_WA,
+    );
+  if (sampleWa) {
+    issues.push(
+      "Nomor WhatsApp masih contoh (6280000000000) — ganti dengan nomor asli kakak sebelum terbit",
+    );
   }
 
   // Angka statistik yang TERISI apa pun selalu ditag — bukan hanya yang

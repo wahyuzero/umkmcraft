@@ -6,8 +6,9 @@
  * cepat). Dirender server HANYA saat section > 6; menempel di bawah hero
  * (sticky top-0, z-30 — jauh dari StickyOrderBar z-40 yang fixed di bawah).
  * Kontras: chip aktif --uc-primary + --uc-on-primary-text (turunan AA dari
- * theme.ts); chip pasif surface + garis tipis. TANPA backdrop-blur (kontrak
- * dunia tenant). Chip aktif dihitung dari posisi scroll — garis baca di bawah
+ * theme.ts); chip pasif surface + garis tipis. Latar bar OPAQUE penuh
+ * (--uc-bg alpha 1.0, tanpa /95 maupun backdrop-blur — glassmorphism dilarang
+ * kontrak dunia tenant) agar konten tak samar di celah antar-chip saat sticky. Chip aktif dihitung dari posisi scroll — garis baca di bawah
  * tinggi nav, di-throttle rAF. Gulir halus hanya saat reduced-motion
  * mengizinkan. SSR-safe: semua akses DOM di dalam useEffect/handler.
  */
@@ -97,7 +98,7 @@ export function SectionNav({ items }: { items: SectionNavItem[] }) {
     <nav
       ref={navRef}
       aria-label="Navigasi bagian"
-      className="sticky top-0 z-30 border-b border-[color-mix(in_oklab,var(--uc-ink)_10%,transparent)] bg-[var(--uc-bg)]/95"
+      className="sticky top-0 z-30 border-b border-[color-mix(in_oklab,var(--uc-ink)_10%,transparent)] bg-[var(--uc-bg)]"
     >
       <div
         ref={trackRef}

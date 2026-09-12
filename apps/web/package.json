@@ -17,6 +17,7 @@
     "@umkmcraft/ai": "workspace:*",
     "@umkmcraft/renderer": "workspace:*",
     "@umkmcraft/schema": "workspace:*",
+    "@umkmcraft/templates": "workspace:*",
     "@umkmcraft/utils": "workspace:*",
     "ai": "^6.0.277",
     "lucide-react": "^0.475.0",

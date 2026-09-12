@@ -195,7 +195,7 @@ export function ChannelMarketplace({ id, props }: { id: string; props: ChannelMa
                 <span
                   className={`mt-auto inline-flex items-center gap-1 text-xs font-semibold transition-colors duration-200 ease-out ${
                     filled
-                      ? "text-[color-mix(in_oklab,var(--uc-on-primary)_85%,transparent)]"
+                      ? "text-[var(--uc-on-primary-text)]"
                       : "text-[color-mix(in_oklab,var(--uc-ink)_65%,transparent)] group-hover:text-[var(--uc-primary)]"
                   }`}
                 >

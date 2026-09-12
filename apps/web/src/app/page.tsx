@@ -12,9 +12,14 @@ import {
 } from "lucide-react";
 import { renderSections, themeStyle } from "@umkmcraft/renderer";
 import { parseUmkmConfig } from "@umkmcraft/schema";
+import { listTemplates } from "@umkmcraft/templates";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import SiteProofRail from "./SiteProofRail";
+
+/* Katalog template siap pakai — jumlahnya mengikuti sumber tunggal agar copy
+   strip tidak melenceng ketika katalog bertambah. */
+const TEMPLATE_COUNT = listTemplates().length;
 
 /**
  * Landing UMKM Craft (Persuade).
@@ -164,7 +169,7 @@ export default function LandingPage() {
       {/* ============================ NAV ============================ */}
       <header className="sticky top-0 z-40 border-b border-cutline/70 bg-paper">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-8">
-          <Link href="/" className="flex items-center gap-2 sm:gap-2.5">
+          <Link href="/" className="flex min-h-[44px] items-center gap-2 sm:gap-2.5">
             <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-ink font-display text-lg font-extrabold text-paper">
               U
             </span>
@@ -179,6 +184,12 @@ export default function LandingPage() {
             <a href="#modul" className="hidden items-center rounded-lg px-3 py-3 text-sm font-medium text-ink-soft transition-colors hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal sm:flex">
               Modul
             </a>
+            <Link
+              href="/template"
+              className="hidden items-center rounded-lg px-3 py-3 text-sm font-medium text-ink-soft transition-colors hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal sm:flex"
+            >
+              Template
+            </Link>
             <Link
               href="/situs-saya"
               className="hidden items-center rounded-lg px-3 py-3 text-sm font-medium text-ink-soft transition-colors hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal sm:flex"
@@ -273,7 +284,11 @@ export default function LandingPage() {
                   {demo && demoSections.length > 0 ? (
                     <div
                       style={themeStyle(demo.meta)}
-                      className="uc-site max-h-[728px] overflow-hidden [mask-image:linear-gradient(to_bottom,black_87%,transparent_99%)]"
+                      // Audit P1: CTA demo di dalam mock (Pesan via WhatsApp,
+                      // tombol sekunder, kartu katalog) dijamin >= 44px tanpa
+                      // menyentuh packages/renderer — varian ter-scope hanya
+                      // MENAIKKAN anchor < 44px (tidak mengubah padding/kisi).
+                      className="uc-site max-h-[728px] overflow-hidden [&_a]:min-h-[44px] [&_a]:items-center [mask-image:linear-gradient(to_bottom,black_87%,transparent_99%)]"
                       // Mock demo bersifat dekoratif: inert mengeluarkan seluruh isi
                       // (h1, tombol WA, filter katalog) dari pohon aksesibilitas dan
                       // urutan tab — halaman landing punya tepat satu h1 yang bisa
@@ -379,6 +394,24 @@ export default function LandingPage() {
         </ul>
       </section>
 
+      {/* ======================= STRIP TEMPLATE ====================== */}
+      {/* Jembatan tipis MODUL → bukti situs nyata: tawaran lewat contoh,
+          bukan kanvas kosong. Satu baris, satu tombol — bukan galeri. */}
+      <section className="border-y border-dashed border-cutline bg-card">
+        <div className="mx-auto flex max-w-6xl flex-col gap-6 px-5 py-10 sm:flex-row sm:items-center sm:justify-between sm:px-8">
+          <p className="max-w-xl text-balance font-display text-xl font-bold leading-snug tracking-[-0.01em] text-ink sm:text-2xl">
+            Mau lihat dulu? Mulai dari contoh, bukan kanvas kosong.
+          </p>
+          <Link
+            href="/template"
+            className="group inline-flex min-h-[44px] shrink-0 items-center gap-2 whitespace-nowrap rounded-xl bg-signal px-5 text-sm font-bold text-card shadow-[0_2px_10px_rgb(154_52_18/0.35)] transition-[transform,box-shadow] duration-150 ease-out hover:shadow-[0_1px_6px_rgb(154_52_18/0.4)] active:translate-y-[1px] active:shadow-[0_0_2px_rgb(154_52_18/0.45)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal"
+          >
+            Lihat {TEMPLATE_COUNT} template siap pakai
+            <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
+          </Link>
+        </div>
+      </section>
+
       {/* ===================== BUKTI SITUS NYATA ===================== */}
       {/* Rel situs tenant yang benar-benar terbit — merender snapshot
           published dengan engine ASLI (SiteProofRail). Nol situs terbit →
@@ -416,7 +449,7 @@ export default function LandingPage() {
         <div className="mx-auto grid max-w-6xl gap-10 px-5 py-14 sm:px-8 md:grid-cols-[1.3fr_1fr_1.3fr]">
           {/* Zona 1: merek + tagline */}
           <div>
-            <Link href="/" className="flex items-center gap-2.5">
+            <Link href="/" className="flex min-h-[44px] items-center gap-2.5">
               <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-ink font-display text-lg font-extrabold text-paper">
                 U
               </span>

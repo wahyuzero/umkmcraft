@@ -3,6 +3,8 @@
  * Referensi pola: Start Bootstrap Creative/Alpha CTA band, Leadfeeder final CTA.
  * Band penuh primary + tekstur garis diagonal tint secondary (CSS murni, opasitas
  * rendah); CTA utama = on-primary (kontras AA), sekunder = outline on-primary.
+ * Subjudul memakai --uc-on-primary-text (turunan AA theme.ts) — bukan alpha
+ * on-primary, yang di amber/emerald hanya ~2.9-3.4:1 di atas primary (gagal AA).
  * RSC murni.
  */
 import type { SectionProps } from "@umkmcraft/schema";
@@ -49,7 +51,7 @@ export function CtaBannerFull({
           {props.title}
         </h2>
         {props.subtitle ? (
-          <p className="max-w-md text-[1rem] font-medium leading-relaxed text-[color-mix(in_oklab,var(--uc-on-primary)_92%,transparent)]">
+          <p className="max-w-md text-[1rem] font-medium leading-relaxed text-[var(--uc-on-primary-text)]">
             {props.subtitle}
           </p>
         ) : null}
