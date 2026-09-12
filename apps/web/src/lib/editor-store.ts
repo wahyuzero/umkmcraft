@@ -134,30 +134,35 @@ export const useEditor = create<EditorState>((set, get) => ({
 
   updateSectionProps: (sectionId, key, value) => {
     const { config } = get();
-    const sections = config.sections.map((s) =>
-      s.id === sectionId ? ({ ...s, props: { ...s.props, [key]: value } } as Section) : s,
-    );
-    let nextConfig = withSections(config, sections);
     // Sinkron WA (bug aktivasi): renderer (registry.tsx) memakai
     // meta.whatsapp_number untuk SEMUA tombol pesan — hero, katalog,
     // spotlight, CTA, StickyOrderBar — BUKAN nomor contact_direct. Tanpa
     // sinkron ini, mengganti WA di contact_direct tetap meninggalkan nomor
-    // demo di tombol lain dan gerbang publish terus menagih. Mirror HANYA
-    // bila nilainya sah setelah normalisasi — meta WA strict /^62\d{8,13}$/
-    // (WaNumberSchema), nilai invalid tidak boleh masuk meta agar PATCH
-    // autosave tidak gagal Zod. Normalisasi dulu (0/8-prefiks → 62) supaya
-    // meta selalu menerima bentuk kanonik yang sah.
+    // demo di tombol lain dan gerbang publish terus menagih. Normalisasi
+    // dulu (0/8-prefiks → 62): bila nilainya SAH setelah normalisasi
+    // (WaNumberSchema strict /^62\d{8,13}$/), props DAN meta sama-sama
+    // menerima bentuk kanonik — bukan raw — supaya PATCH autosave tidak
+    // gagal Zod di salah satu sisi ("08…" lolos meta tapi kandas di props).
+    // Bila INVALID setelah normalisasi, perilaku lama: props menerima nilai
+    // asli (biar user tetap bisa mengetik), meta tak tersentuh.
+    let normalized: string | null = null;
     if (key === "whatsapp_number" && typeof value === "string") {
-      const target = sections.find((s) => s.id === sectionId);
+      const target = config.sections.find((s) => s.id === sectionId);
       if (target?.type === "contact_direct") {
-        const normalized = normalizeWaNumber(value);
-        if (isValidWaNumber(normalized)) {
-          nextConfig = {
-            ...nextConfig,
-            meta: { ...nextConfig.meta, whatsapp_number: normalized },
-          };
-        }
+        const candidate = normalizeWaNumber(value);
+        if (isValidWaNumber(candidate)) normalized = candidate;
       }
+    }
+    const propsValue = normalized ?? value;
+    const sections = config.sections.map((s) =>
+      s.id === sectionId ? ({ ...s, props: { ...s.props, [key]: propsValue } } as Section) : s,
+    );
+    let nextConfig = withSections(config, sections);
+    if (normalized !== null) {
+      nextConfig = {
+        ...nextConfig,
+        meta: { ...nextConfig.meta, whatsapp_number: normalized },
+      };
     }
     set({ saveState: "dirty", config: nextConfig });
     get().scheduleSave();

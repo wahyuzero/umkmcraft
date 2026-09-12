@@ -34,7 +34,7 @@ function capitalize(s: string): string {
 }
 
 const CHIP_BASE =
-  "flex min-h-[44px] items-center rounded-full border px-4 py-2 text-[13px] font-medium transition-[border-color,background-color,box-shadow,transform] duration-200 ease-out focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal";
+  "flex min-h-[44px] shrink-0 snap-start items-center rounded-full border px-4 py-2 text-[13px] font-medium transition-[border-color,background-color,box-shadow,transform] duration-200 ease-out focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal";
 const CHIP_INACTIVE = `${CHIP_BASE} border-ink/15 bg-card text-ink hover:-translate-y-0.5 hover:border-signal/60 hover:shadow-plate active:translate-y-0`;
 const CHIP_ACTIVE = `${CHIP_BASE} border-ink bg-ink text-paper`;
 
@@ -47,8 +47,18 @@ export default function TemplateGallery({ cards }: { cards: TemplateCard[] }) {
 
   return (
     <div>
-      {/* Filter kategori — pola chip saran /start: pill 44px, ring signal */}
-      <div role="group" aria-label="Filter kategori template" className="flex flex-wrap gap-2">
+      {/* Filter kategori — pola chip saran /start: pill 44px, ring signal.
+          Satu baris scroll horizontal (bukan wrap 3 baris di 390px): bleed
+          -mx/-px agar chip sejajar dengan grid di bawahnya namun tetap ada
+          ruang tepi di dalam scrollport; scrollbar disembunyikan via
+          arbitrary utility (globals.css hanya punya scrollbar bertema global,
+          jadi tanpa kelas global baru). -my/py memberi ruang outline fokus
+          yang terpotong overflow clip, tanpa mengubah tinggi layout. */}
+      <div
+        role="group"
+        aria-label="Filter kategori template"
+        className="-mx-4 -my-1.5 flex snap-x gap-2 overflow-x-auto px-4 py-1.5 whitespace-nowrap [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:-mx-8 sm:scroll-pl-8 sm:px-8"
+      >
         <button type="button" onClick={() => setActive("semua")} aria-pressed={active === "semua"} className={active === "semua" ? CHIP_ACTIVE : CHIP_INACTIVE}>
           Semua
         </button>
